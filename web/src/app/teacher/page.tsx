@@ -36,7 +36,10 @@ export default function TeacherPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">O'quvchilar progressi</h1>
+      <div className="rounded-2xl bg-hero-gradient p-6 text-white shadow-soft-lg">
+        <h1 className="text-2xl font-extrabold tracking-tight">📊 O'quvchilar progressi</h1>
+        <p className="text-sm text-white/85">Sinf faoliyati va natijalar</p>
+      </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Stat label="Urinishlar" value={p.totalAttempts} />
@@ -56,7 +59,7 @@ export default function TeacherPage() {
                 <span className="w-40 truncate text-sm">{m.moduleId}</span>
                 <div className="h-3 flex-1 rounded-full bg-slate-100">
                   <div
-                    className="h-3 rounded-full bg-brand"
+                    className="h-3 rounded-full bg-brand-gradient"
                     style={{ width: `${m.avgScore}%` }}
                   />
                 </div>
@@ -110,10 +113,10 @@ export default function TeacherPage() {
 function Stat({ label, value, suffix }: { label: string; value: number; suffix?: string }) {
   return (
     <div className="card">
-      <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-bold">
+      <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{label}</p>
+      <p className="mt-1 text-3xl font-extrabold text-brand">
         {value}
-        {suffix && <span className="text-base font-normal text-slate-400">{suffix}</span>}
+        {suffix && <span className="text-base font-medium text-ink-muted">{suffix}</span>}
       </p>
     </div>
   );

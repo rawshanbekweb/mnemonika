@@ -67,17 +67,17 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-hero-gradient p-6 text-white shadow-soft-lg">
         <div>
-          <h1 className="text-2xl font-bold">Kontent boshqaruvi</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-extrabold tracking-tight">Kontent boshqaruvi</h1>
+          <p className="text-sm text-white/85">
             Joriy versiya: <b>{data.version}</b>
             {data.publishedAt && ` · ${new Date(data.publishedAt).toLocaleString("uz")}`}
           </p>
         </div>
         <div className="flex gap-2">
           <button
-            className="btn-ghost"
+            className="btn rounded-full bg-white/15 px-5 py-2.5 font-semibold text-white ring-1 ring-white/25 hover:bg-white/25"
             onClick={() => {
               setEditing({ ...EMPTY_MODULE, sortOrder: data.modules.length });
               setIsNew(true);
@@ -85,8 +85,12 @@ export default function AdminDashboard() {
           >
             ＋ Modul
           </button>
-          <button className="btn-primary" onClick={publish} disabled={publishing}>
-            {publishing ? "Nashr…" : "Nashr qilish (Publish)"}
+          <button
+            className="btn rounded-full bg-white px-5 py-2.5 font-bold text-brand shadow-soft hover:bg-white/90"
+            onClick={publish}
+            disabled={publishing}
+          >
+            {publishing ? "Nashr…" : "Nashr qilish"}
           </button>
         </div>
       </div>

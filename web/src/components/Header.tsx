@@ -23,8 +23,11 @@ export default function Header({ name, role }: { name: string; role: string }) {
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <div className="flex items-center gap-6">
-          <Link href="/admin" className="flex items-center gap-2 font-bold">
-            <span className="text-xl">🎙️</span> SpeakUp
+          <Link href="/admin" className="flex items-center gap-2 text-lg font-extrabold tracking-tight">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-hero-gradient text-base shadow-soft">
+              🎙️
+            </span>
+            SpeakUp
           </Link>
           <nav className="flex gap-1">
             {links

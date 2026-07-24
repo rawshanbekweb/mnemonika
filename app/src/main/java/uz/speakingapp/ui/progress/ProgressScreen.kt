@@ -2,6 +2,7 @@ package uz.speakingapp.ui.progress
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,16 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,8 +24,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import uz.speakingapp.data.db.AttemptEntity
 import uz.speakingapp.data.model.SpeakingModule
+import uz.speakingapp.ui.theme.BrandProgressBar
+import uz.speakingapp.ui.theme.BrandTopBar
+import uz.speakingapp.ui.theme.InkMuted
+import uz.speakingapp.ui.theme.ScoreRing
+import uz.speakingapp.ui.theme.SectionTitle
+import uz.speakingapp.ui.theme.SoftCard
+import uz.speakingapp.ui.theme.Violet
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgressScreen(
     modules: List<SpeakingModule>,
@@ -47,93 +46,73 @@ fun ProgressScreen(
     val emojiByModule = modules.associate { it.id to it.emoji }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(
-            title = { Text("Mening natijalarim") },
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Orqaga")
-                }
-            },
-        )
+        BrandTopBar(title = "Mening natijalarim", onBack = onBack)
         if (total == 0) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(Modifier.size(40.dp))
-                Text("📊", fontSize = 48.sp)
+                Spacer(Modifier.size(48.dp))
+                Text("📊", fontSize = 56.sp)
                 Spacer(Modifier.size(12.dp))
+                Text("Hali natijalar yo'q", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "Hali natijalar yo'q. Birinchi mashqni bajaring!",
-                    style = MaterialTheme.typography.bodyLarge,
+                    "Birinchi mashqni bajaring va natijangiz shu yerda paydo bo'ladi!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = InkMuted,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 )
             }
             return@Column
         }
         LazyColumn(
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item {
-                val overallAvg = if (recent.isNotEmpty())
-                    recent.map { it.overallScore }.average().toInt() else 0
-                Card(
-                    Modifier.fillMaxWidth(),
-                    colors = androidx.compose.material3.CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    ),
-                ) {
-                    Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("$overallAvg", fontSize = 40.sp, fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary)
-                        Text(" / 100", fontSize = 18.sp)
-                        Spacer(Modifier.weight(1f))
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text("Umumiy o'rtacha", style = MaterialTheme.typography.titleSmall)
-                            Text("$total ta urinish",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                val overallAvg = if (recent.isNotEmpty()) recent.map { it.overallScore }.average().toInt() else 0
+                SoftCard {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        ScoreRing(overallAvg, ringSize = 104.dp, stroke = 11.dp)
+                        Spacer(Modifier.size(16.dp))
+                        Column {
+                            Text("Umumiy o'rtacha", style = MaterialTheme.typography.titleMedium)
+                            Spacer(Modifier.size(4.dp))
+                            Text("$total ta urinish", style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+                            Text("Zo'r ketyapsan! ✨", style = MaterialTheme.typography.bodySmall, color = Violet)
                         }
                     }
                 }
             }
-            item { Text("Modullar bo'yicha", style = MaterialTheme.typography.titleSmall) }
+            item { SectionTitle("Modullar bo'yicha", Modifier.padding(top = 4.dp)) }
             items(stats, key = { it.moduleId }) { stat ->
-                Card(Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(emojiByModule[stat.moduleId] ?: "•", fontSize = 24.sp)
-                            Spacer(Modifier.size(10.dp))
-                            Text(
-                                titleByModule[stat.moduleId] ?: stat.moduleId,
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.weight(1f),
-                            )
-                            Text(
-                                "${stat.avgScore}/100",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                        Spacer(Modifier.size(8.dp))
-                        LinearProgressIndicator(
-                            progress = { stat.avgScore / 100f },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                        Spacer(Modifier.size(6.dp))
+                SoftCard {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(emojiByModule[stat.moduleId] ?: "•", fontSize = 26.sp)
+                        Spacer(Modifier.size(10.dp))
                         Text(
-                            "O'rtacha ${stat.avgScore} · Eng yaxshi ${stat.bestScore} · ${stat.attempts} urinish",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            titleByModule[stat.moduleId] ?: stat.moduleId,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.weight(1f),
                         )
+                        Text(
+                            "${stat.avgScore}",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Violet,
+                        )
+                        Text("/100", style = MaterialTheme.typography.bodySmall, color = InkMuted)
                     }
+                    Spacer(Modifier.size(10.dp))
+                    BrandProgressBar(progress = stat.avgScore / 100f)
+                    Spacer(Modifier.size(8.dp))
+                    Text(
+                        "O'rtacha ${stat.avgScore} · Eng yaxshi ${stat.bestScore} · ${stat.attempts} urinish",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = InkMuted,
+                    )
                 }
             }
-            item {
-                Spacer(Modifier.size(4.dp))
-                Text("So'nggi urinishlar", style = MaterialTheme.typography.titleSmall)
-            }
+            item { SectionTitle("So'nggi urinishlar", Modifier.padding(top = 4.dp)) }
             items(recent.take(20), key = { it.id }) { attempt ->
                 RecentRow(attempt, emojiByModule[attempt.moduleId] ?: "•")
             }
@@ -143,27 +122,19 @@ fun ProgressScreen(
 
 @Composable
 private fun RecentRow(attempt: AttemptEntity, emoji: String) {
-    Card(Modifier.fillMaxWidth()) {
-        Row(
-            Modifier.fillMaxWidth().padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(emoji, fontSize = 20.sp)
-            Spacer(Modifier.size(10.dp))
+    SoftCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(emoji, fontSize = 22.sp)
+            Spacer(Modifier.size(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(attempt.exerciseTitle, style = MaterialTheme.typography.bodyMedium)
+                Text(attempt.exerciseTitle, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                 Text(
                     "${attempt.wordCount} so'z · ${attempt.wordsPerMinute} so'z/daq · ${attempt.durationSec}s",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = InkMuted,
                 )
             }
-            Text(
-                "${attempt.overallScore}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-            )
+            Text("${attempt.overallScore}", style = MaterialTheme.typography.titleLarge, color = Violet)
         }
     }
 }

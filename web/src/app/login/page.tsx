@@ -28,11 +28,13 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <form onSubmit={submit} className="card w-full max-w-sm space-y-4">
+      <form onSubmit={submit} className="w-full max-w-sm space-y-5 rounded-2xl border border-slate-100 bg-white p-7 shadow-soft-lg">
         <div className="text-center">
-          <div className="text-3xl">🎙️</div>
-          <h1 className="mt-2 text-xl font-bold">SpeakUp boshqaruvi</h1>
-          <p className="text-sm text-slate-500">Kirish uchun ma'lumotlaringizni kiriting</p>
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-hero-gradient text-3xl shadow-soft">
+            🎙️
+          </div>
+          <h1 className="mt-4 text-2xl font-extrabold tracking-tight">SpeakUp</h1>
+          <p className="text-sm text-ink-muted">Boshqaruv paneliga kirish</p>
         </div>
         <div>
           <label className="label">Email</label>

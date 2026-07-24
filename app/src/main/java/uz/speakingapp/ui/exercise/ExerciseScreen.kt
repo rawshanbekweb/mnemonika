@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,24 +17,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,6 +32,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -49,9 +41,28 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.data.model.Exercise
+import uz.speakingapp.ui.theme.BrandMicButton
+import uz.speakingapp.ui.theme.BrandProgressBar
+import uz.speakingapp.ui.theme.BrandTopBar
+import uz.speakingapp.ui.theme.Coral
+import uz.speakingapp.ui.theme.CoralGradient
+import uz.speakingapp.ui.theme.GradientButton
+import uz.speakingapp.ui.theme.InkMuted
+import uz.speakingapp.ui.theme.MnemonicBadge
+import uz.speakingapp.ui.theme.OnVioletContainer
+import uz.speakingapp.ui.theme.Pill
+import uz.speakingapp.ui.theme.PrimaryGradient
+import uz.speakingapp.ui.theme.ScoreRing
+import uz.speakingapp.ui.theme.SectionTitle
+import uz.speakingapp.ui.theme.SoftButton
+import uz.speakingapp.ui.theme.SoftCard
+import uz.speakingapp.ui.theme.StatTile
+import uz.speakingapp.ui.theme.Success
+import uz.speakingapp.ui.theme.Violet
+import uz.speakingapp.ui.theme.VioletContainer
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseScreen(
     exercise: Exercise?,
@@ -79,14 +90,7 @@ fun ExerciseScreen(
     ) { granted -> hasMicPermission = granted }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(
-            title = { Text(exercise.title) },
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Orqaga")
-                }
-            },
-        )
+        BrandTopBar(title = exercise.title, subtitle = exercise.topic, onBack = onBack)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -106,21 +110,14 @@ fun ExerciseScreen(
             }
 
             when (state.phase) {
-                Phase.NeedModel -> ModelPrepareSection(
-                    onPrepare = { vm.prepareModel() },
-                )
-
+                Phase.NeedModel -> ModelPrepareSection(onPrepare = { vm.prepareModel() })
                 Phase.PreparingModel -> DownloadSection(progress = state.downloadProgress)
-
                 Phase.Ready -> RecordSection(
                     hasPermission = hasMicPermission,
                     timeLimitSec = state.timeLimitSec,
-                    onRequestPermission = {
-                        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                    },
+                    onRequestPermission = { permissionLauncher.launch(Manifest.permission.RECORD_AUDIO) },
                     onStart = { vm.startRecording() },
                 )
-
                 Phase.Recording -> RecordingSection(
                     elapsed = state.elapsedSec,
                     limit = state.timeLimitSec,
@@ -128,7 +125,6 @@ fun ExerciseScreen(
                     live = state.liveText,
                     onStop = { vm.stopRecording() },
                 )
-
                 Phase.Done -> state.result?.let { result ->
                     ResultSection(
                         result = result,
@@ -137,6 +133,7 @@ fun ExerciseScreen(
                     )
                 }
             }
+            Spacer(Modifier.size(8.dp))
         }
     }
 }
@@ -148,14 +145,14 @@ private fun VisualStrip(visuals: List<String>) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(visuals) { emoji ->
-            Surface(
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(96.dp),
+            Box(
+                modifier = Modifier
+                    .size(92.dp)
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(VioletContainer),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(emoji, fontSize = 52.sp)
-                }
+                Text(emoji, fontSize = 48.sp)
             }
         }
     }
@@ -163,26 +160,24 @@ private fun VisualStrip(visuals: List<String>) {
 
 @Composable
 private fun PromptCard(exercise: Exercise) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Text(exercise.topic, style = MaterialTheme.typography.labelMedium)
-            Spacer(Modifier.size(4.dp))
-            exercise.prompts.forEach { p ->
-                Text("• $p", style = MaterialTheme.typography.bodyLarge)
+    SoftCard {
+        Pill(exercise.topic, VioletContainer, OnVioletContainer)
+        Spacer(Modifier.size(10.dp))
+        exercise.prompts.forEach { p ->
+            Row(Modifier.padding(vertical = 3.dp)) {
+                Text("💬 ", fontSize = 15.sp)
+                Text(p, style = MaterialTheme.typography.bodyLarge)
             }
-            Spacer(Modifier.size(12.dp))
-            Text(
-                "Struktura: ${exercise.mnemonic.acronym}",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            exercise.mnemonic.steps.forEach { s ->
-                Text("${s.letter} — ${s.en} (${s.uz})", style = MaterialTheme.typography.bodySmall)
+        }
+        Spacer(Modifier.size(14.dp))
+        SectionTitle("Struktura: ${exercise.mnemonic.acronym}")
+        Spacer(Modifier.size(10.dp))
+        exercise.mnemonic.steps.forEach { s ->
+            Row(Modifier.padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+                MnemonicBadge(s.letter, PrimaryGradient, size = 28.dp)
+                Spacer(Modifier.size(10.dp))
+                Text("${s.en} ", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                Text("· ${s.uz}", style = MaterialTheme.typography.bodySmall, color = InkMuted)
             }
         }
     }
@@ -190,25 +185,25 @@ private fun PromptCard(exercise: Exercise) {
 
 @Composable
 private fun ModelPrepareSection(onPrepare: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+    SoftCard {
+        Text("🎧 Til modeli", style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.size(6.dp))
         Text(
             "Nutqni tanish uchun til modeli kerak. Birinchi marta bir marta yuklab olinadi (~40MB), keyin internetsiz ishlaydi.",
             style = MaterialTheme.typography.bodyMedium,
+            color = InkMuted,
         )
-        Spacer(Modifier.size(12.dp))
-        Button(onClick = onPrepare) { Text("Modelni tayyorlash") }
+        Spacer(Modifier.size(14.dp))
+        GradientButton("Modelni tayyorlash", onClick = onPrepare, modifier = Modifier.fillMaxWidth())
     }
 }
 
 @Composable
 private fun DownloadSection(progress: Float) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Text("Model yuklanmoqda… ${(progress * 100).toInt()}%")
-        Spacer(Modifier.size(8.dp))
-        LinearProgressIndicator(
-            progress = { progress.coerceIn(0f, 1f) },
-            modifier = Modifier.fillMaxWidth(),
-        )
+    SoftCard {
+        Text("Model yuklanmoqda… ${(progress * 100).toInt()}%", style = MaterialTheme.typography.titleSmall)
+        Spacer(Modifier.size(10.dp))
+        BrandProgressBar(progress = progress)
     }
 }
 
@@ -220,12 +215,16 @@ private fun RecordSection(
     onStart: () -> Unit,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Text("Tayyor bo'lsangiz, mikrofonni bosing va gapiring (maksimal ${timeLimitSec}s).")
-        Spacer(Modifier.size(16.dp))
+        Text(
+            "Tayyor bo'lsangiz, mikrofonni bosing va gapiring",
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        Text("(maksimal ${timeLimitSec} soniya)", style = MaterialTheme.typography.bodySmall, color = InkMuted)
+        Spacer(Modifier.size(18.dp))
         if (hasPermission) {
-            MicButton(recording = false, onClick = onStart)
+            BrandMicButton(recording = false, onClick = onStart, micIcon = Icons.Default.Mic, stopIcon = Icons.Default.Stop)
         } else {
-            Button(onClick = onRequestPermission) { Text("Mikrofonga ruxsat berish") }
+            GradientButton("Mikrofonga ruxsat berish", onClick = onRequestPermission)
         }
     }
 }
@@ -239,148 +238,95 @@ private fun RecordingSection(
     onStop: () -> Unit,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Text(
-            "🔴 Yozilmoqda  ${elapsed}s / ${limit}s",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.error,
-        )
-        Spacer(Modifier.size(8.dp))
-        LinearProgressIndicator(
-            progress = { if (limit == 0) 0f else elapsed.toFloat() / limit },
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(Modifier.size(16.dp))
-        MicButton(recording = true, onClick = onStop)
-        Spacer(Modifier.size(16.dp))
-        if (transcript.isNotBlank() || live.isNotBlank()) {
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(12.dp)) {
-                    Text("Nutqingiz:", style = MaterialTheme.typography.labelMedium)
-                    val shown = listOf(transcript, live).filter { it.isNotBlank() }.joinToString(" ")
-                    Text(shown, style = MaterialTheme.typography.bodyLarge)
-                }
+        Text("🔴 Yozilmoqda  ${elapsed}s / ${limit}s", style = MaterialTheme.typography.titleMedium, color = Coral)
+        Spacer(Modifier.size(10.dp))
+        BrandProgressBar(progress = if (limit == 0) 0f else elapsed.toFloat() / limit, brush = CoralGradient)
+        Spacer(Modifier.size(18.dp))
+        BrandMicButton(recording = true, onClick = onStop, micIcon = Icons.Default.Mic, stopIcon = Icons.Default.Stop)
+        Spacer(Modifier.size(18.dp))
+        val shown = listOf(transcript, live).filter { it.isNotBlank() }.joinToString(" ")
+        if (shown.isNotBlank()) {
+            SoftCard {
+                Text("Nutqingiz:", style = MaterialTheme.typography.labelMedium, color = InkMuted)
+                Spacer(Modifier.size(4.dp))
+                Text(shown, style = MaterialTheme.typography.bodyLarge)
             }
-        }
-    }
-}
-
-@Composable
-private fun MicButton(recording: Boolean, onClick: () -> Unit) {
-    Surface(
-        shape = CircleShape,
-        color = if (recording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-        onClick = onClick,
-        modifier = Modifier.size(88.dp),
-    ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-            Icon(
-                imageVector = if (recording) Icons.Default.Stop else Icons.Default.Mic,
-                contentDescription = if (recording) "To'xtatish" else "Yozishni boshlash",
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(40.dp),
-            )
         }
     }
 }
 
 @Composable
 private fun ResultSection(
-    result: uz.speakingapp.analysis.SpeechResult,
+    result: SpeechResult,
     checkingGrammar: Boolean,
     onRetry: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        // Umumiy ball
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-        ) {
-            Row(
-                Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    "${result.overallScore}",
-                    fontSize = 44.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Text(" / 100", fontSize = 20.sp)
-                Spacer(Modifier.weight(1f))
-                Text("Umumiy ball", style = MaterialTheme.typography.titleMedium)
-            }
-        }
-
-        // Metrikalar
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp)) {
-                MetricRow("So'zlar soni", "${result.wordCount}")
-                MetricRow("Noyob so'zlar", "${result.uniqueWordCount}")
-                MetricRow("Ravonlik", "${result.wordsPerMinute} so'z/daqiqa")
-                MetricRow("Davomiylik", "${result.durationSec}s")
-                MetricRow(
-                    "Kalit so'zlar",
-                    "${result.matchedKeywords.size}/${result.totalKeywords} (${result.keywordCoverage}%)"
-                )
-                when {
-                    result.grammarScore != null ->
-                        MetricRow("Grammatika", "${result.grammarScore}/100")
-                    checkingGrammar ->
-                        MetricRow("Grammatika", "tekshirilmoqda…")
-                }
-            }
-        }
-
-        // Grammatika e'tibori
-        if (result.grammarIssues.isNotEmpty()) {
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp)) {
-                    Text("Grammatika e'tibori", style = MaterialTheme.typography.titleSmall)
-                    Spacer(Modifier.size(6.dp))
-                    result.grammarIssues.forEach {
-                        Text("• $it", style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-            }
-        }
-
-        // Tavsiyalar
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp)) {
-                Text("Tavsiyalar", style = MaterialTheme.typography.titleSmall)
-                Spacer(Modifier.size(6.dp))
-                result.feedback.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
-            }
-        }
-
-        // Transkript
-        if (result.transcript.isNotBlank()) {
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp)) {
-                    Text("Nutqingiz (matn)", style = MaterialTheme.typography.titleSmall)
-                    Spacer(Modifier.size(6.dp))
-                    Text(result.transcript, style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-        }
-
-        OutlinedButton(onClick = onRetry, modifier = Modifier.fillMaxWidth()) {
-            Text("Qayta urinish")
-        }
+    val message = when {
+        result.overallScore >= 80 -> "Zo'r natija! 🎉"
+        result.overallScore >= 50 -> "Yaxshi ish! 👍"
+        else -> "Mashq qilishda davom et! 💪"
     }
-}
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        SoftCard {
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                ScoreRing(result.overallScore)
+                Spacer(Modifier.size(10.dp))
+                Text(message, style = MaterialTheme.typography.titleMedium, color = Violet)
+            }
+        }
 
-@Composable
-private fun MetricRow(label: String, value: String) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+        // Metrikalar — 2 ustunli plitkalar
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatTile("${result.wordCount}", "So'zlar", Modifier.weight(1f))
+                StatTile("${result.uniqueWordCount}", "Noyob so'z", Modifier.weight(1f), accent = Coral)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatTile("${result.wordsPerMinute}", "So'z/daqiqa", Modifier.weight(1f))
+                StatTile("${result.durationSec}s", "Davomiylik", Modifier.weight(1f), accent = Coral)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatTile(
+                    "${result.matchedKeywords.size}/${result.totalKeywords}",
+                    "Kalit so'zlar (${result.keywordCoverage}%)",
+                    Modifier.weight(1f),
+                    accent = Success,
+                )
+                val grammar = when {
+                    result.grammarScore != null -> "${result.grammarScore}"
+                    checkingGrammar -> "…"
+                    else -> "—"
+                }
+                StatTile(grammar, "Grammatika", Modifier.weight(1f))
+            }
+        }
+
+        if (result.grammarIssues.isNotEmpty()) {
+            SoftCard {
+                SectionTitle("Grammatika e'tibori")
+                Spacer(Modifier.size(8.dp))
+                result.grammarIssues.forEach {
+                    Text("• $it", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(vertical = 2.dp))
+                }
+            }
+        }
+
+        SoftCard {
+            SectionTitle("Tavsiyalar")
+            Spacer(Modifier.size(8.dp))
+            result.feedback.forEach {
+                Text("• $it", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(vertical = 2.dp))
+            }
+        }
+
+        if (result.transcript.isNotBlank()) {
+            SoftCard {
+                SectionTitle("Nutqingiz (matn)")
+                Spacer(Modifier.size(8.dp))
+                Text(result.transcript, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+            }
+        }
+
+        SoftButton("🔁 Qayta urinish", onClick = onRetry, modifier = Modifier.fillMaxWidth())
     }
 }
