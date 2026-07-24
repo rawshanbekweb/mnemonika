@@ -24,6 +24,8 @@ data class Exercise(
     val prompts: List<String> = emptyList(),
     val keywords: List<String> = emptyList(),
     val timeLimitSec: Int = 60,
+    /** Vizual ishoralar — emoji tokenlari (keyin haqiqiy rasm bilan almashtirilishi mumkin). */
+    val visuals: List<String> = emptyList(),
 )
 
 /** Mnemonik struktura (PETS, GREEN, OCEAN, ...). */

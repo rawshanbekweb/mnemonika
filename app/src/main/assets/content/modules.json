@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "modules": [
     {
       "id": "discussion",
@@ -13,6 +13,7 @@
           "id": "discussion_family_pets_dream",
           "topic": "Family and Pets",
           "title": "My Dream Pet",
+          "visuals": ["🐶", "🐱", "🐰", "🦜", "🐹", "🐢"],
           "mnemonic": {
             "acronym": "PETS",
             "steps": [
@@ -34,6 +35,7 @@
           "id": "discussion_nature_environment",
           "topic": "The Natural World",
           "title": "Environmental Problems",
+          "visuals": ["🌍", "♻️", "🗑️", "🌳", "🏭", "💧"],
           "mnemonic": {
             "acronym": "GREEN",
             "steps": [
@@ -54,38 +56,6 @@
       ]
     },
     {
-      "id": "roleplay",
-      "type": "roleplay",
-      "titleUz": "Rolli o'yin",
-      "titleEn": "Role Play",
-      "descriptionUz": "Vaziyatga mos muloqot qilish",
-      "emoji": "🎭",
-      "exercises": [
-        {
-          "id": "roleplay_playground_newfriend",
-          "topic": "On the Playground",
-          "title": "New Friend at School",
-          "mnemonic": {
-            "acronym": "ACTORS",
-            "steps": [
-              { "letter": "A", "en": "Appropriate character", "uz": "Mos personaj" },
-              { "letter": "C", "en": "Talk naturally", "uz": "Tabiiy gapiring" },
-              { "letter": "T", "en": "Observe reactions", "uz": "Reaksiyalarni kuzating" },
-              { "letter": "O", "en": "React to others", "uz": "Javob bering" },
-              { "letter": "R", "en": "Respect roles", "uz": "Rollarni hurmat qiling" },
-              { "letter": "S", "en": "Speak clearly", "uz": "Aniq gapiring" }
-            ]
-          },
-          "prompts": [
-            "Welcome the new student and show them around.",
-            "Explain the games you play on the playground."
-          ],
-          "keywords": ["welcome", "football", "hopscotch", "friend", "show"],
-          "timeLimitSec": 90
-        }
-      ]
-    },
-    {
       "id": "storytelling",
       "type": "storytelling",
       "titleUz": "Hikoya aytish",
@@ -97,6 +67,7 @@
           "id": "storytelling_ocean_adventure",
           "topic": "Under the Ocean",
           "title": "Adventure Under the Sea",
+          "visuals": ["🌊", "🐠", "🐙", "🦈", "🐬", "🐚"],
           "mnemonic": {
             "acronym": "OCEAN",
             "steps": [
@@ -111,38 +82,29 @@
             "Tell a story about an adventure under the sea.",
             "What did the diver discover?"
           ],
-          "keywords": ["dive", "explore", "coral reef", "treasure", "mysterious"],
+          "keywords": ["dive", "explore", "coral", "treasure", "mysterious"],
           "timeLimitSec": 90
-        }
-      ]
-    },
-    {
-      "id": "interview",
-      "type": "interview",
-      "titleUz": "Intervyu",
-      "titleEn": "Interview",
-      "descriptionUz": "Aniq va mantiqiy savollar berish",
-      "emoji": "🎙️",
-      "exercises": [
+        },
         {
-          "id": "interview_sports_star",
-          "topic": "Outdoor Sports",
-          "title": "Sports Star Interview",
+          "id": "storytelling_feelings_day",
+          "topic": "Feelings",
+          "title": "The Day of Emotions",
+          "visuals": ["😀", "😲", "😟", "🤩", "😌"],
           "mnemonic": {
-            "acronym": "QUEST",
+            "acronym": "FEELS",
             "steps": [
-              { "letter": "Q", "en": "Questions prepared", "uz": "Savollar tayyor" },
-              { "letter": "U", "en": "Understanding check", "uz": "Tushunganini tekshiring" },
-              { "letter": "E", "en": "Eye contact", "uz": "Ko'z aloqasi" },
-              { "letter": "S", "en": "Short & clear", "uz": "Qisqa va aniq" },
-              { "letter": "T", "en": "Thank the person", "uz": "Rahmat ayting" }
+              { "letter": "F", "en": "First emotion", "uz": "Birinchi his" },
+              { "letter": "E", "en": "Events that happened", "uz": "Sodir bo'lgan voqealar" },
+              { "letter": "E", "en": "Emotions changed", "uz": "His-tuyg'ular o'zgardi" },
+              { "letter": "L", "en": "Lessons learned", "uz": "Olingan saboqlar" },
+              { "letter": "S", "en": "Situation resolved", "uz": "Vaziyat hal bo'ldi" }
             ]
           },
           "prompts": [
-            "Interview a famous athlete about their training.",
-            "Ask about their most difficult match."
+            "Tell a story about a day full of different emotions.",
+            "How did the person feel in the morning, afternoon and evening?"
           ],
-          "keywords": ["training", "competition", "practice", "champion", "advice"],
+          "keywords": ["happy", "surprised", "worried", "excited", "proud"],
           "timeLimitSec": 90
         }
       ]
@@ -159,6 +121,7 @@
           "id": "picture_world_landmarks",
           "topic": "Around the World",
           "title": "Famous Landmarks",
+          "visuals": ["🗼", "🗿", "🏯", "🕌", "🎡", "🗽"],
           "mnemonic": {
             "acronym": "WORLD",
             "steps": [
@@ -175,8 +138,48 @@
           ],
           "keywords": ["landmark", "built", "visit", "tourist", "history"],
           "timeLimitSec": 60
+        },
+        {
+          "id": "picture_family_album",
+          "topic": "Family and Pets",
+          "title": "Family Album",
+          "visuals": ["👨‍👩‍👧‍👦", "🎂", "🐕", "🍳", "🏖️"],
+          "mnemonic": {
+            "acronym": "ALBUM",
+            "steps": [
+              { "letter": "A", "en": "Appearance of people", "uz": "Odamlar ko'rinishi" },
+              { "letter": "L", "en": "Location of the photo", "uz": "Suratning joyi" },
+              { "letter": "B", "en": "Background details", "uz": "Fon tafsilotlari" },
+              { "letter": "U", "en": "Unique features", "uz": "O'ziga xos jihatlar" },
+              { "letter": "M", "en": "Mood of the scene", "uz": "Sahna kayfiyati" }
+            ]
+          },
+          "prompts": [
+            "Describe this family photo.",
+            "What are the people doing and how do they feel?"
+          ],
+          "keywords": ["family", "celebrate", "together", "happy", "memory"],
+          "timeLimitSec": 60
         }
       ]
+    },
+    {
+      "id": "roleplay",
+      "type": "roleplay",
+      "titleUz": "Rolli o'yin",
+      "titleEn": "Role Play",
+      "descriptionUz": "Vaziyatga mos muloqot qilish",
+      "emoji": "🎭",
+      "exercises": []
+    },
+    {
+      "id": "interview",
+      "type": "interview",
+      "titleUz": "Intervyu",
+      "titleEn": "Interview",
+      "descriptionUz": "Aniq va mantiqiy savollar berish",
+      "emoji": "🎙️",
+      "exercises": []
     }
   ]
 }

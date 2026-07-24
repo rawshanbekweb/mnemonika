@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -92,6 +94,7 @@ fun ExerciseScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            if (exercise.visuals.isNotEmpty()) VisualStrip(exercise.visuals)
             PromptCard(exercise)
 
             state.error?.let { err ->
@@ -132,6 +135,26 @@ fun ExerciseScreen(
                         checkingGrammar = state.checkingGrammar,
                         onRetry = { vm.startRecording() },
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun VisualStrip(visuals: List<String>) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        items(visuals) { emoji ->
+            Surface(
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.size(96.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(emoji, fontSize = 52.sp)
                 }
             }
         }
