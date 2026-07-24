@@ -12,6 +12,33 @@ data class SpeakingModule(
     val descriptionUz: String,
     val emoji: String,
     val exercises: List<Exercise> = emptyList(),
+    val dialogs: List<DialogScenario> = emptyList(),
+)
+
+/** Rolli o'yin / Intervyu senariysi (scripted dialog). */
+@Serializable
+data class DialogScenario(
+    val id: String,
+    val topic: String,
+    val title: String,
+    val visuals: List<String> = emptyList(),
+    val mnemonic: Mnemonic,
+    val characterName: String,
+    val characterEmoji: String,
+    val intro: String = "",
+    val turns: List<DialogTurn>,
+)
+
+/**
+ * Bitta almashish.
+ * - Rolli o'yin: personaj avval [characterLine] ni aytadi, keyin o'quvchi javob beradi.
+ * - Intervyu: o'quvchi [studentHint] bo'yicha savol beradi, keyin personaj [characterLine] (javob) ni aytadi.
+ */
+@Serializable
+data class DialogTurn(
+    val characterLine: String = "",
+    val studentHint: String,
+    val expectedKeywords: List<String> = emptyList(),
 )
 
 /** Bitta mashq (masalan "My Dream Pet"). */

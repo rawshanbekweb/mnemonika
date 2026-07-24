@@ -170,7 +170,91 @@
       "titleEn": "Role Play",
       "descriptionUz": "Vaziyatga mos muloqot qilish",
       "emoji": "🎭",
-      "exercises": []
+      "dialogs": [
+        {
+          "id": "roleplay_new_friend",
+          "topic": "On the Playground",
+          "title": "New Friend at School",
+          "visuals": ["🛝", "⚽", "🤾", "🏫"],
+          "characterName": "Alex (yangi o'quvchi)",
+          "characterEmoji": "🧑",
+          "intro": "Hi! I'm Alex. I'm new at this school. Nice to meet you!",
+          "mnemonic": {
+            "acronym": "ACTORS",
+            "steps": [
+              { "letter": "A", "en": "Appropriate character", "uz": "Mos personaj" },
+              { "letter": "C", "en": "Talk naturally", "uz": "Tabiiy gapiring" },
+              { "letter": "T", "en": "Observe reactions", "uz": "Reaksiyalarni kuzating" },
+              { "letter": "O", "en": "React to others", "uz": "Javob bering" },
+              { "letter": "R", "en": "Respect roles", "uz": "Rollarni hurmat qiling" },
+              { "letter": "S", "en": "Speak clearly", "uz": "Aniq gapiring" }
+            ]
+          },
+          "turns": [
+            {
+              "characterLine": "What games do you usually play on the playground?",
+              "studentHint": "Alex'ga qanday o'yinlar o'ynashingizni ayting.",
+              "expectedKeywords": ["play", "football", "game"]
+            },
+            {
+              "characterLine": "That sounds fun! Can you show me how to play hopscotch?",
+              "studentHint": "Klass o'yinini qanday o'ynashni tushuntiring.",
+              "expectedKeywords": ["jump", "square", "hop"]
+            },
+            {
+              "characterLine": "Great! Where can we find something to eat at break time?",
+              "studentHint": "Maktab oshxonasi haqida ayting.",
+              "expectedKeywords": ["canteen", "food", "eat"]
+            },
+            {
+              "characterLine": "Thank you for helping me. Will you be my friend?",
+              "studentHint": "Alex'ning savoliga xushmuomalalik bilan javob bering.",
+              "expectedKeywords": ["friend", "yes", "course"]
+            }
+          ]
+        },
+        {
+          "id": "roleplay_electronics_store",
+          "topic": "Gadgets",
+          "title": "At the Electronics Store",
+          "visuals": ["📱", "💻", "🎮", "🛍️"],
+          "characterName": "Mr. Karimov (sotuvchi)",
+          "characterEmoji": "🧑‍💼",
+          "intro": "Welcome to our electronics store! How can I help you today?",
+          "mnemonic": {
+            "acronym": "STYLE",
+            "steps": [
+              { "letter": "S", "en": "Setting", "uz": "Muhit" },
+              { "letter": "T", "en": "Tone", "uz": "Ohang" },
+              { "letter": "Y", "en": "Your character", "uz": "Sizning personajingiz" },
+              { "letter": "L", "en": "Listen actively", "uz": "Faol tinglash" },
+              { "letter": "E", "en": "Expressions", "uz": "Iboralar" }
+            ]
+          },
+          "turns": [
+            {
+              "characterLine": "We have many gadgets. What are you looking for?",
+              "studentHint": "Qaysi gadjetni sotib olmoqchi ekaningizni ayting.",
+              "expectedKeywords": ["phone", "tablet", "buy", "looking"]
+            },
+            {
+              "characterLine": "Good choice! What features are important for you?",
+              "studentHint": "Sizga muhim bo'lgan xususiyatlarni tasvirlang.",
+              "expectedKeywords": ["camera", "battery", "screen", "memory"]
+            },
+            {
+              "characterLine": "This model costs 200 dollars. Would you like to buy it?",
+              "studentHint": "Narx haqida savol bering yoki qaror qiling.",
+              "expectedKeywords": ["price", "cheaper", "expensive", "buy"]
+            },
+            {
+              "characterLine": "Thank you for your purchase! Have a nice day!",
+              "studentHint": "Sotuvchiga rahmat ayting va xayrlashing.",
+              "expectedKeywords": ["thank", "goodbye", "bye"]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "interview",
@@ -179,7 +263,90 @@
       "titleEn": "Interview",
       "descriptionUz": "Aniq va mantiqiy savollar berish",
       "emoji": "🎙️",
-      "exercises": []
+      "dialogs": [
+        {
+          "id": "interview_sports_star",
+          "topic": "Outdoor Sports",
+          "title": "Sports Star Interview",
+          "visuals": ["🎾", "🏆", "🏃‍♀️", "🥇"],
+          "characterName": "Sara (tennischi)",
+          "characterEmoji": "🏃‍♀️",
+          "intro": "Hello! I'm Sara, a professional tennis player. I'm ready for your questions!",
+          "mnemonic": {
+            "acronym": "QUEST",
+            "steps": [
+              { "letter": "Q", "en": "Questions prepared", "uz": "Savollar tayyor" },
+              { "letter": "U", "en": "Understanding check", "uz": "Tushunganini tekshiring" },
+              { "letter": "E", "en": "Eye contact", "uz": "Ko'z aloqasi" },
+              { "letter": "S", "en": "Short & clear", "uz": "Qisqa va aniq" },
+              { "letter": "T", "en": "Thank the person", "uz": "Rahmat ayting" }
+            ]
+          },
+          "turns": [
+            {
+              "studentHint": "U qachon tennis o'ynay boshlaganini so'rang.",
+              "characterLine": "I started playing tennis when I was seven years old.",
+              "expectedKeywords": ["when", "start", "begin"]
+            },
+            {
+              "studentHint": "Uning kunlik mashg'ulot tartibini so'rang.",
+              "characterLine": "I train for four hours every day, in the morning and afternoon.",
+              "expectedKeywords": ["training", "practice", "routine"]
+            },
+            {
+              "studentHint": "Eng qiyin o'yini haqida so'rang.",
+              "characterLine": "My most difficult match was the national final last year.",
+              "expectedKeywords": ["difficult", "match", "hardest"]
+            },
+            {
+              "studentHint": "Yosh o'yinchilarga qanday maslahat berishini so'rang.",
+              "characterLine": "My advice is: practice every day and never give up.",
+              "expectedKeywords": ["advice", "young", "players"]
+            }
+          ]
+        },
+        {
+          "id": "interview_family_responsibilities",
+          "topic": "Helping at Home",
+          "title": "Family Responsibilities Interview",
+          "visuals": ["🧹", "🍽️", "🧺", "🏠"],
+          "characterName": "Dilnoza (opa)",
+          "characterEmoji": "👩",
+          "intro": "Hi! I'm your sister Dilnoza. Ask me about our home chores!",
+          "mnemonic": {
+            "acronym": "SHARE",
+            "steps": [
+              { "letter": "S", "en": "Start politely", "uz": "Xushmuomalalik bilan boshlang" },
+              { "letter": "H", "en": "Have follow-up questions", "uz": "Qo'shimcha savollar bering" },
+              { "letter": "A", "en": "Ask clearly", "uz": "Aniq so'rang" },
+              { "letter": "R", "en": "Record answers", "uz": "Javoblarni yozib oling" },
+              { "letter": "E", "en": "End with thanks", "uz": "Rahmat bilan yakunlang" }
+            ]
+          },
+          "turns": [
+            {
+              "studentHint": "Uydagi qanday ishlarni bajarishini so'rang.",
+              "characterLine": "I usually wash the dishes and clean my room.",
+              "expectedKeywords": ["chores", "do", "home"]
+            },
+            {
+              "studentHint": "Qaysi uy ishi eng qiyin ekanini so'rang.",
+              "characterLine": "The most difficult task for me is cooking dinner.",
+              "expectedKeywords": ["difficult", "task", "hard"]
+            },
+            {
+              "studentHint": "Oilada ishlar qanday taqsimlanishini so'rang.",
+              "characterLine": "We share the work — everyone helps a little every day.",
+              "expectedKeywords": ["divide", "share", "responsibilities"]
+            },
+            {
+              "studentHint": "Nima uchun uyda yordam berish muhimligini so'rang.",
+              "characterLine": "Helping at home teaches us to be responsible and kind.",
+              "expectedKeywords": ["important", "help", "why"]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

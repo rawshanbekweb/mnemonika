@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import uz.speakingapp.data.model.DialogScenario
 import uz.speakingapp.data.model.Exercise
 import uz.speakingapp.data.model.SpeakingModule
 
@@ -37,6 +38,7 @@ fun ModuleDetailScreen(
     module: SpeakingModule?,
     onBack: () -> Unit,
     onExerciseClick: (String) -> Unit,
+    onDialogClick: (String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -57,6 +59,9 @@ fun ModuleDetailScreen(
         ) {
             items(module.exercises, key = { it.id }) { exercise ->
                 ExerciseCard(exercise, onStart = { onExerciseClick(exercise.id) })
+            }
+            items(module.dialogs, key = { it.id }) { dialog ->
+                DialogCard(dialog, onStart = { onDialogClick(dialog.id) })
             }
         }
     }
@@ -114,6 +119,39 @@ private fun ExerciseCard(exercise: Exercise, onStart: () -> Unit) {
             Spacer(Modifier.size(12.dp))
             Button(onClick = onStart, modifier = Modifier.fillMaxWidth()) {
                 Text("Boshlash")
+            }
+        }
+    }
+}
+
+@Composable
+private fun DialogCard(dialog: DialogScenario, onStart: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(dialog.characterEmoji, style = MaterialTheme.typography.headlineSmall)
+                Spacer(Modifier.size(10.dp))
+                Column {
+                    Text(dialog.title, style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "${dialog.topic} · ${dialog.characterName}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            Spacer(Modifier.size(8.dp))
+            Text(
+                "Struktura: ${dialog.mnemonic.acronym} · ${dialog.turns.size} ta almashish",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(Modifier.size(12.dp))
+            Button(onClick = onStart, modifier = Modifier.fillMaxWidth()) {
+                Text("Suhbatni boshlash")
             }
         }
     }

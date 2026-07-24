@@ -52,6 +52,9 @@ class MainActivity : ComponentActivity() {
                                 onExerciseClick = { exerciseId ->
                                     navController.navigate("exercise/$id/$exerciseId")
                                 },
+                                onDialogClick = { dialogId ->
+                                    navController.navigate("dialog/$id/$dialogId")
+                                },
                             )
                         }
                         composable("exercise/{moduleId}/{exerciseId}") { backStackEntry ->
@@ -62,6 +65,18 @@ class MainActivity : ComponentActivity() {
                             uz.speakingapp.ui.exercise.ExerciseScreen(
                                 exercise = exercise,
                                 moduleId = moduleId,
+                                onBack = { navController.popBackStack() },
+                            )
+                        }
+                        composable("dialog/{moduleId}/{dialogId}") { backStackEntry ->
+                            val moduleId = backStackEntry.arguments?.getString("moduleId").orEmpty()
+                            val dialogId = backStackEntry.arguments?.getString("dialogId").orEmpty()
+                            val module = repository.moduleById(moduleId)
+                            val scenario = module?.dialogs?.firstOrNull { it.id == dialogId }
+                            uz.speakingapp.ui.dialog.DialogScreen(
+                                scenario = scenario,
+                                moduleId = moduleId,
+                                isInterview = module?.type == "interview",
                                 onBack = { navController.popBackStack() },
                             )
                         }
