@@ -27,6 +27,7 @@ import uz.speakingapp.data.model.SpeakingModule
 fun HomeScreen(
     modules: List<SpeakingModule>,
     onModuleClick: (String) -> Unit,
+    onProgressClick: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -34,17 +35,25 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            Column(modifier = Modifier.padding(bottom = 8.dp)) {
-                Text(
-                    text = "SpeakUp",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Text(
-                    text = "Speaking mashqlari · 5–6 sinf",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "SpeakUp",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        text = "Speaking mashqlari · 5–6 sinf",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                androidx.compose.material3.FilledTonalButton(onClick = onProgressClick) {
+                    Text("📊 Natijalar")
+                }
             }
         }
         items(modules, key = { it.id }) { module ->

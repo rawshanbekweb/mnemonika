@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -62,5 +63,9 @@ dependencies {
     // Offline speech recognition (Vosk)
     implementation(libs.vosk.android)
     implementation("net.java.dev.jna:jna:5.13.0@aar")
+    // Room (mahalliy progress bazasi)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     debugImplementation(libs.androidx.ui.tooling)
 }

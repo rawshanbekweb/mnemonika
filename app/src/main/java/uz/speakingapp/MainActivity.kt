@@ -35,6 +35,13 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 modules = repository.loadModules(),
                                 onModuleClick = { id -> navController.navigate("module/$id") },
+                                onProgressClick = { navController.navigate("progress") },
+                            )
+                        }
+                        composable("progress") {
+                            uz.speakingapp.ui.progress.ProgressScreen(
+                                modules = repository.loadModules(),
+                                onBack = { navController.popBackStack() },
                             )
                         }
                         composable("module/{moduleId}") { backStackEntry ->
@@ -54,6 +61,7 @@ class MainActivity : ComponentActivity() {
                                 ?.exercises?.firstOrNull { it.id == exerciseId }
                             uz.speakingapp.ui.exercise.ExerciseScreen(
                                 exercise = exercise,
+                                moduleId = moduleId,
                                 onBack = { navController.popBackStack() },
                             )
                         }

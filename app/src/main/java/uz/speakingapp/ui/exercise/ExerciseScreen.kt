@@ -53,6 +53,7 @@ import uz.speakingapp.data.model.Exercise
 @Composable
 fun ExerciseScreen(
     exercise: Exercise?,
+    moduleId: String,
     onBack: () -> Unit,
 ) {
     if (exercise == null) {
@@ -62,7 +63,7 @@ fun ExerciseScreen(
 
     val vm: ExerciseViewModel = viewModel()
     val state by vm.state.collectAsStateWithLifecycle()
-    LaunchedEffect(exercise.id) { vm.bind(exercise) }
+    LaunchedEffect(exercise.id) { vm.bind(exercise, moduleId) }
 
     val context = LocalContext.current
     var hasMicPermission by remember {

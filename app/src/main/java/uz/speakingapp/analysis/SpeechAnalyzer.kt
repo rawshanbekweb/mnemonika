@@ -11,6 +11,8 @@ data class SpeechResult(
     val totalKeywords: Int,
     val overallScore: Int,
     val feedback: List<String>,
+    val grammarScore: Int? = null,
+    val grammarIssues: List<String> = emptyList(),
 ) {
     val keywordCoverage: Int
         get() = if (totalKeywords == 0) 0 else (matchedKeywords.size * 100 / totalKeywords)

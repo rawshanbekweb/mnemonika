@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.speakingapp.analysis.SpeechAnalyzer
 import uz.speakingapp.analysis.SpeechResult
+import uz.speakingapp.data.ProgressRepository
 import uz.speakingapp.data.model.Exercise
 import uz.speakingapp.speech.ModelManager
 import uz.speakingapp.speech.VoskRecognizer
@@ -33,11 +34,13 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
 
     private val modelManager = ModelManager(app)
     private val recognizer = VoskRecognizer()
+    private val progressRepository = ProgressRepository(app)
 
     private val _state = MutableStateFlow(ExerciseUiState())
     val state: StateFlow<ExerciseUiState> = _state.asStateFlow()
 
     private var exercise: Exercise? = null
+    private var moduleId: String = ""
     private var timerJob: Job? = null
     private val segments = StringBuilder()
 
@@ -55,14 +58,14 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun bind(exercise: Exercise) {
+    fun bind(exercise: Exercise, moduleId: String) {
         if (this.exercise?.id == exercise.id) return
         this.exercise = exercise
-        _state.update {
-            it.copy(
-                timeLimitSec = exercise.timeLimitSec,
-                phase = if (modelManager.isModelReady()) Phase.NeedModel else Phase.NeedModel,
-            )
+        this.moduleId = moduleId
+        _state.update { it.copy(timeLimitSec = exercise.timeLimitSec, phase = Phase.NeedModel) }
+        // Model allaqachon yuklangan bo'lsa, uni fon oqimida yuklab to'g'ridan-to'g'ri Tayyor holatiga o'tamiz.
+        if (modelManager.isModelReady()) {
+            prepareModel()
         }
     }
 
@@ -135,6 +138,24 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
             )
             _state.update {
                 it.copy(phase = Phase.Done, transcript = transcript, liveText = "", result = result)
+            }
+            saveAttempt(ex, result)
+        }
+    }
+
+    private fun saveAttempt(ex: Exercise?, result: SpeechResult) {
+        if (ex == null || result.wordCount == 0) return
+        viewModelScope.launch {
+            try {
+                progressRepository.saveAttempt(
+                    moduleId = moduleId,
+                    exerciseId = ex.id,
+                    exerciseTitle = ex.title,
+                    result = result,
+                    timestamp = System.currentTimeMillis(),
+                )
+            } catch (_: Exception) {
+                // progress saqlash muvaffaqiyatsiz bo'lsa ham natija ko'rsatiladi
             }
         }
     }
