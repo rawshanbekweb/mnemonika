@@ -108,17 +108,18 @@ Natija: 0–100 ball + qaysi qismni yaxshilash kerakligi (masalan "Summary qismi
 
 ## 7. Bosqichma-bosqich reja (roadmap)
 
-### Bosqich 0 — Poydevor
-- [ ] Android loyiha (Compose, Hilt, Room, Navigation) skeleti
-- [ ] Kontent JSON sxemasi + o'qish (loader)
-- [ ] Dizayn tizimi (ranglar, tipografiya, komponentlar)
+### Bosqich 0 — Poydevor ✅ (commit a4f4889)
+- [x] Android loyiha (Compose, Navigation) skeleti  _(Hilt/Room keyingi bosqichda)_
+- [x] Kontent JSON sxemasi + o'qish (loader)
+- [x] Dizayn tizimi (ranglar, tipografiya, komponentlar)
 
-### Bosqich 1 — MVP: 1 ta mashq to'liq (Discussion / My Dream Pet)
-- [ ] Mashq ekrani: rasm + prompt + taymer
-- [ ] Ovoz yozish (MediaRecorder)
-- [ ] Vosk integratsiya → speech-to-text
-- [ ] Ravonlik/davomiylik hisoblash (bepul, mahalliy)
-- [ ] Natija ekrani (birinchi versiya)
+### Bosqich 1 — MVP: 1 ta mashq to'liq (Discussion / My Dream Pet) ✅ (commit 69340af)
+- [x] Mashq ekrani: prompt + taymer  _(rasm keyin qo'shiladi)_
+- [x] Ovoz yozish (Vosk mikrofon orqali)
+- [x] Vosk integratsiya → speech-to-text (online model yuklab olish + offline)
+- [x] Ravonlik/davomiylik hisoblash (bepul, mahalliy)
+- [x] Natija ekrani (birinchi versiya)
+- [ ] ⚠️ Qurilmada runtime sinov (telefon/emulyatorда tekshirilmagan)
 
 ### Bosqich 2 — Baholashni to'ldirish
 - [ ] LanguageTool grammatika tekshiruvi
