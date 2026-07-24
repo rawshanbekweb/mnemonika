@@ -1,0 +1,182 @@
+{
+  "version": 1,
+  "modules": [
+    {
+      "id": "discussion",
+      "type": "discussion",
+      "titleUz": "Munozara",
+      "titleEn": "Discussion",
+      "descriptionUz": "O'z fikringizni asoslash va strukturalash",
+      "emoji": "💬",
+      "exercises": [
+        {
+          "id": "discussion_family_pets_dream",
+          "topic": "Family and Pets",
+          "title": "My Dream Pet",
+          "mnemonic": {
+            "acronym": "PETS",
+            "steps": [
+              { "letter": "P", "en": "Position", "uz": "Nuqtai nazaringizni bildiring" },
+              { "letter": "E", "en": "Example", "uz": "Misollar keltiring" },
+              { "letter": "T", "en": "Thoughts of others", "uz": "Boshqalarning fikri" },
+              { "letter": "S", "en": "Summary", "uz": "Xulosa" }
+            ]
+          },
+          "prompts": [
+            "Which pet would you like to have and why?",
+            "How would you take care of your pet?",
+            "Why do some people prefer cats over dogs?"
+          ],
+          "keywords": ["care", "feed", "responsible", "companion", "loyal"],
+          "timeLimitSec": 60
+        },
+        {
+          "id": "discussion_nature_environment",
+          "topic": "The Natural World",
+          "title": "Environmental Problems",
+          "mnemonic": {
+            "acronym": "GREEN",
+            "steps": [
+              { "letter": "G", "en": "Give reasons", "uz": "Sabablarni ayting" },
+              { "letter": "R", "en": "Reasons", "uz": "Dalillar" },
+              { "letter": "E", "en": "Examples", "uz": "Misollar" },
+              { "letter": "E", "en": "Effects", "uz": "Ta'sirlar" },
+              { "letter": "N", "en": "Next steps", "uz": "Keyingi qadamlar" }
+            ]
+          },
+          "prompts": [
+            "What environmental problems can you see in the picture?",
+            "How can we protect nature?"
+          ],
+          "keywords": ["pollution", "recycle", "plastic", "forest", "protect"],
+          "timeLimitSec": 60
+        }
+      ]
+    },
+    {
+      "id": "roleplay",
+      "type": "roleplay",
+      "titleUz": "Rolli o'yin",
+      "titleEn": "Role Play",
+      "descriptionUz": "Vaziyatga mos muloqot qilish",
+      "emoji": "🎭",
+      "exercises": [
+        {
+          "id": "roleplay_playground_newfriend",
+          "topic": "On the Playground",
+          "title": "New Friend at School",
+          "mnemonic": {
+            "acronym": "ACTORS",
+            "steps": [
+              { "letter": "A", "en": "Appropriate character", "uz": "Mos personaj" },
+              { "letter": "C", "en": "Talk naturally", "uz": "Tabiiy gapiring" },
+              { "letter": "T", "en": "Observe reactions", "uz": "Reaksiyalarni kuzating" },
+              { "letter": "O", "en": "React to others", "uz": "Javob bering" },
+              { "letter": "R", "en": "Respect roles", "uz": "Rollarni hurmat qiling" },
+              { "letter": "S", "en": "Speak clearly", "uz": "Aniq gapiring" }
+            ]
+          },
+          "prompts": [
+            "Welcome the new student and show them around.",
+            "Explain the games you play on the playground."
+          ],
+          "keywords": ["welcome", "football", "hopscotch", "friend", "show"],
+          "timeLimitSec": 90
+        }
+      ]
+    },
+    {
+      "id": "storytelling",
+      "type": "storytelling",
+      "titleUz": "Hikoya aytish",
+      "titleEn": "Story Telling",
+      "descriptionUz": "Rasm asosida ijodiy hikoya tuzish",
+      "emoji": "📖",
+      "exercises": [
+        {
+          "id": "storytelling_ocean_adventure",
+          "topic": "Under the Ocean",
+          "title": "Adventure Under the Sea",
+          "mnemonic": {
+            "acronym": "OCEAN",
+            "steps": [
+              { "letter": "O", "en": "Opening", "uz": "Boshlanishi" },
+              { "letter": "C", "en": "Characters", "uz": "Personajlar" },
+              { "letter": "E", "en": "Events", "uz": "Voqealar" },
+              { "letter": "A", "en": "Amazing ending", "uz": "Ajoyib yakun" },
+              { "letter": "N", "en": "Natural flow", "uz": "Tabiiy oqim" }
+            ]
+          },
+          "prompts": [
+            "Tell a story about an adventure under the sea.",
+            "What did the diver discover?"
+          ],
+          "keywords": ["dive", "explore", "coral reef", "treasure", "mysterious"],
+          "timeLimitSec": 90
+        }
+      ]
+    },
+    {
+      "id": "interview",
+      "type": "interview",
+      "titleUz": "Intervyu",
+      "titleEn": "Interview",
+      "descriptionUz": "Aniq va mantiqiy savollar berish",
+      "emoji": "🎙️",
+      "exercises": [
+        {
+          "id": "interview_sports_star",
+          "topic": "Outdoor Sports",
+          "title": "Sports Star Interview",
+          "mnemonic": {
+            "acronym": "QUEST",
+            "steps": [
+              { "letter": "Q", "en": "Questions prepared", "uz": "Savollar tayyor" },
+              { "letter": "U", "en": "Understanding check", "uz": "Tushunganini tekshiring" },
+              { "letter": "E", "en": "Eye contact", "uz": "Ko'z aloqasi" },
+              { "letter": "S", "en": "Short & clear", "uz": "Qisqa va aniq" },
+              { "letter": "T", "en": "Thank the person", "uz": "Rahmat ayting" }
+            ]
+          },
+          "prompts": [
+            "Interview a famous athlete about their training.",
+            "Ask about their most difficult match."
+          ],
+          "keywords": ["training", "competition", "practice", "champion", "advice"],
+          "timeLimitSec": 90
+        }
+      ]
+    },
+    {
+      "id": "picture_narrating",
+      "type": "picture_narrating",
+      "titleUz": "Rasmli hikoya",
+      "titleEn": "Picture Narrating",
+      "descriptionUz": "Rasmni ko'rib tasvirlash",
+      "emoji": "🖼️",
+      "exercises": [
+        {
+          "id": "picture_world_landmarks",
+          "topic": "Around the World",
+          "title": "Famous Landmarks",
+          "mnemonic": {
+            "acronym": "WORLD",
+            "steps": [
+              { "letter": "W", "en": "What you see", "uz": "Nimani ko'ryapsiz" },
+              { "letter": "O", "en": "Objects and people", "uz": "Narsalar va odamlar" },
+              { "letter": "R", "en": "Relationships", "uz": "Elementlar aloqasi" },
+              { "letter": "L", "en": "Location details", "uz": "Joy tafsilotlari" },
+              { "letter": "D", "en": "Describe actions", "uz": "Harakatlarni tasvirlang" }
+            ]
+          },
+          "prompts": [
+            "Describe this famous landmark.",
+            "Why do people visit this place?"
+          ],
+          "keywords": ["landmark", "built", "visit", "tourist", "history"],
+          "timeLimitSec": 60
+        }
+      ]
+    }
+  ]
+}
