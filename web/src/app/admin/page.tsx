@@ -5,6 +5,16 @@ import Link from "next/link";
 import { api } from "@/lib/client";
 import type { FullContent, ModuleRow } from "@/lib/admin-types";
 
+const MODULE_GRADIENT: Record<string, string> = {
+  discussion: "linear-gradient(135deg,#8b5cf6,#6d28d9)",
+  roleplay: "linear-gradient(135deg,#fb7185,#f43f5e)",
+  storytelling: "linear-gradient(135deg,#38bdf8,#0ea5e9)",
+  interview: "linear-gradient(135deg,#fbbf24,#f59e0b)",
+  picture_narrating: "linear-gradient(135deg,#34d399,#10b981)",
+};
+const moduleGradient = (type: string) =>
+  MODULE_GRADIENT[type] ?? "linear-gradient(135deg,#7c3aed,#6d28d9)";
+
 const EMPTY_MODULE: ModuleRow = {
   id: "",
   type: "discussion",
@@ -67,17 +77,22 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-hero-gradient p-6 text-white shadow-soft-lg">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Kontent boshqaruvi</h1>
-          <p className="text-sm text-white/85">
-            Joriy versiya: <b>{data.version}</b>
-            {data.publishedAt && ` · ${new Date(data.publishedAt).toLocaleString("uz")}`}
-          </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-hero-gradient text-2xl shadow-soft">
+            🗂️
+          </div>
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight">Kontent boshqaruvi</h1>
+            <div className="mt-0.5 flex items-center gap-2 text-sm text-ink-muted">
+              <span className="pill-brand">v{data.version}</span>
+              {data.publishedAt && <span>{new Date(data.publishedAt).toLocaleString("uz")}</span>}
+            </div>
+          </div>
         </div>
         <div className="flex gap-2">
           <button
-            className="btn rounded-full bg-white/15 px-5 py-2.5 font-semibold text-white ring-1 ring-white/25 hover:bg-white/25"
+            className="btn-ghost"
             onClick={() => {
               setEditing({ ...EMPTY_MODULE, sortOrder: data.modules.length });
               setIsNew(true);
@@ -85,11 +100,7 @@ export default function AdminDashboard() {
           >
             ＋ Modul
           </button>
-          <button
-            className="btn rounded-full bg-white px-5 py-2.5 font-bold text-brand shadow-soft hover:bg-white/90"
-            onClick={publish}
-            disabled={publishing}
-          >
+          <button className="btn-primary" onClick={publish} disabled={publishing}>
             {publishing ? "Nashr…" : "Nashr qilish"}
           </button>
         </div>
@@ -107,19 +118,26 @@ export default function AdminDashboard() {
         return (
           <div key={m.id} className="card space-y-3">
             <div className="flex items-start justify-between">
-              <div>
-                <h2 className="flex items-center gap-2 text-lg font-semibold">
-                  <span className="text-2xl">{m.emoji}</span>
-                  {m.titleUz}
-                  {!m.enabled && (
-                    <span className="rounded bg-slate-200 px-2 py-0.5 text-xs text-slate-600">
-                      o'chirilgan
-                    </span>
-                  )}
-                </h2>
-                <p className="text-xs text-slate-500">
-                  {m.type} · {m.id}
-                </p>
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-2xl shadow-soft"
+                  style={{ backgroundImage: moduleGradient(m.type) }}
+                >
+                  {m.emoji}
+                </div>
+                <div>
+                  <h2 className="flex items-center gap-2 text-lg font-bold">
+                    {m.titleUz}
+                    {!m.enabled && (
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ink-muted">
+                        o'chirilgan
+                      </span>
+                    )}
+                  </h2>
+                  <p className="text-xs text-ink-muted">
+                    {m.type} · {m.id}
+                  </p>
+                </div>
               </div>
               <div className="flex gap-2">
                 <button

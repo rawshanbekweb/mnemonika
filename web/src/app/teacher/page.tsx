@@ -36,16 +36,21 @@ export default function TeacherPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-hero-gradient p-6 text-white shadow-soft-lg">
-        <h1 className="text-2xl font-extrabold tracking-tight">📊 O'quvchilar progressi</h1>
-        <p className="text-sm text-white/85">Sinf faoliyati va natijalar</p>
+      <div className="flex items-center gap-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-hero-gradient text-2xl shadow-soft">
+          📊
+        </div>
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">O'quvchilar progressi</h1>
+          <p className="text-sm text-ink-muted">Sinf faoliyati va natijalar</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <Stat label="Urinishlar" value={p.totalAttempts} />
-        <Stat label="O'quvchilar" value={p.totalStudents} />
-        <Stat label="O'rtacha ball" value={p.avgScore} suffix="/100" />
-        <Stat label="O'rtacha WPM" value={p.avgWpm} />
+        <Stat icon="📝" label="Urinishlar" value={p.totalAttempts} grad="linear-gradient(135deg,#8b5cf6,#6d28d9)" />
+        <Stat icon="👦" label="O'quvchilar" value={p.totalStudents} grad="linear-gradient(135deg,#38bdf8,#0ea5e9)" />
+        <Stat icon="⭐" label="O'rtacha ball" value={p.avgScore} suffix="/100" grad="linear-gradient(135deg,#34d399,#10b981)" />
+        <Stat icon="⚡" label="O'rtacha WPM" value={p.avgWpm} grad="linear-gradient(135deg,#fb7185,#f43f5e)" />
       </div>
 
       <div className="card">
@@ -110,14 +115,34 @@ export default function TeacherPage() {
   );
 }
 
-function Stat({ label, value, suffix }: { label: string; value: number; suffix?: string }) {
+function Stat({
+  label,
+  value,
+  suffix,
+  icon,
+  grad,
+}: {
+  label: string;
+  value: number;
+  suffix?: string;
+  icon: string;
+  grad: string;
+}) {
   return (
-    <div className="card">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">{label}</p>
-      <p className="mt-1 text-3xl font-extrabold text-brand">
-        {value}
-        {suffix && <span className="text-base font-medium text-ink-muted">{suffix}</span>}
-      </p>
+    <div className="card flex items-center gap-3">
+      <div
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-soft"
+        style={{ backgroundImage: grad }}
+      >
+        {icon}
+      </div>
+      <div>
+        <p className="text-3xl font-extrabold leading-none text-ink">
+          {value}
+          {suffix && <span className="text-sm font-medium text-ink-muted">{suffix}</span>}
+        </p>
+        <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-ink-muted">{label}</p>
+      </div>
     </div>
   );
 }
