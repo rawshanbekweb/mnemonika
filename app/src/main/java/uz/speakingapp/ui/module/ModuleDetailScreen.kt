@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,6 +36,7 @@ import uz.speakingapp.data.model.SpeakingModule
 fun ModuleDetailScreen(
     module: SpeakingModule?,
     onBack: () -> Unit,
+    onExerciseClick: (String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -54,14 +56,14 @@ fun ModuleDetailScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(module.exercises, key = { it.id }) { exercise ->
-                ExerciseCard(exercise)
+                ExerciseCard(exercise, onStart = { onExerciseClick(exercise.id) })
             }
         }
     }
 }
 
 @Composable
-private fun ExerciseCard(exercise: Exercise) {
+private fun ExerciseCard(exercise: Exercise, onStart: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -108,6 +110,10 @@ private fun ExerciseCard(exercise: Exercise) {
                         )
                     }
                 }
+            }
+            Spacer(Modifier.size(12.dp))
+            Button(onClick = onStart, modifier = Modifier.fillMaxWidth()) {
+                Text("Boshlash")
             }
         }
     }
