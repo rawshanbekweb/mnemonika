@@ -17,6 +17,20 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         vectorDrawables { useSupportLibrary = true }
+
+        // ── Backend (Vercel) sozlamalari ──────────────────────────────
+        // Deploydan keyin bu URL'ni o'zingizning Vercel manzilingizga o'zgartiring,
+        // masalan: "https://speakup-web.vercel.app". Bo'sh bo'lsa ilova faqat
+        // ichki (bundled) kontentdan ishlaydi — online sync o'chiriladi.
+        buildConfigField("String", "API_BASE_URL", "\"\"")
+        // /api/attempts uchun umumiy token (.env dagi ATTEMPTS_INGEST_TOKEN bilan bir xil).
+        buildConfigField("String", "ATTEMPTS_TOKEN", "\"\"")
+
+        // APK hajmini kamaytirish: kamdan-kam kerak x86 (32-bit) ni chiqarib tashlaymiz.
+        // arm64-v8a/armeabi-v7a — telefonlar, x86_64 — emulyator.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
     }
 
     buildTypes {
@@ -37,6 +51,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {

@@ -51,7 +51,7 @@ Qo'shimcha: Picture Dictionary, Complete the Story (interfaol mashqlar).
 
 ### Backend
 - **MVP:** YO'Q. Hammasi telefon ichida. Server = 0 xarajat.
-- **Kelajakda:** agar o'qituvchi paneli / bulutli progress kerak bo'lsa — Firebase bepul tier.
+- **Kelajakda → hozir rejalashtirilgan:** dinamik kontent + admin/o'qituvchi paneli uchun **Neon (Postgres) + Vercel (Next.js)** stack. Batafsil → **11-bo'lim**.
 
 ## 4. Kontent ma'lumotlar modeli
 
@@ -176,3 +176,135 @@ Loyiha odamlar test qilishi va foydalanishi uchun chiqarilishi kerak. Offline-fi
 | Vosk model hajmi (~50MB) | Birinchi ochilishda yuklab olish |
 | Bolalar nutqini ASR yaxshi tanimasligi mumkin | Sekin gapirish, aniq mikrofon, qayta urinish |
 | Scripted dialog cheklangan | Yetarlicha shoxlar yozish; keyin AI qo'shish |
+
+---
+
+## 11. Web + Backend — Dinamik boshqaruv (App + Web)
+
+> **Maqsad:** kontentni APK'ni qayta chiqarmasdan yangilash, admin/o'qituvchi paneli, o'quvchi progressini bulutda kuzatish, media (rasm) boshqaruvi. Ya'ni **to'liq boshqaruv**.
+
+### 11.1 Stack (barchasi $0)
+
+| Qatlam | Xizmat | Roli | Bepul tier |
+|--------|--------|------|-----------|
+| Ma'lumotlar bazasi | **Neon** | Postgres — kontent, progress, foydalanuvchilar | 0.5 GB, scale-to-zero, HTTP driver |
+| Frontend + API | **Vercel (Next.js)** | Admin panel + web ilova + `/api/*` backend | Hobby tier, cold-start yo'q |
+| Auth | **Auth.js (NextAuth)** yoki Clerk | Admin / o'qituvchi login | Bepul |
+| Media | **Vercel Blob** yoki **Cloudflare R2** | Rasm/audio saqlash | Bepul, generous |
+
+> **Render ISHLATILMAYDI.** Alohida backend kerak emas — Next.js API routes (Vercel) to'g'ridan-to'g'ri Neon'ga ulanadi. Bu Render free tier'ning cold-start (~50s uyqu) muammosini yo'q qiladi va arxitekturani soddalashtiradi.
+
+### 11.2 Arxitektura
+
+```
+┌─────────────────────────────────────────────┐
+│  Neon Postgres  (kontent, progress, userlar) │
+└───────────────▲─────────────────────────────┘
+                │ SQL (HTTP driver)
+┌───────────────┴─────────────────────────────┐
+│  Vercel — Next.js                            │
+│   • /admin  → admin & o'qituvchi paneli      │
+│   • /app    → web o'quvchi ilovasi (ixtiyoriy)│
+│   • /api/*  → kontent + progress API         │
+└───────────────▲─────────────────────────────┘
+                │ HTTPS (JSON)
+      ┌─────────┴──────────┐
+      │  Android ilova     │  ← ContentRepository shu API'dan
+      │  (Vosk offline ASR)│     yuklaydi, offline zaxira qoladi
+      └────────────────────┘
+```
+
+### 11.3 Ma'lumotlar bazasi sxemasi (Neon / Postgres)
+
+Hozirgi `modules.json` strukturasi shu jadvallarga ko'chiriladi:
+
+| Jadval | Asosiy maydonlar | Izoh |
+|--------|------------------|------|
+| `modules` | id, type, title_uz, title_en, description_uz, emoji, sort_order, enabled | 5 nutq turi moduli |
+| `exercises` | id, module_id (FK), topic, title, time_limit_sec, visuals[], keywords[] | Munozara/Hikoya/Rasmli hikoya mashqlari |
+| `mnemonics` | id, owner_id, acronym, steps (jsonb) | PETS, GREEN, OCEAN... |
+| `prompts` | id, exercise_id (FK), text, sort_order | Mashq savollari |
+| `dialogs` | id, module_id (FK), topic, title, character_name, character_emoji, intro, mnemonic_id | Rolli o'yin / Intervyu |
+| `dialog_turns` | id, dialog_id (FK), character_line, student_hint, expected_keywords[], sort_order | Bitta almashish |
+| `media` | id, url, alt, exercise_id (FK) | Haqiqiy rasmlar (emoji o'rniga) |
+| `content_version` | version (int), published_at | Ilova yangilikni shu orqali biladi |
+| `users` | id, email, role (admin/teacher), password_hash | Panel foydalanuvchilari |
+| `students` | id, device_id yoki login, name, class_group | O'quvchilar (anonim device_id ham mumkin) |
+| `attempts` | id, student_id (FK), exercise_id, scores (jsonb), transcript, created_at | Har bir mashq natijasi (progress) |
+
+### 11.4 API endpointlari (Vercel `/api`)
+
+| Metod + yo'l | Vazifa | Kirish |
+|--------------|--------|--------|
+| `GET /api/content?since=<version>` | Yangi kontent JSON (agar versiya yangi bo'lsa) | Ochiq (ilova) |
+| `GET /api/content/version` | Joriy `content_version` | Ochiq (yengil tekshiruv) |
+| `POST /api/attempts` | O'quvchi natijasini yuklash | Device token |
+| `GET /api/admin/...` (CRUD) | Modul/mashq/dialog/media boshqaruvi | Auth (admin) |
+| `GET /api/teacher/progress` | Sinf/o'quvchi statistikasi | Auth (teacher) |
+
+### 11.5 Admin & o'qituvchi paneli (Next.js ekranlari)
+
+- **Login** (Auth.js)
+- **Modullar** ro'yxati — yoqish/o'chirish, tartib
+- **Mashq muharriri** — topic, title, mnemonika, promptlar, kalit so'zlar, taymer, rasm biriktirish
+- **Dialog muharriri** — personaj, intro, turns (shoxlar)
+- **Media kutubxonasi** — rasm yuklash (Blob/R2), mashqqa bog'lash
+- **"Publish"** tugmasi → `content_version` ni oshiradi (ilova yangilashni shundan biladi)
+- **O'qituvchi paneli** — sinf/o'quvchi bo'yicha progress, ballar, kuchsiz mezonlar
+
+### 11.6 Android ilovaga ulash (mavjud kodga o'zgarish)
+
+`ContentRepository` allaqachon shunga mo'ljallangan (kod izohi: *"avval online yangi versiyani tekshiradi, bo'lmasa bundled zaxiradan"*). Qo'shiladi:
+
+- [ ] `GET /api/content/version` ni tekshirish; yangi bo'lsa `GET /api/content` → yuklab olish
+- [ ] Yuklangan JSON'ni lokal keshga (fayl/Room) yozish; keyingi safar offline shu keshdan
+- [ ] Internet yo'q bo'lsa bundled `assets/content/modules.json` zaxira sifatida (mavjud xatti-harakat saqlanadi)
+- [ ] (Ixtiyoriy) `POST /api/attempts` — o'quvchi natijasini bulutga yuborish (o'qituvchi paneli uchun)
+
+### 11.7 Web o'quvchi ilovasi — muhim shart 🟡
+
+Web'da (brauzer) mashq qilish **mumkin**, lekin **Vosk offline ASR web'da ishlamaydi**. Brauzerda ovoz→matn = **Web Speech API**: bepul, ammo (1) faqat internetli, (2) asosan Chrome, (3) offline emas. Shuning uchun:
+
+- Web'ni **avval admin/o'qituvchi uchun**, o'quvchi tajribasini **Android ilovada** qoldiramiz.
+- Web o'quvchi ilovasi keyinroq "bonus kirish nuqtasi" sifatida qo'shiladi (baholash, mnemonika, grammatika web'da bemalol ishlaydi — faqat ASR farqi).
+
+### 11.8 Bosqichma-bosqich reja
+
+> **Holat (2026-07-24):** kod deploygacha to'liq yozildi. `web/` — `next build` ✓,
+> Android tomoni `compileDebugKotlin` ✓. Qolgani: keys + Neon/Vercel deploy (user bajaradi).
+
+**Bosqich 5 — Backend poydevori** ✅ (kod)
+- [x] Sxema (`web/src/db/schema.ts`, 11.3 jadvallar) + Drizzle
+- [x] `modules.json` → bazaga import (`npm run seed`)
+- [x] Vercel Next.js loyihasi + Neon ulanish (`src/db/index.ts`)
+- [x] `GET /api/content` va `/api/content/version`
+- [ ] ⚙️ Deploy: Neon bazasi + `db:push` + `seed` (user, keys bilan)
+
+**Bosqich 6 — Admin panel** ✅ (kod)
+- [x] Login (jose JWT + bcryptjs, admin/teacher rol) + middleware himoya
+- [x] Modul / mashq / dialog CRUD (`/admin`, `/admin/exercise`, `/admin/dialog`)
+- [x] Media yuklash (Vercel Blob — `/admin/media`)
+- [x] "Publish" → versiya oshirish (`/api/admin/publish`)
+
+**Bosqich 7 — Ilovaga dinamik kontent** ✅ (kod)
+- [x] `ContentRepository.sync()` online yuklash + kesh + offline zaxira
+- [x] `build.gradle` `API_BASE_URL` (bo'sh = offline-only) + MainActivity ochilishda sync
+- [ ] ⚠️ Real qurilmada sinash (Vosk + sync)
+
+**Bosqich 8 — Progress + o'qituvchi paneli** ✅ (kod)
+- [x] `POST /api/attempts` + `AttemptUploader` (device_id) ilovadan yuborish
+- [x] O'qituvchi roli + progress dashboardi (`/teacher`: ball, WPM, modul, so'nggi urinishlar)
+- [ ] Kelajak: sinf (class_group) bo'yicha filtrlash, o'quvchi profili
+
+**Bosqich 9 (ixtiyoriy) — Web o'quvchi ilovasi**
+- [ ] `/app` — Web Speech API bilan mashq oqimi
+
+### 11.9 Xarajat
+
+| Xizmat | Narx | Cheklov |
+|--------|------|---------|
+| Neon | $0 | 0.5 GB DB (bu loyiha uchun mo'l) |
+| Vercel | $0 | Hobby tier (nekommertsiya) |
+| Vercel Blob / Cloudflare R2 | $0 | Generous bepul tier |
+| Auth.js | $0 | O'zimizniki |
+| **Jami** | **$0/oy** | Google Play $25 bir martalik alohida |

@@ -1,0 +1,143 @@
+import {
+  pgTable,
+  serial,
+  text,
+  integer,
+  boolean,
+  timestamp,
+  jsonb,
+  real,
+  index,
+} from "drizzle-orm/pg-core";
+
+/** Mnemonik bosqich — Android'dagi MnemonicStep bilan bir xil. */
+export type MnemonicStep = { letter: string; en: string; uz: string };
+
+/** Nutq turi moduli (Munozara, Rolli o'yin, Hikoya, Intervyu, Rasmli hikoya). */
+export const modules = pgTable("modules", {
+  id: text("id").primaryKey(),
+  type: text("type").notNull(),
+  titleUz: text("title_uz").notNull(),
+  titleEn: text("title_en").notNull(),
+  descriptionUz: text("description_uz").notNull().default(""),
+  emoji: text("emoji").notNull().default(""),
+  sortOrder: integer("sort_order").notNull().default(0),
+  enabled: boolean("enabled").notNull().default(true),
+});
+
+/** Bitta mashq (Munozara / Hikoya / Rasmli hikoya). Mnemonika shu yerda embed. */
+export const exercises = pgTable(
+  "exercises",
+  {
+    id: text("id").primaryKey(),
+    moduleId: text("module_id")
+      .notNull()
+      .references(() => modules.id, { onDelete: "cascade" }),
+    topic: text("topic").notNull().default(""),
+    title: text("title").notNull(),
+    acronym: text("acronym").notNull().default(""),
+    mnemonicSteps: jsonb("mnemonic_steps").$type<MnemonicStep[]>().notNull().default([]),
+    prompts: jsonb("prompts").$type<string[]>().notNull().default([]),
+    keywords: jsonb("keywords").$type<string[]>().notNull().default([]),
+    visuals: jsonb("visuals").$type<string[]>().notNull().default([]),
+    timeLimitSec: integer("time_limit_sec").notNull().default(60),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("exercises_module_idx").on(t.moduleId)],
+);
+
+/** Rolli o'yin / Intervyu senariysi. Mnemonika embed. */
+export const dialogs = pgTable(
+  "dialogs",
+  {
+    id: text("id").primaryKey(),
+    moduleId: text("module_id")
+      .notNull()
+      .references(() => modules.id, { onDelete: "cascade" }),
+    topic: text("topic").notNull().default(""),
+    title: text("title").notNull(),
+    characterName: text("character_name").notNull().default(""),
+    characterEmoji: text("character_emoji").notNull().default(""),
+    intro: text("intro").notNull().default(""),
+    acronym: text("acronym").notNull().default(""),
+    mnemonicSteps: jsonb("mnemonic_steps").$type<MnemonicStep[]>().notNull().default([]),
+    visuals: jsonb("visuals").$type<string[]>().notNull().default([]),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("dialogs_module_idx").on(t.moduleId)],
+);
+
+/** Bitta dialog almashishi. */
+export const dialogTurns = pgTable(
+  "dialog_turns",
+  {
+    id: serial("id").primaryKey(),
+    dialogId: text("dialog_id")
+      .notNull()
+      .references(() => dialogs.id, { onDelete: "cascade" }),
+    characterLine: text("character_line").notNull().default(""),
+    studentHint: text("student_hint").notNull().default(""),
+    expectedKeywords: jsonb("expected_keywords").$type<string[]>().notNull().default([]),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("dialog_turns_dialog_idx").on(t.dialogId)],
+);
+
+/** Media kutubxonasi — haqiqiy rasmlar (emoji o'rniga). */
+export const media = pgTable("media", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull(),
+  alt: text("alt").notNull().default(""),
+  pathname: text("pathname").notNull().default(""),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Bitta qatorli meta jadval: joriy kontent versiyasi. */
+export const appMeta = pgTable("app_meta", {
+  id: integer("id").primaryKey().default(1),
+  contentVersion: integer("content_version").notNull().default(1),
+  publishedAt: timestamp("published_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Panel foydalanuvchilari (admin / o'qituvchi). */
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  name: text("name").notNull().default(""),
+  role: text("role").notNull().default("teacher"), // "admin" | "teacher"
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** O'quvchilar (ilova device_id yoki login orqali). */
+export const students = pgTable("students", {
+  id: text("id").primaryKey(), // device_id yoki tayinlangan id
+  name: text("name").notNull().default(""),
+  classGroup: text("class_group").notNull().default(""),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Har bir mashq urinishi (progress). */
+export const attempts = pgTable(
+  "attempts",
+  {
+    id: serial("id").primaryKey(),
+    studentId: text("student_id").notNull().default("anon"),
+    moduleId: text("module_id").notNull().default(""),
+    exerciseId: text("exercise_id").notNull().default(""),
+    exerciseTitle: text("exercise_title").notNull().default(""),
+    overallScore: integer("overall_score").notNull().default(0),
+    grammarScore: integer("grammar_score"),
+    wordsPerMinute: integer("words_per_minute").notNull().default(0),
+    wordCount: integer("word_count").notNull().default(0),
+    uniqueWordCount: integer("unique_word_count").notNull().default(0),
+    durationSec: integer("duration_sec").notNull().default(0),
+    keywordCoverage: integer("keyword_coverage").notNull().default(0),
+    transcript: text("transcript").notNull().default(""),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("attempts_student_idx").on(t.studentId),
+    index("attempts_created_idx").on(t.createdAt),
+  ],
+);

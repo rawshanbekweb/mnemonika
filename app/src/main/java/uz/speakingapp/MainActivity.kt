@@ -7,7 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +29,11 @@ class MainActivity : ComponentActivity() {
             SpeakUpTheme {
                 val repository = remember { ContentRepository(applicationContext) }
                 val navController = rememberNavController()
+                // Ochilishda onlayn kontentni tekshiramiz; yangilansa ro'yxatni qayta yuklaymiz.
+                var refreshKey by remember { mutableIntStateOf(0) }
+                LaunchedEffect(Unit) {
+                    if (repository.sync()) refreshKey++
+                }
                 Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
                     NavHost(
                         navController = navController,
@@ -32,8 +41,9 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(padding),
                     ) {
                         composable("home") {
+                            val modules = remember(refreshKey) { repository.loadModules() }
                             HomeScreen(
-                                modules = repository.loadModules(),
+                                modules = modules,
                                 onModuleClick = { id -> navController.navigate("module/$id") },
                                 onProgressClick = { navController.navigate("progress") },
                             )

@@ -75,10 +75,27 @@ fun ProgressScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                Text(
-                    "Jami $total ta urinish",
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                val overallAvg = if (recent.isNotEmpty())
+                    recent.map { it.overallScore }.average().toInt() else 0
+                Card(
+                    Modifier.fillMaxWidth(),
+                    colors = androidx.compose.material3.CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                ) {
+                    Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("$overallAvg", fontSize = 40.sp, fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary)
+                        Text(" / 100", fontSize = 18.sp)
+                        Spacer(Modifier.weight(1f))
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text("Umumiy o'rtacha", style = MaterialTheme.typography.titleSmall)
+                            Text("$total ta urinish",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
             }
             item { Text("Modullar bo'yicha", style = MaterialTheme.typography.titleSmall) }
             items(stats, key = { it.moduleId }) { stat ->
