@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uz.speakingapp.analysis.GrammarChecker
 import uz.speakingapp.analysis.SpeechAnalyzer
 import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.data.ProgressRepository
@@ -27,6 +28,7 @@ data class ExerciseUiState(
     val elapsedSec: Int = 0,
     val timeLimitSec: Int = 60,
     val result: SpeechResult? = null,
+    val checkingGrammar: Boolean = false,
     val error: String? = null,
 )
 
@@ -131,15 +133,31 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
             delay(300)
             val ex = exercise
             val transcript = segments.toString().trim()
-            val result = SpeechAnalyzer.analyze(
+            val localResult = SpeechAnalyzer.analyze(
                 transcript = transcript,
                 durationSec = _state.value.elapsedSec,
                 keywords = ex?.keywords ?: emptyList(),
             )
+            // Avval mahalliy natijani darhol ko'rsatamiz.
             _state.update {
-                it.copy(phase = Phase.Done, transcript = transcript, liveText = "", result = result)
+                it.copy(
+                    phase = Phase.Done,
+                    transcript = transcript,
+                    liveText = "",
+                    result = localResult,
+                    checkingGrammar = localResult.wordCount > 0,
+                )
             }
-            saveAttempt(ex, result)
+            // Keyin onlayn grammatikani tekshiramiz (bo'lsa qo'shamiz).
+            var finalResult = localResult
+            if (localResult.wordCount > 0) {
+                val report = GrammarChecker.check(transcript, localResult.wordCount)
+                if (report != null) {
+                    finalResult = SpeechAnalyzer.withGrammar(localResult, report)
+                }
+            }
+            _state.update { it.copy(result = finalResult, checkingGrammar = false) }
+            saveAttempt(ex, finalResult)
         }
     }
 

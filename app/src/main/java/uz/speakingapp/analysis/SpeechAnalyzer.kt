@@ -25,6 +25,22 @@ data class SpeechResult(
  */
 object SpeechAnalyzer {
 
+    /** Grammatika hisobotini natijaga qo'shadi va umumiy ballni qayta hisoblaydi. */
+    fun withGrammar(result: SpeechResult, report: GrammarReport): SpeechResult {
+        val newOverall = ((result.overallScore * 4 + report.score) / 5).coerceIn(0, 100)
+        val feedback = result.feedback.toMutableList()
+        feedback.add(
+            if (report.issueCount == 0) "Grammatik xatolar topilmadi — juda yaxshi!"
+            else "Grammatikada ${report.issueCount} ta e'tibor talab qiladigan joy bor."
+        )
+        return result.copy(
+            overallScore = newOverall,
+            grammarScore = report.score,
+            grammarIssues = report.issues,
+            feedback = feedback,
+        )
+    }
+
     fun analyze(
         transcript: String,
         durationSec: Int,

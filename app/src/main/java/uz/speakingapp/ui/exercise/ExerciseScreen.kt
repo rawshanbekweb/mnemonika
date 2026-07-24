@@ -127,7 +127,11 @@ fun ExerciseScreen(
                 )
 
                 Phase.Done -> state.result?.let { result ->
-                    ResultSection(result = result, onRetry = { vm.startRecording() })
+                    ResultSection(
+                        result = result,
+                        checkingGrammar = state.checkingGrammar,
+                        onRetry = { vm.startRecording() },
+                    )
                 }
             }
         }
@@ -259,6 +263,7 @@ private fun MicButton(recording: Boolean, onClick: () -> Unit) {
 @Composable
 private fun ResultSection(
     result: uz.speakingapp.analysis.SpeechResult,
+    checkingGrammar: Boolean,
     onRetry: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -296,6 +301,25 @@ private fun ResultSection(
                     "Kalit so'zlar",
                     "${result.matchedKeywords.size}/${result.totalKeywords} (${result.keywordCoverage}%)"
                 )
+                when {
+                    result.grammarScore != null ->
+                        MetricRow("Grammatika", "${result.grammarScore}/100")
+                    checkingGrammar ->
+                        MetricRow("Grammatika", "tekshirilmoqda…")
+                }
+            }
+        }
+
+        // Grammatika e'tibori
+        if (result.grammarIssues.isNotEmpty()) {
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp)) {
+                    Text("Grammatika e'tibori", style = MaterialTheme.typography.titleSmall)
+                    Spacer(Modifier.size(6.dp))
+                    result.grammarIssues.forEach {
+                        Text("• $it", style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
             }
         }
 
