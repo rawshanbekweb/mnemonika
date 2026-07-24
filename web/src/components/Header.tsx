@@ -9,6 +9,18 @@ const links = [
   { href: "/teacher", label: "Progress" },
 ];
 
+function isActive(href: string, pathname: string): boolean {
+  // "Kontent" — /admin va mashq/dialog muharrirlari, lekin /admin/media emas.
+  if (href === "/admin") {
+    return (
+      pathname === "/admin" ||
+      pathname.startsWith("/admin/exercise") ||
+      pathname.startsWith("/admin/dialog")
+    );
+  }
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
 export default function Header({ name, role }: { name: string; role: string }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -33,7 +45,7 @@ export default function Header({ name, role }: { name: string; role: string }) {
             {links
               .filter((l) => role === "admin" || l.href === "/teacher")
               .map((l) => {
-                const active = pathname === l.href || pathname.startsWith(l.href + "/");
+                const active = isActive(l.href, pathname);
                 return (
                   <Link
                     key={l.href}

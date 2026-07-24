@@ -10,6 +10,7 @@ export default function MediaPage() {
   const [alt, setAlt] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [fileName, setFileName] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function reload() {
@@ -34,6 +35,7 @@ export default function MediaPage() {
       form.set("alt", alt);
       await api.upload("/api/admin/media", form);
       setAlt("");
+      setFileName("");
       if (fileRef.current) fileRef.current.value = "";
       await reload();
     } catch (e) {
@@ -51,27 +53,46 @@ export default function MediaPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold">Media kutubxonasi</h1>
-        <p className="text-sm text-slate-500">
-          Haqiqiy rasmlarni yuklang, so'ng URL'ni mashq/dialog "Vizuallar" maydoniga qo'ying.
-        </p>
+      <div className="flex items-center gap-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-hero-gradient text-2xl shadow-soft">
+          🖼️
+        </div>
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">Media kutubxonasi</h1>
+          <p className="text-sm text-ink-muted">
+            Haqiqiy rasmlarni yuklang, so'ng URL'ni mashq/dialog "Vizuallar" maydoniga qo'ying.
+          </p>
+        </div>
       </div>
 
-      <div className="card flex flex-wrap items-end gap-3">
+      <div className="card flex flex-wrap items-end gap-4">
         <div>
-          <label className="label">Rasm fayli</label>
-          <input ref={fileRef} type="file" accept="image/*" className="text-sm" />
+          <span className="label">Rasm fayli</span>
+          <div className="flex items-center gap-2">
+            <label className="btn-ghost cursor-pointer">
+              📁 Rasm tanlash
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
+              />
+            </label>
+            <span className="max-w-[180px] truncate text-sm text-ink-muted">
+              {fileName || "Fayl tanlanmagan"}
+            </span>
+          </div>
         </div>
-        <div className="flex-1">
+        <div className="min-w-[160px] flex-1">
           <label className="label">Izoh (alt)</label>
           <input className="input" value={alt} onChange={(e) => setAlt(e.target.value)} />
         </div>
-        <button className="btn-primary" onClick={upload} disabled={uploading}>
+        <button className="btn-primary" onClick={upload} disabled={uploading || !fileName}>
           {uploading ? "Yuklanmoqda…" : "Yuklash"}
         </button>
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-coral-dark">{error}</p>}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {rows.map((m) => (
