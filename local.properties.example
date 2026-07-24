@@ -1,0 +1,7 @@
+# local.properties namunasi — haqiqiy qiymatlarni local.properties ga yozing (git-ignored).
+sdk.dir=C\:\\Users\\<foydalanuvchi>\\AppData\\Local\\Android\\Sdk
+
+# Backend (SpeakUp web) sozlamalari:
+API_BASE_URL=https://mnemonika.vercel.app
+# ATTEMPTS_TOKEN web/.env dagi ATTEMPTS_INGEST_TOKEN bilan bir xil bo'lishi kerak.
+ATTEMPTS_TOKEN=

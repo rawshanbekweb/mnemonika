@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,6 +7,15 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
+
+// Backend sozlamalari local.properties'dan o'qiladi (git'ga tushmaydi — maxfiy qoladi).
+// Namuna uchun local.properties.example ga qarang.
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val apiBaseUrl: String = localProps.getProperty("API_BASE_URL", "")
+val attemptsToken: String = localProps.getProperty("ATTEMPTS_TOKEN", "")
 
 android {
     namespace = "uz.speakingapp"
@@ -18,13 +29,13 @@ android {
         versionName = "0.1.0"
         vectorDrawables { useSupportLibrary = true }
 
-        // ── Backend (Vercel) sozlamalari ──────────────────────────────
-        // Deploydan keyin bu URL'ni o'zingizning Vercel manzilingizga o'zgartiring,
-        // masalan: "https://speakup-web.vercel.app". Bo'sh bo'lsa ilova faqat
-        // ichki (bundled) kontentdan ishlaydi — online sync o'chiriladi.
-        buildConfigField("String", "API_BASE_URL", "\"\"")
-        // /api/attempts uchun umumiy token (.env dagi ATTEMPTS_INGEST_TOKEN bilan bir xil).
-        buildConfigField("String", "ATTEMPTS_TOKEN", "\"\"")
+        // ── Backend (Vercel) sozlamalari — local.properties'dan ────────
+        // local.properties (git-ignored) ga qo'ying:
+        //   API_BASE_URL=https://mnemonika.vercel.app
+        //   ATTEMPTS_TOKEN=<ATTEMPTS_INGEST_TOKEN bilan bir xil>
+        // Bo'sh bo'lsa ilova faqat ichki (bundled) kontentdan ishlaydi — online sync o'chiq.
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+        buildConfigField("String", "ATTEMPTS_TOKEN", "\"$attemptsToken\"")
 
         // APK hajmini kamaytirish: kamdan-kam kerak x86 (32-bit) ni chiqarib tashlaymiz.
         // arm64-v8a/armeabi-v7a — telefonlar, x86_64 — emulyator.
