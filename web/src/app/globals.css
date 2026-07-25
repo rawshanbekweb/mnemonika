@@ -12,6 +12,63 @@ body {
   min-height: 100vh;
 }
 
+/* ── Naqshlar ────────────────────────────────────────────
+   Tashqi rasm fayli YO'Q — hammasi ichki SVG (data-URI).
+   Sabab: offline ishlaydi, litsenziya muammosi yo'q, hajmi ~1KB
+   va CSP tashqi hostlarni bloklaganda ham ko'rinadi.        */
+
+/* Ko'k yuzalar uchun: chizmachilik to'ri + burchakdagi muhr halqalari.
+   Ixtiyoriy ravishda ostiga fotosurat qo'yiladi — u to'q ko'k parda ostida
+   tekstura bo'lib ko'rinadi, matn kontrasti buzilmaydi.
+   Qatlamlar tartibi: muhr → to'r → parda → fotosurat. */
+.hero-navy {
+  --hero-photo: none;
+  --hero-scrim: linear-gradient(#1e3a5f, #1e3a5f); /* fotosuratsiz: to'liq ko'k */
+  background-color: theme("colors.navy.DEFAULT");
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.07'%3E%3Ccircle cx='160' cy='160' r='150'/%3E%3Ccircle cx='160' cy='160' r='116'/%3E%3Ccircle cx='160' cy='160' r='82'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M32 0H0v32' fill='none' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='1'/%3E%3C/svg%3E"),
+    var(--hero-scrim),
+    var(--hero-photo);
+  background-repeat: no-repeat, repeat, no-repeat, no-repeat;
+  background-position:
+    right -90px top -110px,
+    0 0,
+    0 0,
+    center;
+  background-size:
+    320px 320px,
+    32px 32px,
+    cover,
+    cover;
+}
+
+/* Fotosurat variantlari — manba va litsenziya: public/hero/CREDITS.md */
+.hero-photo-classroom {
+  --hero-photo: url("/hero/classroom.jpg");
+  --hero-scrim: linear-gradient(rgba(30, 58, 95, 0.88), rgba(30, 58, 95, 0.88));
+}
+.hero-photo-notebook {
+  --hero-photo: url("/hero/notebook.jpg");
+  --hero-scrim: linear-gradient(rgba(30, 58, 95, 0.86), rgba(30, 58, 95, 0.86));
+}
+.hero-photo-book {
+  --hero-photo: url("/hero/book.jpg");
+  --hero-scrim: linear-gradient(rgba(30, 58, 95, 0.86), rgba(30, 58, 95, 0.86));
+}
+
+/* Ochiq sahifa foni uchun: juda past kontrastli to'r. */
+.pattern-page {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M32 0H0v32' fill='none' stroke='%231E3A5F' stroke-opacity='0.045' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 32px 32px;
+}
+
+/* Yon panel (sidebar) uchun: nozik diagonal shtrix. */
+.pattern-rail {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M0 16L16 0' fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 16px 16px;
+}
+
 /* ── Buttons ─────────────────────────────────────────── */
 .btn {
   @apply inline-flex items-center justify-center gap-2 rounded px-5 py-2.5 text-sm font-medium transition disabled:opacity-40;
