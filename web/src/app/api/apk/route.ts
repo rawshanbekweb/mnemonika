@@ -11,11 +11,26 @@ export const dynamic = "force-dynamic";
  * APK bo'lmasa yoki Blob sozlanmagan bo'lsa `null` qaytadi va sahifada
  * yuklab olish bo'limi umuman ko'rinmaydi.
  */
-export async function GET() {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json(null);
+export async function GET(req: Request) {
+  // ?debug=1 — nosozlikni aniqlash uchun. Sir chiqmaydi: token ichidagi store ID
+  // ommaviy blob URL manzilida allaqachon ko'rinadi, maxfiy qismi esa kesiladi.
+  const debug = new URL(req.url).searchParams.get("debug") === "1";
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  const storeId = token?.split("_")[3] ?? null;
+
+  if (!token) {
+    return NextResponse.json(debug ? { error: "BLOB_READ_WRITE_TOKEN yo'q" } : null);
+  }
 
   try {
     const { blobs } = await list({ prefix: "apk/" });
+    if (debug) {
+      return NextResponse.json({
+        storeId,
+        blobCount: blobs.length,
+        pathnames: blobs.map((b) => b.pathname),
+      });
+    }
     if (blobs.length === 0) return NextResponse.json(null);
 
     const newest = blobs.sort(
@@ -32,7 +47,13 @@ export async function GET() {
       uploadedAt: newest.uploadedAt,
       version,
     });
-  } catch {
+  } catch (e) {
+    if (debug) {
+      return NextResponse.json({
+        storeId,
+        error: e instanceof Error ? e.message : String(e),
+      });
+    }
     return NextResponse.json(null);
   }
 }
