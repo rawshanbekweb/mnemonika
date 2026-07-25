@@ -11,7 +11,12 @@ import {
   type StudentProfile,
 } from "@/lib/student";
 import type { SpeakingModule } from "@/lib/content-types";
-import { loadAttempts } from "@/lib/attempts-store";
+import {
+  exerciseStats,
+  loadAttempts,
+  type ExerciseStat,
+  type StoredAttempt,
+} from "@/lib/attempts-store";
 import { computeGameStats, type GameStats } from "@/lib/gamification";
 import { Icon, type IconName } from "@/components/Icon";
 
@@ -21,10 +26,13 @@ export default function StudentHome() {
   const { pack, error } = useContent();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [editing, setEditing] = useState(false);
-  const [openModule, setOpenModule] = useState<string | null>(null);
+  // Modullar ochiq holatda boshlanadi — yopilganlari shu yerda.
+  const [closed, setClosed] = useState<Set<string>>(new Set());
+  const [attempts, setAttempts] = useState<StoredAttempt[]>([]);
 
   useEffect(() => {
     setProfile(loadStudent());
+    setAttempts(loadAttempts());
   }, []);
 
   if (!profile) return <Loading />;
@@ -45,40 +53,51 @@ export default function StudentHome() {
 
   // Web'da hozircha faqat mashqlar bor (suhbatlar Android'da).
   const modules = (pack?.modules ?? []).filter((m) => m.exercises.length > 0);
+  const stats = exerciseStats(attempts);
+  const game = attempts.length > 0 ? computeGameStats(attempts, modules.length) : null;
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <Masthead
-        profile={profile}
-        moduleCount={modules.length}
-        onEdit={() => setEditing(true)}
-      />
+    <div className="pattern-page min-h-screen">
+      <Masthead profile={profile} game={game} onEdit={() => setEditing(true)} />
 
-      <div className="px-4">
-        <BrowserWarning />
-        <AndroidDownload />
+      <div className="mx-auto max-w-5xl px-4 py-7">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-start lg:gap-8">
+          <div>
+            <BrowserWarning />
 
-        {error && <p className="mt-6 text-sm text-state-danger">{error}</p>}
+            {error && <p className="mb-6 text-sm text-state-danger">{error}</p>}
 
-        <p className="mt-8 overline">Modullar</p>
-        <div className="mt-3 border-t border-line">
-          {modules.map((m, i) => (
-            <ModuleRow
-              key={m.id}
-              index={i + 1}
-              module={m}
-              open={openModule === m.id}
-              onToggle={() => setOpenModule(openModule === m.id ? null : m.id)}
-            />
-          ))}
+            <p className="overline">Modullar</p>
+            <div className="mt-3 border-t border-line">
+              {modules.map((m, i) => (
+                <ModuleRow
+                  key={m.id}
+                  index={i + 1}
+                  module={m}
+                  stats={stats}
+                  open={!closed.has(m.id)}
+                  onToggle={() =>
+                    setClosed((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(m.id)) next.delete(m.id);
+                      else next.add(m.id);
+                      return next;
+                    })
+                  }
+                />
+              ))}
+            </div>
+
+            {!pack && !error && <Loading />}
+            {pack && modules.length === 0 && (
+              <p className="py-6 text-sm text-ink-muted">Hozircha mashqlar yo&apos;q.</p>
+            )}
+          </div>
+
+          <SideRail game={game} />
         </div>
 
-        {!pack && !error && <Loading />}
-        {pack && modules.length === 0 && (
-          <p className="py-6 text-sm text-ink-muted">Hozircha mashqlar yo&apos;q.</p>
-        )}
-
-        <footer className="mt-12 border-t border-line pt-4 pb-10 text-xs text-ink-muted">
+        <footer className="mt-12 border-t border-line pb-10 pt-4 text-xs text-ink-muted">
           <p>
             Suhbat mashqlari (Rolli o&apos;yin, Intervyu) va internetsiz ishlash — Android
             ilovasida.
@@ -94,22 +113,16 @@ export default function StudentHome() {
 
 function Masthead({
   profile,
-  moduleCount,
+  game,
   onEdit,
 }: {
   profile: StudentProfile;
-  moduleCount: number;
+  game: GameStats | null;
   onEdit: () => void;
 }) {
-  const [game, setGame] = useState<GameStats | null>(null);
-
-  useEffect(() => {
-    setGame(computeGameStats(loadAttempts(), moduleCount));
-  }, [moduleCount]);
-
   return (
-    <header className="bg-navy px-4 py-6 text-white">
-      <div className="mx-auto max-w-3xl">
+    <header className="hero-navy hero-photo-notebook text-white">
+      <div className="mx-auto max-w-5xl px-4 py-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-[0.12em]">SPEAKUP</h1>
@@ -119,39 +132,75 @@ function Masthead({
           </div>
           <button
             onClick={onEdit}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15 text-sm font-semibold transition hover:bg-white/25"
+            className="flex shrink-0 items-center gap-2.5 rounded border border-white/25 px-2.5 py-2 text-left transition hover:bg-white/10"
             title="Profilni tahrirlash"
           >
-            {profile.name.slice(0, 1).toUpperCase()}
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-white/15 text-sm font-semibold">
+              {profile.name.slice(0, 1).toUpperCase()}
+            </span>
+            <span className="min-w-0">
+              <span className="block max-w-[8rem] truncate text-sm font-medium">
+                {profile.name}
+              </span>
+              {profile.classGroup && (
+                <span className="block text-overline uppercase text-white/55">
+                  {profile.classGroup}
+                </span>
+              )}
+            </span>
           </button>
         </div>
 
-        <div className="mt-5 border-t border-white/15 pt-4">
-          <p className="font-medium">
-            {profile.name}
-            {profile.classGroup && (
-              <span className="ml-2 text-sm text-white/60">{profile.classGroup}</span>
-            )}
-          </p>
+        <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-white/15 pt-4">
+          {game ? (
+            <>
+              <Metric icon="flame" value={game.streakDays} label="kunlik seriya" />
+              <Metric icon="trendingUp" value={game.level} label="daraja" />
+              <Metric icon="medal" value={game.unlockedBadges} label="nishon" />
+            </>
+          ) : (
+            <p className="text-sm text-white/75">
+              Birinchi mashqni bajaring — natijalaringiz shu yerda ko&apos;rinadi.
+            </p>
+          )}
+
+          <Link
+            href="/student/progress"
+            className="flex w-full items-center justify-center gap-2 rounded border border-white/35 py-2.5 text-sm font-medium transition hover:bg-white/10 sm:ml-auto sm:w-auto sm:px-5 sm:py-2"
+          >
+            <Icon name="chart" size={17} />
+            Natijalarim
+          </Link>
         </div>
-
-        {game && game.totalAttempts > 0 && (
-          <div className="mt-4 flex gap-8">
-            <Metric icon="flame" value={game.streakDays} label="kunlik seriya" />
-            <Metric icon="trendingUp" value={game.level} label="daraja" />
-            <Metric icon="medal" value={game.unlockedBadges} label="nishon" />
-          </div>
-        )}
-
-        <Link
-          href="/student/progress"
-          className="mt-5 flex items-center justify-center gap-2 rounded border border-white/35 py-2.5 text-sm font-medium transition hover:bg-white/10"
-        >
-          <Icon name="chart" size={17} />
-          Natijalarim
-        </Link>
       </div>
     </header>
+  );
+}
+
+function SideRail({ game }: { game: GameStats | null }) {
+  return (
+    <aside className="mt-8 space-y-4 lg:mt-0">
+      {game && (
+        <div className="card">
+          <p className="section-title">Daraja</p>
+          <p className="mt-3 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-ink">{game.level}</span>
+            <span className="text-sm text-ink-muted">{game.levelTitle}</span>
+          </p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-sm bg-surface-muted">
+            <div
+              className="h-full bg-navy transition-all"
+              style={{ width: `${Math.round(game.levelProgress * 100)}%` }}
+            />
+          </div>
+          <p className="mt-2 text-overline uppercase text-ink-muted">
+            {game.xpInLevel} / {game.xpPerLevel} XP · {game.totalAttempts} ta mashq
+          </p>
+        </div>
+      )}
+
+      <AndroidDownload />
+    </aside>
   );
 }
 
@@ -178,14 +227,19 @@ function Metric({
 function ModuleRow({
   index,
   module,
+  stats,
   open,
   onToggle,
 }: {
   index: number;
   module: SpeakingModule;
+  stats: Map<string, ExerciseStat>;
   open: boolean;
   onToggle: () => void;
 }) {
+  const total = module.exercises.length;
+  const done = module.exercises.filter((e) => stats.has(e.id)).length;
+
   return (
     <div className="border-b border-line">
       <button
@@ -195,39 +249,89 @@ function ModuleRow({
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-navy text-sm font-bold tracking-wider text-white">
           {String(index).padStart(2, "0")}
         </span>
-        <span className="flex-1">
+        <span className="min-w-0 flex-1">
           <span className="block font-semibold text-ink">{module.titleUz}</span>
           <span className="mt-0.5 block text-sm text-ink-muted">
-            {module.titleEn} · {module.exercises.length} ta mashq
+            {module.titleEn} · {total} ta mashq
+          </span>
+          <span className="mt-2 flex items-center gap-2">
+            <span className="block h-1 w-24 overflow-hidden rounded-sm bg-surface-muted">
+              <span
+                className="block h-full bg-navy"
+                style={{ width: `${total ? (done / total) * 100 : 0}%` }}
+              />
+            </span>
+            <span className="text-overline uppercase text-ink-muted">
+              {done}/{total} bajarildi
+            </span>
           </span>
         </span>
         <Icon
           name="chevronRight"
           size={22}
-          className={`text-line transition-transform ${open ? "rotate-90" : ""}`}
+          className={`shrink-0 text-line transition-transform ${open ? "rotate-90" : ""}`}
         />
       </button>
 
       {open && (
         <div className="border-t border-line bg-surface-muted/50 px-3 py-3">
-          {module.exercises.map((ex) => (
-            <Link
-              key={ex.id}
-              href={`/student/${module.id}/${ex.id}`}
-              className="flex items-center gap-3 border-b border-line/60 bg-white px-3 py-3 last:border-b-0 hover:bg-surface-muted"
-            >
-              <span className="flex-1">
-                <span className="block text-sm font-semibold text-ink">{ex.title}</span>
-                <span className="block text-xs text-ink-muted">
-                  {ex.topic} · {ex.mnemonic.acronym} · {ex.timeLimitSec}s
+          {module.exercises.map((ex) => {
+            const st = stats.get(ex.id);
+            return (
+              <Link
+                key={ex.id}
+                href={`/student/${module.id}/${ex.id}`}
+                className="flex items-center gap-3 border-b border-line/60 bg-white px-3 py-3 last:border-b-0 hover:bg-surface-muted"
+              >
+                <ScoreBadge score={st?.bestScore} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-ink">{ex.title}</span>
+                  <span className="block text-xs text-ink-muted">
+                    {ex.topic} · {ex.mnemonic.acronym} · {ex.timeLimitSec}s
+                  </span>
+                  {st && (
+                    <span className="mt-1 block text-overline uppercase text-ink-muted">
+                      {st.attempts} urinish · eng yaxshi {st.bestScore}
+                    </span>
+                  )}
                 </span>
-              </span>
-              <span className="btn-primary !px-3 !py-1.5 !text-xs">Boshlash</span>
-            </Link>
-          ))}
+                <span
+                  className={`shrink-0 !px-3 !py-1.5 !text-xs ${
+                    st ? "btn-ghost" : "btn-primary"
+                  }`}
+                >
+                  {st ? "Qayta" : "Boshlash"}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
+  );
+}
+
+/** Mashqning eng yaxshi bali — bajarilmagani bo'sh ramka. */
+function ScoreBadge({ score }: { score?: number }) {
+  if (score === undefined) {
+    return (
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-dashed border-line text-line">
+        <Icon name="mic" size={15} />
+      </span>
+    );
+  }
+  const tone =
+    score >= 80
+      ? "bg-emerald-50 text-state-success"
+      : score >= 50
+        ? "bg-navy-container text-navy"
+        : "bg-gold-container text-gold-deep";
+  return (
+    <span
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-sm text-sm font-bold ${tone}`}
+    >
+      {score}
+    </span>
   );
 }
 
@@ -247,37 +351,27 @@ function AndroidDownload() {
 
   if (!apk) return null;
 
-  if (!isAndroid) {
-    return (
-      <p className="mt-6 text-xs text-ink-muted">
-        Android telefoningiz bormi?{" "}
-        <a href={apk.url} className="font-semibold text-navy underline">
-          Ilovani yuklab oling
-        </a>{" "}
-        — internetsiz ham ishlaydi.
-      </p>
-    );
-  }
-
   return (
-    <div className="card mt-6">
-      <div className="flex items-start gap-4">
-        <Icon name="smartphone" size={24} className="mt-0.5 text-navy" />
-        <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-ink">Android ilovasini o&apos;rnating</h3>
-          <p className="mt-1 text-sm text-ink-muted">
-            Internetsiz ishlaydi va suhbat mashqlari (Rolli o&apos;yin, Intervyu) ham bor.
-          </p>
-          <a href={apk.url} className="btn-primary mt-4 inline-flex" download>
-            <Icon name="download" size={16} />
-            Yuklab olish · {apk.sizeMb} MB
-          </a>
-          <p className="mt-2 text-xs text-ink-muted">
-            {apk.version && `Versiya ${apk.version} · `}
-            O&apos;rnatishda &quot;Noma&apos;lum manbalarga ruxsat&quot; so&apos;raladi.
-          </p>
-        </div>
+    <div className="card">
+      <p className="section-title">Android ilovasi</p>
+      <div className="mt-3 flex items-start gap-3">
+        <Icon name="smartphone" size={22} className="mt-0.5 shrink-0 text-navy" />
+        <p className="text-sm text-ink-muted">
+          Internetsiz ishlaydi va suhbat mashqlari (Rolli o&apos;yin, Intervyu) ham bor.
+        </p>
       </div>
+      <a
+        href={apk.url}
+        download
+        className={`mt-4 w-full ${isAndroid ? "btn-primary" : "btn-ghost"}`}
+      >
+        <Icon name="download" size={16} />
+        Yuklab olish · {apk.sizeMb} MB
+      </a>
+      <p className="mt-2 text-overline uppercase text-ink-muted">
+        {apk.version && `Versiya ${apk.version} · `}
+        Noma&apos;lum manbalarga ruxsat so&apos;raladi
+      </p>
     </div>
   );
 }
@@ -296,7 +390,7 @@ function BrowserWarning() {
 
   if (!unsupported) return null;
   return (
-    <div className="mt-6 flex gap-3 rounded border border-gold/40 bg-gold-container p-4 text-sm">
+    <div className="mb-6 flex gap-3 rounded border border-gold/40 bg-gold-container p-4 text-sm">
       <Icon name="warning" size={18} className="mt-0.5 shrink-0 text-gold-deep" />
       <div>
         <p className="font-semibold text-ink">
@@ -328,7 +422,7 @@ function ProfileForm({
 
   return (
     <div>
-      <header className="bg-navy px-4 py-8 text-white">
+      <header className="hero-navy hero-photo-classroom px-4 py-8 text-white">
         <div className="mx-auto max-w-lg">
           <h1 className="text-2xl font-bold tracking-[0.12em]">SPEAKUP</h1>
           <p className="mt-1.5 text-sm text-white/75">

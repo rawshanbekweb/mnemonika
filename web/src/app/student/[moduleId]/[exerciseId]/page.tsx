@@ -182,8 +182,8 @@ export default function ExercisePage() {
   const spokenNow = new Set(matchedKeywords(liveText, exercise.keywords));
 
   return (
-    <div>
-      <header className="bg-navy px-4 py-4 text-white">
+    <div className="pattern-page min-h-screen">
+      <header className="hero-navy px-4 py-4 text-white">
         <div className="mx-auto flex max-w-2xl items-center gap-3">
           <Link
             href="/student"
@@ -265,44 +265,31 @@ export default function ExercisePage() {
         </section>
 
         {phase === "ready" && (
-          <div className="mt-6 text-center">
-            <p className="text-[15px] text-ink">
+          <div className="mt-7 text-center">
+            <MicRing
+              recording={false}
+              elapsed={0}
+              limit={limit}
+              disabled={!speech.supported}
+              onClick={start}
+            />
+            <p className="mt-4 text-[15px] text-ink">
               Tayyor bo&apos;lsangiz mikrofonni bosing va gapiring
             </p>
             <p className="mt-1 overline">Maksimal {limit} soniya</p>
-            <button
-              onClick={start}
-              disabled={!speech.supported}
-              className="mx-auto mt-5 flex h-20 w-20 items-center justify-center rounded-full bg-navy text-white transition hover:bg-navy-deep disabled:opacity-30"
-              aria-label="Yozishni boshlash"
-            >
-              <Icon name="mic" size={30} />
-            </button>
           </div>
         )}
 
         {phase === "recording" && (
-          <div className="mt-6">
-            <div className="flex items-center justify-center gap-2">
-              <span className="h-2 w-2 rounded-sm bg-state-danger" />
+          <div className="mt-7">
+            <MicRing recording elapsed={elapsed} limit={limit} onClick={finish} />
+
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <span className="h-2 w-2 animate-pulse rounded-sm bg-state-danger" />
               <span className="text-overline font-semibold uppercase text-state-danger">
-                Yozilmoqda · {elapsed}s / {limit}s
+                Yozilmoqda · {Math.max(0, limit - elapsed)}s qoldi
               </span>
             </div>
-            <div className="mx-auto mt-3 h-1.5 w-full overflow-hidden rounded-sm bg-surface-muted">
-              <div
-                className="h-full bg-state-danger transition-all"
-                style={{ width: `${Math.min(100, (elapsed / limit) * 100)}%` }}
-              />
-            </div>
-
-            <button
-              onClick={finish}
-              className="mx-auto mt-5 flex h-20 w-20 animate-pulse items-center justify-center rounded-full bg-state-danger text-white"
-              aria-label="To'xtatish"
-            >
-              <Icon name="stop" size={28} />
-            </button>
 
             {exercise.keywords.length > 0 && (
               <div className="card mt-6">
@@ -314,9 +301,9 @@ export default function ExercisePage() {
             )}
 
             {liveText && (
-              <div className="card mt-4">
-                <p className="section-title">Nutqingiz</p>
-                <p className="mt-3 text-[15px]">
+              <div className="mt-3 rounded border border-line bg-surface-muted/60 p-4">
+                <p className="overline">Nutqingiz</p>
+                <p className="mt-2 text-[15px] text-ink">
                   {speech.finalText}{" "}
                   <span className="text-ink-muted">{speech.interimText}</span>
                 </p>
@@ -336,6 +323,65 @@ export default function ExercisePage() {
 
         <div className="h-10" />
       </div>
+    </div>
+  );
+}
+
+/** Mikrofon tugmasi — taymer uning atrofidagi halqa sifatida ko'rinadi. */
+function MicRing({
+  recording,
+  elapsed,
+  limit,
+  disabled,
+  onClick,
+}: {
+  recording: boolean;
+  elapsed: number;
+  limit: number;
+  disabled?: boolean;
+  onClick: () => void;
+}) {
+  const size = 132;
+  const stroke = 5;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const pct = recording ? Math.min(1, elapsed / limit) : 0;
+
+  return (
+    <div className="relative mx-auto" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="absolute inset-0 -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#DCE3EA"
+          strokeWidth={stroke}
+        />
+        {recording && (
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="#C53030"
+            strokeWidth={stroke}
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference * (1 - pct)}
+            className="transition-[stroke-dashoffset] duration-1000 ease-linear"
+          />
+        )}
+      </svg>
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={recording ? "To'xtatish" : "Yozishni boshlash"}
+        className={`absolute inset-4 flex items-center justify-center rounded-full text-white transition disabled:opacity-30 ${
+          recording ? "bg-state-danger" : "bg-navy hover:bg-navy-deep"
+        }`}
+      >
+        <Icon name={recording ? "stop" : "mic"} size={30} />
+      </button>
     </div>
   );
 }
@@ -375,24 +421,28 @@ function Result({
 
   return (
     <div className="mt-6 space-y-3">
-      <div className="card flex flex-col items-center">
-        <ScoreRing score={result.overallScore} />
-        <p className="mt-3 font-semibold text-navy">{message}</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2.5">
-        <Stat value={result.wordCount} label="So'zlar" />
-        <Stat value={result.uniqueWordCount} label="Noyob so'z" />
-        <Stat value={result.wordsPerMinute} label="So'z/daqiqa" />
-        <Stat value={`${result.durationSec}s`} label="Davomiylik" />
-        <Stat
-          value={`${result.matchedKeywords.length}/${result.totalKeywords}`}
-          label="Kalit so'zlar"
-        />
-        <Stat
-          value={result.grammarScore ?? (checkingGrammar ? "…" : "—")}
-          label="Grammatika"
-        />
+      {/* Ball va ko'rsatkichlar — bitta blokda. */}
+      <div className="card">
+        <div className="flex flex-col items-center gap-6 sm:flex-row">
+          <div className="flex shrink-0 flex-col items-center sm:w-40">
+            <ScoreRing score={result.overallScore} />
+            <p className="mt-3 text-center font-semibold text-navy">{message}</p>
+          </div>
+          <div className="grid w-full grid-cols-3 gap-x-4 gap-y-5 sm:border-l sm:border-line sm:pl-6">
+            <Stat value={result.wordCount} label="So'zlar" />
+            <Stat value={result.uniqueWordCount} label="Noyob so'z" />
+            <Stat value={result.wordsPerMinute} label="So'z/daqiqa" />
+            <Stat value={`${result.durationSec}s`} label="Davomiylik" />
+            <Stat
+              value={`${result.matchedKeywords.length}/${result.totalKeywords}`}
+              label="Kalit so'zlar"
+            />
+            <Stat
+              value={result.grammarScore ?? (checkingGrammar ? "…" : "—")}
+              label="Grammatika"
+            />
+          </div>
+        </div>
       </div>
 
       {keywords.length > 0 && (
@@ -401,20 +451,6 @@ function Result({
             Kalit so&apos;zlar · {result.matchedKeywords.length}/{keywords.length}
           </p>
           <KeywordChips keywords={keywords} spoken={new Set(result.matchedKeywords)} />
-        </div>
-      )}
-
-      {result.grammarIssues.length > 0 && (
-        <div className="card">
-          <p className="section-title">Grammatika e&apos;tibori</p>
-          <ul className="mt-3 space-y-1.5 text-sm text-ink">
-            {result.grammarIssues.map((g, i) => (
-              <li key={i} className="flex gap-2">
-                <span className="text-ink-muted">—</span>
-                <span>{g}</span>
-              </li>
-            ))}
-          </ul>
         </div>
       )}
 
@@ -428,13 +464,26 @@ function Result({
             </li>
           ))}
         </ul>
+
+        {result.grammarIssues.length > 0 && (
+          <>
+            <p className="section-title mt-6">Grammatika e&apos;tibori</p>
+            <ul className="mt-3 space-y-1.5 text-sm text-ink">
+              {result.grammarIssues.map((g, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="text-ink-muted">—</span>
+                  <span>{g}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
 
       {result.transcript && (
-        <div className="card">
-          <p className="section-title">Nutqingiz (matn)</p>
-          <p className="mt-3 text-sm text-ink-muted">{result.transcript}</p>
-        </div>
+        <Collapsible title="Nutqingiz (matn)">
+          <p className="text-sm text-ink-muted">{result.transcript}</p>
+        </Collapsible>
       )}
 
       <div className="flex gap-3">
@@ -483,9 +532,31 @@ function ScoreRing({ score }: { score: number }) {
 
 function Stat({ value, label }: { value: string | number; label: string }) {
   return (
-    <div className="rounded border border-line bg-white p-4">
-      <p className="text-xl font-bold text-ink">{value}</p>
-      <p className="mt-1 text-overline uppercase text-ink-muted">{label}</p>
+    <div>
+      <p className="text-xl font-bold leading-none text-ink">{value}</p>
+      <p className="mt-1.5 text-overline uppercase text-ink-muted">{label}</p>
+    </div>
+  );
+}
+
+/** Yig'iladigan bo'lim — transkript kabi ikkilamchi ma'lumot uchun. */
+function Collapsible({ title, children }: { title: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="card">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-2 text-left"
+        aria-expanded={open}
+      >
+        <Icon
+          name="chevronRight"
+          size={18}
+          className={`text-ink-muted transition-transform ${open ? "rotate-90" : ""}`}
+        />
+        <span className="overline">{title}</span>
+      </button>
+      {open && <div className="mt-3">{children}</div>}
     </div>
   );
 }

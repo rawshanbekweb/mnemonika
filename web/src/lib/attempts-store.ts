@@ -57,6 +57,37 @@ export function saveAttempt(attempt: Omit<StoredAttempt, "id" | "timestamp">): v
   }
 }
 
+export type ExerciseStat = {
+  exerciseId: string;
+  attempts: number;
+  bestScore: number;
+  lastAt: number;
+};
+
+/**
+ * Mashq bo'yicha jamlanma — modullar ro'yxatida "bajarildi / eng yaxshi ball"
+ * ko'rsatish uchun. Web'ga xos: Android bu ma'lumotni Room'dan boshqacha oladi.
+ */
+export function exerciseStats(attempts: StoredAttempt[]): Map<string, ExerciseStat> {
+  const out = new Map<string, ExerciseStat>();
+  for (const a of attempts) {
+    const prev = out.get(a.exerciseId);
+    if (!prev) {
+      out.set(a.exerciseId, {
+        exerciseId: a.exerciseId,
+        attempts: 1,
+        bestScore: a.overallScore,
+        lastAt: a.timestamp,
+      });
+      continue;
+    }
+    prev.attempts++;
+    if (a.overallScore > prev.bestScore) prev.bestScore = a.overallScore;
+    if (a.timestamp > prev.lastAt) prev.lastAt = a.timestamp;
+  }
+  return out;
+}
+
 export type ModuleStat = {
   moduleId: string;
   attempts: number;
