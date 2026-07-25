@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import uz.speakingapp.data.AttemptUploader
 import uz.speakingapp.data.ProgressRepository
 import uz.speakingapp.data.db.AttemptEntity
+import uz.speakingapp.data.db.ExerciseStat
 import uz.speakingapp.data.db.ModuleStat
 
 class ProgressViewModel(app: Application) : AndroidViewModel(app) {
@@ -21,6 +22,11 @@ class ProgressViewModel(app: Application) : AndroidViewModel(app) {
 
     val recent: StateFlow<List<AttemptEntity>> = repo.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Mashq bo'yicha eng yaxshi ball — modul ro'yxatlarida ko'rsatiladi. */
+    val exerciseStats: StateFlow<Map<String, ExerciseStat>> = repo.observeExerciseStats()
+        .map { list -> list.associateBy { it.exerciseId } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
     val total: StateFlow<Int> = repo.observeTotalCount()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)

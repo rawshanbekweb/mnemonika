@@ -29,6 +29,18 @@ interface AttemptDao {
     )
     fun observeModuleStats(): Flow<List<ModuleStat>>
 
+    @Query(
+        """
+        SELECT exerciseId AS exerciseId,
+               COUNT(*) AS attempts,
+               MAX(overallScore) AS bestScore,
+               MAX(timestamp) AS lastAt
+        FROM attempts
+        GROUP BY exerciseId
+        """
+    )
+    fun observeExerciseStats(): Flow<List<ExerciseStat>>
+
     @Query("SELECT COUNT(*) FROM attempts")
     fun observeTotalCount(): Flow<Int>
 

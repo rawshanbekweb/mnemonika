@@ -34,3 +34,14 @@ data class ModuleStat(
     val avgScore: Int,
     val bestScore: Int,
 )
+
+/**
+ * Mashq bo'yicha jamlanma — ro'yxatlarda "bajarildi / eng yaxshi ball" ko'rsatish uchun.
+ * Web'dagi `attempts-store.ts` → `exerciseStats()` bilan bir xil g'oya.
+ */
+data class ExerciseStat(
+    val exerciseId: String,
+    val attempts: Int,
+    val bestScore: Int,
+    val lastAt: Long,
+)

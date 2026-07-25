@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.data.db.AppDatabase
 import uz.speakingapp.data.db.AttemptEntity
+import uz.speakingapp.data.db.ExerciseStat
 import uz.speakingapp.data.db.ModuleStat
 
 /** Mashq natijalarini (progress) saqlaydi va o'qiydi. */
@@ -46,6 +47,7 @@ class ProgressRepository(context: Context) {
 
     fun observeAll(): Flow<List<AttemptEntity>> = dao.observeAll()
     fun observeModuleStats(): Flow<List<ModuleStat>> = dao.observeModuleStats()
+    fun observeExerciseStats(): Flow<List<ExerciseStat>> = dao.observeExerciseStats()
     fun observeTotalCount(): Flow<Int> = dao.observeTotalCount()
     fun observePendingCount(): Flow<Int> = dao.observePendingCount()
 }

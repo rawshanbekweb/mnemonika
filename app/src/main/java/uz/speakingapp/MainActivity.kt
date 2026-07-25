@@ -24,6 +24,7 @@ import uz.speakingapp.ui.home.HomeScreen
 import uz.speakingapp.ui.module.ModuleDetailScreen
 import uz.speakingapp.ui.profile.ProfileScreen
 import uz.speakingapp.ui.theme.SpeakUpTheme
+import uz.speakingapp.ui.theme.pagePattern
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +49,8 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = if (profile.isComplete) "home" else "welcome",
-                        modifier = Modifier.padding(padding),
+                        // Sahifa foni — barcha ekranlarga umumiy nozik to'r.
+                        modifier = Modifier.padding(padding).fillMaxSize().pagePattern(),
                     ) {
                         composable("welcome") {
                             ProfileScreen(

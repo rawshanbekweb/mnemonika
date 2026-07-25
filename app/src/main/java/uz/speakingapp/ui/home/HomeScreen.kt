@@ -32,12 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import uz.speakingapp.R
 import uz.speakingapp.analysis.GameStats
 import uz.speakingapp.analysis.Gamification
 import uz.speakingapp.data.db.ModuleStat
@@ -45,6 +47,7 @@ import uz.speakingapp.data.model.SpeakingModule
 import uz.speakingapp.ui.progress.ProgressViewModel
 import uz.speakingapp.ui.theme.BrandProgressBar
 import uz.speakingapp.ui.theme.HairLine
+import uz.speakingapp.ui.theme.HeroPhotoBackdrop
 import uz.speakingapp.ui.theme.InkMuted
 import uz.speakingapp.ui.theme.InkStrong
 import uz.speakingapp.ui.theme.Navy
@@ -53,6 +56,7 @@ import uz.speakingapp.ui.theme.OutlineSoft
 import uz.speakingapp.ui.theme.OverlineLabel
 import uz.speakingapp.ui.theme.SurfaceWhite
 import uz.speakingapp.ui.theme.accentColorFor
+import uz.speakingapp.ui.theme.heroPattern
 
 @Composable
 fun HomeScreen(
@@ -65,6 +69,7 @@ fun HomeScreen(
     val vm: ProgressViewModel = viewModel()
     val attempts by vm.recent.collectAsStateWithLifecycle()
     val moduleStats by vm.stats.collectAsStateWithLifecycle()
+    val exerciseStats by vm.exerciseStats.collectAsStateWithLifecycle()
 
     val game = remember(attempts, modules.size) { Gamification.compute(attempts, modules.size) }
     val statByModule = remember(moduleStats) { moduleStats.associateBy { it.moduleId } }
@@ -88,6 +93,7 @@ fun HomeScreen(
                 index = index + 1,
                 module = module,
                 stat = statByModule[module.id],
+                doneExercises = module.exercises.count { exerciseStats.containsKey(it.id) },
                 onClick = { onModuleClick(module.id) },
             )
             HairLine()
@@ -103,12 +109,7 @@ private fun Masthead(
     onProgressClick: () -> Unit,
     onProfileClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Navy)
-            .padding(horizontal = 16.dp, vertical = 20.dp),
-    ) {
+    HeroPhotoBackdrop(photo = R.drawable.hero_notebook) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(
@@ -213,6 +214,7 @@ private fun ModuleRow(
     index: Int,
     module: SpeakingModule,
     stat: ModuleStat?,
+    doneExercises: Int,
     onClick: () -> Unit,
 ) {
     val accent = accentColorFor(module.type)
@@ -244,24 +246,28 @@ private fun ModuleRow(
             )
         }
 
-        if (stat != null) {
+        // Bajarilganlik ulushi — o'quvchi qayerda to'xtaganini darrov ko'radi.
+        if (module.exercises.isNotEmpty()) {
             Spacer(Modifier.size(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BrandProgressBar(
-                    progress = stat.avgScore / 100f,
-                    brush = androidx.compose.ui.graphics.SolidColor(accent),
+                    progress = doneExercises.toFloat() / module.exercises.size,
+                    brush = SolidColor(accent),
                     modifier = Modifier.weight(1f),
                 )
                 Spacer(Modifier.size(12.dp))
                 Text(
-                    "${stat.avgScore}/100",
+                    "$doneExercises/${module.exercises.size} BAJARILDI",
                     style = OverlineLabel,
                     color = InkMuted,
                 )
             }
-            Spacer(Modifier.size(4.dp))
+        }
+
+        if (stat != null) {
+            Spacer(Modifier.size(6.dp))
             Text(
-                "${stat.attempts} urinish · eng yaxshi ${stat.bestScore}",
+                "${stat.attempts} urinish · eng yaxshi ${stat.bestScore} · o'rtacha ${stat.avgScore}",
                 style = MaterialTheme.typography.bodySmall,
                 color = InkMuted,
             )

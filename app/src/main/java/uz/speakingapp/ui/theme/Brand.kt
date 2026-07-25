@@ -1,6 +1,8 @@
 package uz.speakingapp.ui.theme
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.foundation.Image
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -24,15 +26,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -42,6 +50,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -67,6 +77,105 @@ fun accentColorFor(type: String): Color = when (type) {
 
 fun accentGradientFor(type: String): Brush = SolidColor(accentColorFor(type))
 
+// ── Naqshlar ────────────────────────────────────────────────────
+// Rasm fayli qo'shilmadi: naqsh Canvas'da chiziladi. Shunda APK hajmi
+// oshmaydi, ekran zichligidan qat'i nazar aniq chiqadi va offline ishlaydi.
+// Web'dagi `.hero-navy` / `.pattern-page` bilan bir xil o'lchamlar (32dp to'r).
+
+/**
+ * Ko'k yuzalar uchun: chizmachilik to'ri + burchakdagi muhr halqalari.
+ *
+ * [scrimAlpha] 1f dan kichik bo'lsa ko'k yuza yarim shaffof bo'ladi — ostiga
+ * fotosurat qo'yish uchun (qarang: [HeroPhotoBackdrop]).
+ */
+fun Modifier.heroPattern(
+    cell: Dp = 32.dp,
+    lineAlpha: Float = 0.06f,
+    sealAlpha: Float = 0.07f,
+    scrimAlpha: Float = 1f,
+): Modifier = this
+    .background(Navy.copy(alpha = scrimAlpha))
+    .drawBehind {
+        val step = cell.toPx()
+        val stroke = 1.dp.toPx()
+        var x = step
+        while (x < size.width) {
+            drawLine(
+                color = Color.White.copy(alpha = lineAlpha),
+                start = Offset(x, 0f), end = Offset(x, size.height),
+                strokeWidth = stroke,
+            )
+            x += step
+        }
+        var y = step
+        while (y < size.height) {
+            drawLine(
+                color = Color.White.copy(alpha = lineAlpha),
+                start = Offset(0f, y), end = Offset(size.width, y),
+                strokeWidth = stroke,
+            )
+            y += step
+        }
+        // Muhr halqalari — o'ng yuqori burchakdan chiqib turadi.
+        val center = Offset(size.width + 40.dp.toPx(), -50.dp.toPx())
+        listOf(150.dp, 116.dp, 82.dp).forEach { r ->
+            drawCircle(
+                color = Color.White.copy(alpha = sealAlpha),
+                radius = r.toPx(),
+                center = center,
+                style = Stroke(width = stroke),
+            )
+        }
+    }
+
+/**
+ * Fotosuratli hero yuzasi: rasm to'liq to'ldiriladi, ustidan ko'k parda va naqsh
+ * tushadi. Rasm APK ichida (`drawable-nodpi`) — internetsiz ham ko'rinadi.
+ * Manba va litsenziya: `web/public/hero/CREDITS.md`.
+ */
+@Composable
+fun HeroPhotoBackdrop(
+    @DrawableRes photo: Int,
+    modifier: Modifier = Modifier,
+    scrimAlpha: Float = 0.9f,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Box(modifier.fillMaxWidth()) {
+        Image(
+            painter = painterResource(photo),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize(),
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heroPattern(scrimAlpha = scrimAlpha)
+                .padding(horizontal = 16.dp, vertical = 20.dp),
+            content = content,
+        )
+    }
+}
+
+/** Ochiq sahifa foni uchun: juda past kontrastli to'r. */
+fun Modifier.pagePattern(cell: Dp = 32.dp): Modifier = this
+    .background(AppBackground)
+    .drawBehind {
+        val step = cell.toPx()
+        val stroke = 1.dp.toPx()
+        val color = Navy.copy(alpha = 0.045f)
+        var x = step
+        while (x < size.width) {
+            drawLine(color, Offset(x, 0f), Offset(x, size.height), stroke)
+            x += step
+        }
+        var y = step
+        while (y < size.height) {
+            drawLine(color, Offset(0f, y), Offset(size.width, y), stroke)
+            y += step
+        }
+    }
+
 // ── Ingichka ajratgich ──────────────────────────────────────────
 @Composable
 fun HairLine(modifier: Modifier = Modifier) {
@@ -84,7 +193,7 @@ fun BrandTopBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Navy)
+            .heroPattern()
             .padding(horizontal = 12.dp, vertical = 14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -350,6 +459,92 @@ fun BrandMicButton(
     }
 }
 
+/**
+ * Mikrofon tugmasi taymer halqasi ichida. Yozish vaqti halqa bo'ylab to'ladi —
+ * alohida chiziqli progressdan ko'ra diqqatni bir joyga to'playdi.
+ */
+@Composable
+fun MicRing(
+    recording: Boolean,
+    elapsed: Int,
+    limit: Int,
+    onClick: () -> Unit,
+    micIcon: ImageVector,
+    stopIcon: ImageVector,
+    ringSize: Dp = 132.dp,
+    stroke: Dp = 5.dp,
+) {
+    val pct = if (limit <= 0) 0f else (elapsed.toFloat() / limit).coerceIn(0f, 1f)
+    Box(modifier = Modifier.size(ringSize), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.fillMaxSize()) {
+            val s = stroke.toPx()
+            val inset = s / 2
+            val arcSize = Size(size.width - s, size.height - s)
+            val topLeft = Offset(inset, inset)
+            drawArc(
+                color = OutlineSoft,
+                startAngle = -90f, sweepAngle = 360f, useCenter = false,
+                topLeft = topLeft, size = arcSize,
+                style = Stroke(width = s, cap = StrokeCap.Butt),
+            )
+            if (recording) {
+                drawArc(
+                    color = Danger,
+                    startAngle = -90f, sweepAngle = 360f * pct, useCenter = false,
+                    topLeft = topLeft, size = arcSize,
+                    style = Stroke(width = s, cap = StrokeCap.Butt),
+                )
+            }
+        }
+        BrandMicButton(
+            recording = recording,
+            onClick = onClick,
+            micIcon = micIcon,
+            stopIcon = stopIcon,
+            size = ringSize - 32.dp,
+        )
+    }
+}
+
+/**
+ * Mashqning eng yaxshi bali. [score] null bo'lsa — hali bajarilmagan,
+ * bo'sh ramka ko'rsatiladi.
+ */
+@Composable
+fun ScoreBadge(score: Int?, modifier: Modifier = Modifier, size: Dp = 38.dp) {
+    if (score == null) {
+        Box(
+            modifier = modifier
+                .size(size)
+                .clip(MaterialTheme.shapes.extraSmall)
+                .border(1.dp, OutlineSoft, MaterialTheme.shapes.extraSmall),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("—", color = OutlineSoft, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+        }
+        return
+    }
+    val container = when {
+        score >= 80 -> SuccessContainer
+        score >= 50 -> NavyContainer
+        else -> GoldContainer
+    }
+    val content = when {
+        score >= 80 -> Success
+        score >= 50 -> Navy
+        else -> OnGoldContainer
+    }
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(MaterialTheme.shapes.extraSmall)
+            .background(container),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text("$score", color = content, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+    }
+}
+
 /** Statistik plitka: raqam ustunlik qiladi, yorliq kichik va katta harfda. */
 @Composable
 fun StatTile(value: String, label: String, modifier: Modifier = Modifier, accent: Color = InkStrong) {
@@ -363,6 +558,41 @@ fun StatTile(value: String, label: String, modifier: Modifier = Modifier, accent
         Text(value, style = MaterialTheme.typography.headlineSmall, color = accent)
         Spacer(Modifier.size(4.dp))
         Text(label.uppercase(), style = OverlineLabel, color = InkMuted)
+    }
+}
+
+/** Ramkasiz ko'rsatkich — karta ichida guruh bo'lib turadi ([StatTile] ning yengil varianti). */
+@Composable
+fun StatCell(value: String, label: String, modifier: Modifier = Modifier, accent: Color = InkStrong) {
+    Column(modifier) {
+        Text(value, style = MaterialTheme.typography.titleLarge, color = accent)
+        Spacer(Modifier.size(3.dp))
+        Text(label.uppercase(), style = OverlineLabel, color = InkMuted)
+    }
+}
+
+/** Yig'iladigan karta — transkript kabi ikkilamchi ma'lumot uchun. */
+@Composable
+fun CollapsibleCard(title: String, content: @Composable ColumnScope.() -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    SoftCard {
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable { open = !open },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = InkMuted,
+                modifier = Modifier.size(18.dp).rotate(if (open) 90f else 0f),
+            )
+            Spacer(Modifier.size(8.dp))
+            Text(title.uppercase(), style = OverlineLabel, color = InkMuted)
+        }
+        if (open) {
+            Spacer(Modifier.size(12.dp))
+            content()
+        }
     }
 }
 

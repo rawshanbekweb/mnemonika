@@ -40,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -53,8 +52,8 @@ import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.data.model.Exercise
 import uz.speakingapp.data.model.Mnemonic
 import uz.speakingapp.speech.ModelManager
-import uz.speakingapp.ui.theme.BrandMicButton
 import uz.speakingapp.ui.theme.BrandProgressBar
+import uz.speakingapp.ui.theme.CollapsibleCard
 import uz.speakingapp.ui.theme.BrandTopBar
 import uz.speakingapp.ui.theme.Danger
 import uz.speakingapp.ui.theme.GoldContainer
@@ -62,6 +61,7 @@ import uz.speakingapp.ui.theme.GradientButton
 import uz.speakingapp.ui.theme.HairLine
 import uz.speakingapp.ui.theme.InkMuted
 import uz.speakingapp.ui.theme.InkStrong
+import uz.speakingapp.ui.theme.MicRing
 import uz.speakingapp.ui.theme.MnemonicBadge
 import uz.speakingapp.ui.theme.Navy
 import uz.speakingapp.ui.theme.NavyContainer
@@ -74,7 +74,7 @@ import uz.speakingapp.ui.theme.ScoreRing
 import uz.speakingapp.ui.theme.SectionTitle
 import uz.speakingapp.ui.theme.SoftButton
 import uz.speakingapp.ui.theme.SoftCard
-import uz.speakingapp.ui.theme.StatTile
+import uz.speakingapp.ui.theme.StatCell
 import uz.speakingapp.ui.theme.Success
 import uz.speakingapp.ui.theme.SuccessContainer
 import uz.speakingapp.ui.theme.SurfaceMuted
@@ -361,8 +361,10 @@ private fun RecordSection(
         Text("Maksimal $timeLimitSec soniya", style = OverlineLabel, color = InkMuted)
         Spacer(Modifier.size(20.dp))
         if (hasPermission) {
-            BrandMicButton(
+            MicRing(
                 recording = false,
+                elapsed = 0,
+                limit = timeLimitSec,
                 onClick = onStart,
                 micIcon = Icons.Default.Mic,
                 stopIcon = Icons.Default.Stop,
@@ -388,27 +390,24 @@ private fun RecordingSection(
     val spoken = remember(shown, keywords) { spokenKeywords(shown, keywords) }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(8.dp).clip(MaterialTheme.shapes.extraSmall).background(Danger))
-            Spacer(Modifier.size(8.dp))
-            Text(
-                "YOZILMOQDA · ${elapsed}s / ${limit}s",
-                style = OverlineLabel,
-                color = Danger,
-            )
-        }
-        Spacer(Modifier.size(10.dp))
-        BrandProgressBar(
-            progress = if (limit == 0) 0f else elapsed.toFloat() / limit,
-            brush = SolidColor(Danger),
-        )
-        Spacer(Modifier.size(20.dp))
-        BrandMicButton(
+        MicRing(
             recording = true,
+            elapsed = elapsed,
+            limit = limit,
             onClick = onStop,
             micIcon = Icons.Default.Mic,
             stopIcon = Icons.Default.Stop,
         )
+        Spacer(Modifier.size(14.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(8.dp).clip(MaterialTheme.shapes.extraSmall).background(Danger))
+            Spacer(Modifier.size(8.dp))
+            Text(
+                "YOZILMOQDA · ${(limit - elapsed).coerceAtLeast(0)}s QOLDI",
+                style = OverlineLabel,
+                color = Danger,
+            )
+        }
         Spacer(Modifier.size(14.dp))
         MicLevelBar(micLevel)
         Spacer(Modifier.size(20.dp))
@@ -462,25 +461,25 @@ private fun ResultSection(
         else -> "Mashq qilishda davom eting"
     }
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // Ball va ko'rsatkichlar — bitta blokda.
         SoftCard {
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 ScoreRing(result.overallScore)
                 Spacer(Modifier.size(12.dp))
                 Text(message, style = MaterialTheme.typography.titleMedium, color = Navy)
             }
-        }
-
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatTile("${result.wordCount}", "So'zlar", Modifier.weight(1f))
-                StatTile("${result.uniqueWordCount}", "Noyob so'z", Modifier.weight(1f))
+            Spacer(Modifier.size(18.dp))
+            HairLine()
+            Spacer(Modifier.size(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatCell("${result.wordCount}", "So'zlar", Modifier.weight(1f))
+                StatCell("${result.uniqueWordCount}", "Noyob so'z", Modifier.weight(1f))
+                StatCell("${result.wordsPerMinute}", "So'z/daqiqa", Modifier.weight(1f))
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatTile("${result.wordsPerMinute}", "So'z/daqiqa", Modifier.weight(1f))
-                StatTile("${result.durationSec}s", "Davomiylik", Modifier.weight(1f))
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatTile(
+            Spacer(Modifier.size(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                StatCell("${result.durationSec}s", "Davomiylik", Modifier.weight(1f))
+                StatCell(
                     "${result.matchedKeywords.size}/${result.totalKeywords}",
                     "Kalit so'zlar",
                     Modifier.weight(1f),
@@ -491,7 +490,7 @@ private fun ResultSection(
                     checkingGrammar -> "…"
                     else -> "—"
                 }
-                StatTile(grammar, "Grammatika", Modifier.weight(1f))
+                StatCell(grammar, "Grammatika", Modifier.weight(1f))
             }
         }
 
@@ -503,26 +502,22 @@ private fun ResultSection(
             }
         }
 
-        if (result.grammarIssues.isNotEmpty()) {
-            SoftCard {
-                SectionTitle("Grammatika e'tibori")
-                Spacer(Modifier.size(10.dp))
-                result.grammarIssues.forEach {
-                    BulletLine(it)
-                }
-            }
-        }
-
+        // Tavsiyalar va grammatika bitta kartada — natija ustuni qisqaradi.
         SoftCard {
             SectionTitle("Tavsiyalar")
             Spacer(Modifier.size(10.dp))
             result.feedback.forEach { BulletLine(it) }
+
+            if (result.grammarIssues.isNotEmpty()) {
+                Spacer(Modifier.size(18.dp))
+                SectionTitle("Grammatika e'tibori")
+                Spacer(Modifier.size(10.dp))
+                result.grammarIssues.forEach { BulletLine(it) }
+            }
         }
 
         if (result.transcript.isNotBlank()) {
-            SoftCard {
-                SectionTitle("Nutqingiz (matn)")
-                Spacer(Modifier.size(10.dp))
+            CollapsibleCard("Nutqingiz (matn)") {
                 Text(result.transcript, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
             }
         }
