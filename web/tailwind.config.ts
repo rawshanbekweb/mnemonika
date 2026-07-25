@@ -5,32 +5,62 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          DEFAULT: "#6d28d9",
-          dark: "#5b21b6",
-          light: "#8b5cf6",
+        // Akademik ko'k — asosiy brend rangi.
+        navy: {
+          DEFAULT: "#1E3A5F",
+          deep: "#14293F",
+          light: "#2C5282",
+          container: "#E8EEF4",
         },
-        coral: {
-          DEFAULT: "#fb7185",
-          dark: "#f43f5e",
+        // Oltin — kam va maqsadli ishlatiladi (nishonlar, urg'u).
+        gold: {
+          DEFAULT: "#C9A227",
+          deep: "#A07E14",
+          container: "#FBF3DC",
         },
         ink: {
-          DEFAULT: "#1f1b2e",
-          muted: "#6b6780",
+          DEFAULT: "#16202C",
+          muted: "#5A6B7D",
+        },
+        line: "#DCE3EA",
+        surface: {
+          DEFAULT: "#FFFFFF",
+          muted: "#EDF1F5",
+          page: "#F4F6F8",
+        },
+        state: {
+          success: "#2F855A",
+          danger: "#C53030",
+          warning: "#B7791F",
+        },
+        // Eski nomlar bilan moslik (qolgan sahifalar hali ishlatadi).
+        brand: {
+          DEFAULT: "#1E3A5F",
+          dark: "#14293F",
+          light: "#2C5282",
+        },
+        coral: {
+          DEFAULT: "#A07E14",
+          dark: "#A07E14",
         },
       },
-      backgroundImage: {
-        "brand-gradient": "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
-        "hero-gradient": "linear-gradient(135deg, #9333ea 0%, #6d28d9 60%, #7c3aed 100%)",
-        "coral-gradient": "linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)",
+      borderRadius: {
+        // Akademik uslub: burchaklar deyarli tekis.
+        DEFAULT: "4px",
+        sm: "3px",
+        md: "4px",
+        lg: "4px",
+        xl: "6px",
+        "2xl": "6px",
+        "3xl": "8px",
+      },
+      fontSize: {
+        overline: ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.08em" }],
       },
       boxShadow: {
-        soft: "0 6px 24px -8px rgba(109, 40, 217, 0.18)",
-        "soft-lg": "0 12px 40px -12px rgba(109, 40, 217, 0.25)",
-      },
-      borderRadius: {
-        xl: "1rem",
-        "2xl": "1.25rem",
+        // Soyalar deyarli yo'q — ierarxiya chegara chiziqlari orqali beriladi.
+        soft: "none",
+        "soft-lg": "none",
       },
     },
   },

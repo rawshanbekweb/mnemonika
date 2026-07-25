@@ -10,6 +10,8 @@ import { speak, stopSpeaking, useSpeechRecognition } from "@/lib/use-speech";
 import { analyze, withGrammar, type GrammarReport, type SpeechResult } from "@/lib/speech-analyzer";
 import { matchedKeywords } from "@/lib/keyword-matcher";
 import type { Exercise } from "@/lib/content-types";
+import { Icon } from "@/components/Icon";
+import { Visual } from "@/components/Visual";
 
 type Phase = "ready" | "recording" | "done";
 
@@ -113,7 +115,6 @@ export default function ExercisePage() {
 
       if (local.wordCount === 0) return;
 
-      // Grammatika (onlayn, bo'lmasa jimgina o'tkazamiz), keyin bitta marta saqlaymiz.
       setCheckingGrammar(true);
       let finalResult = local;
       try {
@@ -134,19 +135,16 @@ export default function ExercisePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exercise, saveAttempt]);
 
-  // Yozish taymeri.
   useEffect(() => {
     if (phase !== "recording") return;
     const id = window.setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => window.clearInterval(id);
   }, [phase]);
 
-  // Vaqt tugadi — avtomatik to'xtatamiz.
   useEffect(() => {
     if (phase === "recording" && elapsed >= limit) finish();
   }, [elapsed, phase, limit, finish]);
 
-  // Mikrofon xatosi jiddiy bo'lsa yozishni to'xtatamiz.
   useEffect(() => {
     if (phase === "recording" && speech.error) {
       setPhase("ready");
@@ -181,158 +179,163 @@ export default function ExercisePage() {
   if (!exercise) return <Centered>Mashq topilmadi.</Centered>;
 
   const liveText = [speech.finalText, speech.interimText].filter(Boolean).join(" ");
-  const spokenNow = matchKeywords(liveText, exercise.keywords);
+  const spokenNow = new Set(matchedKeywords(liveText, exercise.keywords));
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
-      <header className="rounded-3xl bg-hero-gradient p-5 text-white shadow-soft">
-        <div className="flex items-center gap-3">
+    <div>
+      <header className="bg-navy px-4 py-4 text-white">
+        <div className="mx-auto flex max-w-2xl items-center gap-3">
           <Link
             href="/student"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 transition hover:bg-white/30"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 transition hover:bg-white/25"
             aria-label="Orqaga"
           >
-            ←
+            <Icon name="arrowLeft" size={20} />
           </Link>
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold">{exercise.title}</h1>
-            <p className="truncate text-sm text-white/85">{exercise.topic}</p>
+            <h1 className="truncate font-semibold">{exercise.title}</h1>
+            <p className="truncate text-sm text-white/70">{exercise.topic}</p>
           </div>
         </div>
       </header>
 
-      {!speech.supported && (
-        <div className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 ring-1 ring-amber-200">
-          <p className="font-semibold">Bu brauzerda mikrofonli mashq ishlamaydi</p>
-          <p className="mt-1">
-            Chrome, Edge yoki Safari&apos;da oching. Savollar va struktura quyida
-            ko&apos;rinadi — ularni ovoz chiqarib mashq qilsangiz ham bo&apos;ladi.
-          </p>
-        </div>
-      )}
+      <div className="mx-auto max-w-2xl px-4 py-5">
+        {!speech.supported && (
+          <div className="mb-5 flex gap-3 rounded border border-gold/40 bg-gold-container p-4 text-sm">
+            <Icon name="warning" size={18} className="mt-0.5 shrink-0 text-gold-deep" />
+            <div>
+              <p className="font-semibold text-ink">
+                Bu brauzerda mikrofonli mashq ishlamaydi
+              </p>
+              <p className="mt-1 text-ink-muted">
+                Chrome, Edge yoki Safari&apos;da oching. Savollar va struktura quyida
+                ko&apos;rinadi.
+              </p>
+            </div>
+          </div>
+        )}
 
-      {speech.error && (
-        <p className="mt-5 rounded-2xl bg-red-50 p-4 text-sm text-red-700 ring-1 ring-red-200">
-          ⚠️ {speech.error}
-        </p>
-      )}
+        {speech.error && (
+          <div className="mb-5 flex gap-3 rounded border border-line bg-surface-muted p-4 text-sm">
+            <Icon name="warning" size={18} className="mt-0.5 shrink-0 text-state-danger" />
+            <p className="text-ink">{speech.error}</p>
+          </div>
+        )}
 
-      {/* Vizual ishoralar */}
-      {exercise.visuals.length > 0 && (
-        <div className="mt-5 flex gap-3 overflow-x-auto pb-1">
-          {exercise.visuals.map((v, i) => (
-            <span
-              key={i}
-              className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-4xl"
-            >
-              {v}
-            </span>
-          ))}
-        </div>
-      )}
+        {exercise.visuals.length > 0 && (
+          <div className="mb-5 flex gap-2.5 overflow-x-auto pb-1">
+            {exercise.visuals.map((v, i) => (
+              <Visual key={i} token={v} size={84} />
+            ))}
+          </div>
+        )}
 
-      {/* Savollar + mnemonika */}
-      <section className="card mt-5">
-        <div className="flex items-start justify-between gap-3">
-          <span className="pill-brand">{exercise.topic}</span>
-          {exercise.prompts.length > 0 && (
-            <button onClick={onListen} className="btn-ghost !px-3 !py-1.5 !text-xs">
-              {speaking ? "⏹️ To'xtatish" : "🔊 Eshitish"}
-            </button>
-          )}
-        </div>
-
-        <ul className="mt-3 space-y-1.5">
-          {exercise.prompts.map((p, i) => (
-            <li key={i} className="text-[15px] text-ink">
-              💬 {p}
-            </li>
-          ))}
-        </ul>
-
-        <h3 className="section-title mt-5">Struktura: {exercise.mnemonic.acronym}</h3>
-        <ul className="mt-3 space-y-2">
-          {exercise.mnemonic.steps.map((s, i) => (
-            <li key={i} className="flex items-center gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-xs font-extrabold text-white">
-                {s.letter}
-              </span>
-              <span className="text-sm font-semibold text-ink">{s.en}</span>
-              <span className="text-xs text-ink-muted">· {s.uz}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* Boshqaruv */}
-      {phase === "ready" && (
-        <div className="mt-6 text-center">
-          <p className="text-[15px] text-ink">Tayyor bo&apos;lsang, mikrofonni bos va gapir</p>
-          <p className="mt-1 text-xs text-ink-muted">(maksimal {limit} soniya)</p>
-          <button
-            onClick={start}
-            disabled={!speech.supported}
-            className="mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-full bg-brand-gradient text-4xl text-white shadow-soft transition hover:brightness-110 disabled:opacity-40"
-            aria-label="Yozishni boshlash"
-          >
-            🎤
-          </button>
-        </div>
-      )}
-
-      {phase === "recording" && (
-        <div className="mt-6">
-          <p className="text-center font-bold text-coral">
-            🔴 Yozilmoqda {elapsed}s / {limit}s
-          </p>
-          <div className="mx-auto mt-3 h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
-            <div
-              className="h-full rounded-full bg-coral-gradient transition-all"
-              style={{ width: `${Math.min(100, (elapsed / limit) * 100)}%` }}
-            />
+        <section className="card">
+          <div className="flex items-start justify-between gap-3">
+            <span className="pill-brand">{exercise.topic}</span>
+            {exercise.prompts.length > 0 && (
+              <button onClick={onListen} className="btn-ghost !px-3 !py-1.5 !text-xs">
+                <Icon name={speaking ? "volumeOff" : "volumeUp"} size={15} />
+                {speaking ? "To'xtatish" : "Eshitish"}
+              </button>
+            )}
           </div>
 
-          <button
-            onClick={finish}
-            className="mx-auto mt-5 flex h-24 w-24 animate-pulse items-center justify-center rounded-full bg-coral-gradient text-3xl text-white shadow-soft"
-            aria-label="To'xtatish"
-          >
-            ⏹️
-          </button>
+          <ol className="mt-4 space-y-2">
+            {exercise.prompts.map((p, i) => (
+              <li key={i} className="flex gap-3 text-[15px] text-ink">
+                <span className="text-ink-muted">{i + 1}.</span>
+                <span>{p}</span>
+              </li>
+            ))}
+          </ol>
 
-          {exercise.keywords.length > 0 && (
-            <div className="card mt-6">
-              <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                Kalit so&apos;zlar: {spokenNow.size}/{exercise.keywords.length}
-              </p>
-              <KeywordChips keywords={exercise.keywords} spoken={spokenNow} />
+          <p className="section-title mt-6">Struktura · {exercise.mnemonic.acronym}</p>
+          <ul className="mt-3 space-y-2.5">
+            {exercise.mnemonic.steps.map((s, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-navy text-[11px] font-bold text-white">
+                  {s.letter.toUpperCase()}
+                </span>
+                <span className="text-sm font-medium text-ink">{s.en}</span>
+                <span className="text-xs text-ink-muted">· {s.uz}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {phase === "ready" && (
+          <div className="mt-6 text-center">
+            <p className="text-[15px] text-ink">
+              Tayyor bo&apos;lsangiz mikrofonni bosing va gapiring
+            </p>
+            <p className="mt-1 overline">Maksimal {limit} soniya</p>
+            <button
+              onClick={start}
+              disabled={!speech.supported}
+              className="mx-auto mt-5 flex h-20 w-20 items-center justify-center rounded-full bg-navy text-white transition hover:bg-navy-deep disabled:opacity-30"
+              aria-label="Yozishni boshlash"
+            >
+              <Icon name="mic" size={30} />
+            </button>
+          </div>
+        )}
+
+        {phase === "recording" && (
+          <div className="mt-6">
+            <div className="flex items-center justify-center gap-2">
+              <span className="h-2 w-2 rounded-sm bg-state-danger" />
+              <span className="text-overline font-semibold uppercase text-state-danger">
+                Yozilmoqda · {elapsed}s / {limit}s
+              </span>
             </div>
-          )}
-
-          {liveText && (
-            <div className="card mt-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                Nutqingiz
-              </p>
-              <p className="mt-1.5 text-[15px]">
-                {speech.finalText}{" "}
-                <span className="text-ink-muted">{speech.interimText}</span>
-              </p>
+            <div className="mx-auto mt-3 h-1.5 w-full overflow-hidden rounded-sm bg-surface-muted">
+              <div
+                className="h-full bg-state-danger transition-all"
+                style={{ width: `${Math.min(100, (elapsed / limit) * 100)}%` }}
+              />
             </div>
-          )}
-        </div>
-      )}
 
-      {phase === "done" && result && (
-        <Result
-          result={result}
-          keywords={exercise.keywords}
-          checkingGrammar={checkingGrammar}
-          onRetry={start}
-        />
-      )}
+            <button
+              onClick={finish}
+              className="mx-auto mt-5 flex h-20 w-20 animate-pulse items-center justify-center rounded-full bg-state-danger text-white"
+              aria-label="To'xtatish"
+            >
+              <Icon name="stop" size={28} />
+            </button>
 
-      <div className="h-10" />
+            {exercise.keywords.length > 0 && (
+              <div className="card mt-6">
+                <p className="section-title">
+                  Kalit so&apos;zlar · {spokenNow.size}/{exercise.keywords.length}
+                </p>
+                <KeywordChips keywords={exercise.keywords} spoken={spokenNow} />
+              </div>
+            )}
+
+            {liveText && (
+              <div className="card mt-4">
+                <p className="section-title">Nutqingiz</p>
+                <p className="mt-3 text-[15px]">
+                  {speech.finalText}{" "}
+                  <span className="text-ink-muted">{speech.interimText}</span>
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {phase === "done" && result && (
+          <Result
+            result={result}
+            keywords={exercise.keywords}
+            checkingGrammar={checkingGrammar}
+            onRetry={start}
+          />
+        )}
+
+        <div className="h-10" />
+      </div>
     </div>
   );
 }
@@ -350,41 +353,41 @@ function Result({
 }) {
   const message =
     result.overallScore >= 80
-      ? "Zo'r natija! 🎉"
+      ? "A'lo natija"
       : result.overallScore >= 50
-        ? "Yaxshi ish! 👍"
-        : "Mashq qilishda davom et! 💪";
+        ? "Yaxshi natija"
+        : "Mashq qilishda davom eting";
 
   if (result.wordCount === 0) {
     return (
       <div className="card mt-6 text-center">
-        <p className="text-4xl">🤔</p>
-        <p className="mt-2 font-semibold text-ink">Hech narsa eshitilmadi</p>
+        <p className="font-semibold text-ink">Hech narsa eshitilmadi</p>
         <p className="mt-1 text-sm text-ink-muted">
           Mikrofonga yaqinroq va balandroq gapirib qayta urinib ko&apos;ring.
         </p>
         <button onClick={onRetry} className="btn-primary mt-4">
-          🔁 Qayta urinish
+          <Icon name="refresh" size={16} />
+          Qayta urinish
         </button>
       </div>
     );
   }
 
   return (
-    <div className="mt-6 space-y-4">
+    <div className="mt-6 space-y-3">
       <div className="card flex flex-col items-center">
         <ScoreRing score={result.overallScore} />
-        <p className="mt-3 font-bold text-brand">{message}</p>
+        <p className="mt-3 font-semibold text-navy">{message}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2.5">
         <Stat value={result.wordCount} label="So'zlar" />
         <Stat value={result.uniqueWordCount} label="Noyob so'z" />
         <Stat value={result.wordsPerMinute} label="So'z/daqiqa" />
         <Stat value={`${result.durationSec}s`} label="Davomiylik" />
         <Stat
           value={`${result.matchedKeywords.length}/${result.totalKeywords}`}
-          label={`Kalit so'zlar (${result.keywordCoverage}%)`}
+          label="Kalit so'zlar"
         />
         <Stat
           value={result.grammarScore ?? (checkingGrammar ? "…" : "—")}
@@ -394,43 +397,50 @@ function Result({
 
       {keywords.length > 0 && (
         <div className="card">
-          <h3 className="section-title">
-            Kalit so&apos;zlar ({result.matchedKeywords.length}/{keywords.length})
-          </h3>
+          <p className="section-title">
+            Kalit so&apos;zlar · {result.matchedKeywords.length}/{keywords.length}
+          </p>
           <KeywordChips keywords={keywords} spoken={new Set(result.matchedKeywords)} />
         </div>
       )}
 
       {result.grammarIssues.length > 0 && (
         <div className="card">
-          <h3 className="section-title">Grammatika e&apos;tibori</h3>
-          <ul className="mt-3 space-y-1 text-sm text-ink">
+          <p className="section-title">Grammatika e&apos;tibori</p>
+          <ul className="mt-3 space-y-1.5 text-sm text-ink">
             {result.grammarIssues.map((g, i) => (
-              <li key={i}>• {g}</li>
+              <li key={i} className="flex gap-2">
+                <span className="text-ink-muted">—</span>
+                <span>{g}</span>
+              </li>
             ))}
           </ul>
         </div>
       )}
 
       <div className="card">
-        <h3 className="section-title">Tavsiyalar</h3>
-        <ul className="mt-3 space-y-1 text-sm text-ink">
+        <p className="section-title">Tavsiyalar</p>
+        <ul className="mt-3 space-y-1.5 text-sm text-ink">
           {result.feedback.map((f, i) => (
-            <li key={i}>• {f}</li>
+            <li key={i} className="flex gap-2">
+              <span className="text-ink-muted">—</span>
+              <span>{f}</span>
+            </li>
           ))}
         </ul>
       </div>
 
       {result.transcript && (
         <div className="card">
-          <h3 className="section-title">Nutqingiz (matn)</h3>
+          <p className="section-title">Nutqingiz (matn)</p>
           <p className="mt-3 text-sm text-ink-muted">{result.transcript}</p>
         </div>
       )}
 
       <div className="flex gap-3">
         <button onClick={onRetry} className="btn-ghost flex-1">
-          🔁 Qayta urinish
+          <Icon name="refresh" size={16} />
+          Qayta urinish
         </button>
         <Link href="/student" className="btn-primary flex-1">
           Tugatish
@@ -441,24 +451,17 @@ function Result({
 }
 
 function ScoreRing({ score }: { score: number }) {
-  const size = 128;
-  const stroke = 12;
+  const size = 120;
+  const stroke = 8;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const pct = Math.min(100, Math.max(0, score)) / 100;
-  const color = score >= 80 ? "#10b981" : score >= 50 ? "#6d28d9" : "#f43f5e";
+  const color = score >= 80 ? "#2F855A" : score >= 50 ? "#1E3A5F" : "#B7791F";
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="#e9e4f5"
-          strokeWidth={stroke}
-        />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#DCE3EA" strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -466,14 +469,13 @@ function ScoreRing({ score }: { score: number }) {
           fill="none"
           stroke={color}
           strokeWidth={stroke}
-          strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={circumference * (1 - pct)}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-extrabold leading-none text-ink">{score}</span>
-        <span className="text-xs text-ink-muted">/ 100</span>
+        <span className="text-4xl font-bold leading-none text-ink">{score}</span>
+        <span className="mt-1 text-overline uppercase text-ink-muted">100 dan</span>
       </div>
     </div>
   );
@@ -481,9 +483,9 @@ function ScoreRing({ score }: { score: number }) {
 
 function Stat({ value, label }: { value: string | number; label: string }) {
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-4">
-      <p className="text-xl font-extrabold text-brand">{value}</p>
-      <p className="mt-0.5 text-xs text-ink-muted">{label}</p>
+    <div className="rounded border border-line bg-white p-4">
+      <p className="text-xl font-bold text-ink">{value}</p>
+      <p className="mt-1 text-overline uppercase text-ink-muted">{label}</p>
     </div>
   );
 }
@@ -496,13 +498,13 @@ function KeywordChips({ keywords, spoken }: { keywords: string[]; spoken: Set<st
         return (
           <span
             key={kw}
-            className={
+            className={`inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs ${
               hit
-                ? "pill bg-emerald-100 text-emerald-700"
-                : "pill bg-slate-100 text-ink-muted"
-            }
+                ? "bg-emerald-50 font-semibold text-state-success"
+                : "bg-surface-muted text-ink-muted"
+            }`}
           >
-            {hit ? "✓ " : ""}
+            {hit && <Icon name="check" size={12} />}
             {kw}
           </span>
         );
@@ -513,9 +515,4 @@ function KeywordChips({ keywords, spoken }: { keywords: string[]; spoken: Set<st
 
 function Centered({ children }: { children: React.ReactNode }) {
   return <p className="mt-16 text-center text-sm text-ink-muted">{children}</p>;
-}
-
-/** Jonli chiplar yakuniy baholash bilan AYNAN bir xil qoidadan foydalanadi. */
-function matchKeywords(text: string, keywords: string[]): Set<string> {
-  return new Set(matchedKeywords(text, keywords));
 }

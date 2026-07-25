@@ -5,7 +5,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,39 +33,47 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.Canvas
 
-// ── Gradientlar ─────────────────────────────────────────────────
-val HeroGradient = Brush.linearGradient(listOf(Color(0xFF9333EA), Color(0xFF6D28D9)))
-val PrimaryGradient = Brush.linearGradient(listOf(Color(0xFF7C3AED), Color(0xFF6D28D9)))
-val CoralGradient = Brush.linearGradient(listOf(Color(0xFFFB7185), Color(0xFFF43F5E)))
-val SuccessGradient = Brush.linearGradient(listOf(Color(0xFF34D399), Color(0xFF10B981)))
+// ── Yuzalar ─────────────────────────────────────────────────────
+// Gradientlar ataylab olib tashlandi: akademik uslub tekis ranglarda ishlaydi.
+// Nomlar saqlangan (ekranlar `Brush` kutadi), lekin ular endi bir tusli.
+val HeroGradient: Brush = SolidColor(Navy)
+val PrimaryGradient: Brush = SolidColor(Navy)
+val CoralGradient: Brush = SolidColor(GoldDeep)
+val SuccessGradient: Brush = SolidColor(Success)
 
-/** Modul turiga qarab yumshoq gradient (kartochka belgisi uchun). */
-fun accentGradientFor(type: String): Brush = when (type) {
-    "discussion" -> Brush.linearGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6D28D9)))
-    "roleplay" -> Brush.linearGradient(listOf(Color(0xFFFB7185), Color(0xFFF43F5E)))
-    "storytelling" -> Brush.linearGradient(listOf(Color(0xFF38BDF8), Color(0xFF0EA5E9)))
-    "interview" -> Brush.linearGradient(listOf(Color(0xFFFBBF24), Color(0xFFF59E0B)))
-    "picture_narrating" -> Brush.linearGradient(listOf(Color(0xFF34D399), Color(0xFF10B981)))
-    else -> PrimaryGradient
+/** Modul turiga mos urg'u rangi. */
+fun accentColorFor(type: String): Color = when (type) {
+    "discussion" -> ModuleDiscussion
+    "roleplay" -> ModuleRoleplay
+    "storytelling" -> ModuleStorytelling
+    "interview" -> ModuleInterview
+    "picture_narrating" -> ModulePicture
+    else -> Navy
 }
 
-// ── Yuqori panel (gradient) ─────────────────────────────────────
+fun accentGradientFor(type: String): Brush = SolidColor(accentColorFor(type))
+
+// ── Ingichka ajratgich ──────────────────────────────────────────
+@Composable
+fun HairLine(modifier: Modifier = Modifier) {
+    Box(modifier.fillMaxWidth().height(1.dp).background(OutlineSoft))
+}
+
+// ── Yuqori panel ────────────────────────────────────────────────
 @Composable
 fun BrandTopBar(
     title: String,
@@ -76,8 +84,7 @@ fun BrandTopBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-            .background(HeroGradient)
+            .background(Navy)
             .padding(horizontal = 12.dp, vertical = 14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -90,16 +97,12 @@ fun BrandTopBar(
                 Spacer(Modifier.size(10.dp))
             }
             Column(Modifier.weight(1f)) {
-                Text(
-                    title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.White,
-                )
+                Text(title, style = MaterialTheme.typography.titleLarge, color = Color.White)
                 if (subtitle != null) {
                     Text(
                         subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.85f),
+                        color = Color.White.copy(alpha = 0.75f),
                     )
                 }
             }
@@ -109,9 +112,8 @@ fun BrandTopBar(
 }
 
 /**
- * Yumaloq ikonka tugmasi (gradient panel ustida).
- * Matn glifi ("←") emas, haqiqiy vektor ikonka ishlatiladi — shunda belgi
- * doira markazida aniq turadi va RTL tillarda avtomatik aylanadi.
+ * Yumaloq ikonka tugmasi. Matn glifi emas, haqiqiy vektor ikonka —
+ * shunda belgi markazda aniq turadi va RTL tillarda avtomatik aylanadi.
  */
 @Composable
 fun CircleIconButton(
@@ -123,7 +125,7 @@ fun CircleIconButton(
         modifier = Modifier
             .size(40.dp)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.18f))
+            .background(Color.White.copy(alpha = 0.14f))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -136,7 +138,7 @@ fun CircleIconButton(
     }
 }
 
-// ── Yumshoq karta ───────────────────────────────────────────────
+// ── Karta: soya yo'q, ingichka chegara ──────────────────────────
 @Composable
 fun SoftCard(
     modifier: Modifier = Modifier,
@@ -145,15 +147,14 @@ fun SoftCard(
 ) {
     val base = modifier
         .fillMaxWidth()
-        .shadow(6.dp, MaterialTheme.shapes.large, spotColor = Violet.copy(alpha = 0.12f))
-        .clip(MaterialTheme.shapes.large)
+        .clip(MaterialTheme.shapes.small)
         .background(SurfaceWhite)
-        .border(1.dp, OutlineSoft, MaterialTheme.shapes.large)
+        .border(1.dp, OutlineSoft, MaterialTheme.shapes.small)
     val clickable = if (onClick != null) base.clickable(onClick = onClick) else base
     Column(modifier = clickable.padding(16.dp), content = content)
 }
 
-// ── Gradient tugma (asosiy CTA) ─────────────────────────────────
+// ── Asosiy tugma ────────────────────────────────────────────────
 @Composable
 fun GradientButton(
     text: String,
@@ -165,19 +166,29 @@ fun GradientButton(
 ) {
     Box(
         modifier = modifier
-            .height(54.dp)
-            .clip(CircleShape)
-            .background(if (enabled) gradient else Brush.linearGradient(listOf(InkMuted, InkMuted)))
+            .height(48.dp)
+            .clip(MaterialTheme.shapes.small)
+            .background(if (enabled) gradient else SolidColor(OutlineSoft))
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 20.dp),
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
             if (leadingIcon != null) {
-                Icon(leadingIcon, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                Icon(
+                    leadingIcon,
+                    contentDescription = null,
+                    tint = if (enabled) Color.White else InkMuted,
+                    modifier = Modifier.size(18.dp),
+                )
                 Spacer(Modifier.size(8.dp))
             }
-            Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(
+                text,
+                color = if (enabled) Color.White else InkMuted,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp,
+            )
         }
     }
 }
@@ -187,66 +198,90 @@ fun GradientButton(
 fun SoftButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .height(54.dp)
-            .clip(CircleShape)
-            .border(1.5.dp, Violet.copy(alpha = 0.4f), CircleShape)
+            .height(48.dp)
+            .clip(MaterialTheme.shapes.small)
+            .border(1.dp, Navy, MaterialTheme.shapes.small)
             .clickable(onClick = onClick)
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 20.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text, color = Violet, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+        Text(text, color = Navy, fontWeight = FontWeight.Medium, fontSize = 15.sp)
     }
 }
 
-// ── Chip / yorliq ───────────────────────────────────────────────
+// ── Yorliq ──────────────────────────────────────────────────────
 @Composable
 fun Pill(text: String, container: Color, content: Color) {
     Box(
         modifier = Modifier
-            .clip(CircleShape)
+            .clip(MaterialTheme.shapes.extraSmall)
             .background(container)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
     ) {
-        Text(text, color = content, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+        Text(text, color = content, style = OverlineLabel)
     }
 }
 
-// ── Mnemonika harf belgisi ──────────────────────────────────────
+// ── Mnemonika harf belgisi: kvadrat, hujjat uslubida ────────────
 @Composable
-fun MnemonicBadge(letter: String, gradient: Brush = PrimaryGradient, size: Dp = 34.dp) {
+fun MnemonicBadge(letter: String, gradient: Brush = PrimaryGradient, size: Dp = 30.dp) {
     Box(
-        modifier = Modifier.size(size).clip(CircleShape).background(gradient),
+        modifier = Modifier
+            .size(size)
+            .clip(MaterialTheme.shapes.extraSmall)
+            .background(gradient),
         contentAlignment = Alignment.Center,
     ) {
-        Text(letter, color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = (size.value * 0.42f).sp)
+        Text(
+            letter.uppercase(),
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = (size.value * 0.44f).sp,
+        )
     }
 }
 
-// ── Bo'lim sarlavhasi ───────────────────────────────────────────
+/** Modul tartib raqami (01, 02 …) — emoji o'rniga. */
+@Composable
+fun NumberBadge(index: Int, accent: Color, size: Dp = 44.dp) {
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(MaterialTheme.shapes.extraSmall)
+            .background(accent),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            index.toString().padStart(2, '0'),
+            style = ModuleNumber,
+            color = Color.White,
+        )
+    }
+}
+
+// ── Bo'lim sarlavhasi: katta harfli yorliq + chiziq ─────────────
 @Composable
 fun SectionTitle(text: String, modifier: Modifier = Modifier) {
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            Modifier.size(width = 4.dp, height = 18.dp).clip(CircleShape).background(CoralGradient),
-        )
-        Spacer(Modifier.size(8.dp))
-        Text(text, style = MaterialTheme.typography.titleMedium)
+    Column(modifier.fillMaxWidth()) {
+        Text(text.uppercase(), style = OverlineLabel, color = InkMuted)
+        Spacer(Modifier.size(6.dp))
+        HairLine()
     }
 }
 
-// ── Ball halqasi (score ring) ───────────────────────────────────
+// ── Ball halqasi ────────────────────────────────────────────────
 @Composable
 fun ScoreRing(
     score: Int,
     modifier: Modifier = Modifier,
-    ringSize: Dp = 128.dp,
-    stroke: Dp = 12.dp,
+    ringSize: Dp = 120.dp,
+    stroke: Dp = 8.dp,
 ) {
     val pct = (score.coerceIn(0, 100)) / 100f
-    val ringBrush = when {
-        score >= 80 -> SuccessGradient
-        score >= 50 -> PrimaryGradient
-        else -> CoralGradient
+    val ringColor = when {
+        score >= 80 -> Success
+        score >= 50 -> Navy
+        else -> Warning
     }
     Box(modifier = modifier.size(ringSize), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
@@ -258,102 +293,94 @@ fun ScoreRing(
                 color = OutlineSoft,
                 startAngle = -90f, sweepAngle = 360f, useCenter = false,
                 topLeft = topLeft, size = arcSize,
-                style = Stroke(width = s, cap = StrokeCap.Round),
+                style = Stroke(width = s, cap = StrokeCap.Butt),
             )
             drawArc(
-                brush = ringBrush,
+                color = ringColor,
                 startAngle = -90f, sweepAngle = 360f * pct, useCenter = false,
                 topLeft = topLeft, size = arcSize,
-                style = Stroke(width = s, cap = StrokeCap.Round),
+                style = Stroke(width = s, cap = StrokeCap.Butt),
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("$score", style = DisplayScore, color = InkStrong)
-            Text("/ 100", style = MaterialTheme.typography.labelMedium, color = InkMuted)
+            Text("100 DAN", style = OverlineLabel, color = InkMuted)
         }
     }
 }
 
-// ── Mikrofon tugmasi (yozishda pulsatsiya) ──────────────────────
+// ── Mikrofon tugmasi ────────────────────────────────────────────
 @Composable
 fun BrandMicButton(
     recording: Boolean,
     onClick: () -> Unit,
     micIcon: ImageVector,
     stopIcon: ImageVector,
-    size: Dp = 88.dp,
+    size: Dp = 80.dp,
 ) {
     val transition = rememberInfiniteTransition(label = "mic")
-    val scale by transition.animateFloat(
+    val pulse by transition.animateFloat(
         initialValue = 1f,
-        targetValue = if (recording) 1.12f else 1f,
-        animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
+        targetValue = if (recording) 1.06f else 1f,
+        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
         label = "pulse",
     )
-    Box(contentAlignment = Alignment.Center) {
-        if (recording) {
-            Box(
-                Modifier
-                    .size(size)
-                    .graphicsLayer { scaleX = scale + 0.18f; scaleY = scale + 0.18f; alpha = 0.25f }
-                    .clip(CircleShape)
-                    .background(CoralGradient),
+    Surface(
+        shape = CircleShape,
+        onClick = onClick,
+        color = Color.Transparent,
+        modifier = Modifier
+            .size(size)
+            .graphicsLayer { if (recording) { scaleX = pulse; scaleY = pulse } },
+    ) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .clip(CircleShape)
+                .background(if (recording) Danger else Navy),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = if (recording) stopIcon else micIcon,
+                contentDescription = if (recording) "To'xtatish" else "Gapirish",
+                tint = Color.White,
+                modifier = Modifier.size(size.value.times(0.36f).dp),
             )
         }
-        Surface(
-            shape = CircleShape,
-            onClick = onClick,
-            color = Color.Transparent,
-            modifier = Modifier
-                .size(size)
-                .graphicsLayer { if (recording) { scaleX = scale; scaleY = scale } },
-        ) {
-            Box(
-                Modifier.fillMaxSize().clip(CircleShape).background(if (recording) CoralGradient else PrimaryGradient),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = if (recording) stopIcon else micIcon,
-                    contentDescription = if (recording) "To'xtatish" else "Gapirish",
-                    tint = Color.White,
-                    modifier = Modifier.size(size.value.times(0.42f).dp),
-                )
-            }
-        }
     }
 }
 
-/** Kichik statistik plitka. */
+/** Statistik plitka: raqam ustunlik qiladi, yorliq kichik va katta harfda. */
 @Composable
-fun StatTile(value: String, label: String, modifier: Modifier = Modifier, accent: Color = Violet) {
+fun StatTile(value: String, label: String, modifier: Modifier = Modifier, accent: Color = InkStrong) {
     Column(
         modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.small)
             .background(SurfaceWhite)
-            .border(1.dp, OutlineSoft, MaterialTheme.shapes.medium)
+            .border(1.dp, OutlineSoft, MaterialTheme.shapes.small)
             .padding(14.dp),
     ) {
-        Text(value, style = MaterialTheme.typography.titleLarge, color = accent)
-        Spacer(Modifier.size(2.dp))
-        Text(label, style = MaterialTheme.typography.bodySmall, color = InkMuted)
+        Text(value, style = MaterialTheme.typography.headlineSmall, color = accent)
+        Spacer(Modifier.size(4.dp))
+        Text(label.uppercase(), style = OverlineLabel, color = InkMuted)
     }
 }
 
-/** Ichki foizli chiziq (progress bar) — brend uslubida. */
+/** Progress chizig'i — past va tekis. */
 @Composable
 fun BrandProgressBar(progress: Float, modifier: Modifier = Modifier, brush: Brush = PrimaryGradient) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(10.dp)
-            .clip(CircleShape)
+            .height(6.dp)
+            .clip(MaterialTheme.shapes.extraSmall)
             .background(SurfaceMuted),
     ) {
         Box(
             Modifier
                 .fillMaxWidth(progress.coerceIn(0f, 1f))
-                .height(10.dp)
-                .clip(CircleShape)
+                .height(6.dp)
+                .clip(MaterialTheme.shapes.extraSmall)
                 .background(brush),
         )
     }

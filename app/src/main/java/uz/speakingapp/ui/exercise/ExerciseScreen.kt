@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,12 +19,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,7 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -46,21 +51,25 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import uz.speakingapp.analysis.KeywordMatcher
 import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.data.model.Exercise
-import uz.speakingapp.speech.ModelManager
 import uz.speakingapp.data.model.Mnemonic
+import uz.speakingapp.speech.ModelManager
 import uz.speakingapp.ui.theme.BrandMicButton
 import uz.speakingapp.ui.theme.BrandProgressBar
 import uz.speakingapp.ui.theme.BrandTopBar
-import uz.speakingapp.ui.theme.Coral
-import uz.speakingapp.ui.theme.CoralContainer
-import uz.speakingapp.ui.theme.CoralGradient
+import uz.speakingapp.ui.theme.Danger
+import uz.speakingapp.ui.theme.GoldContainer
 import uz.speakingapp.ui.theme.GradientButton
+import uz.speakingapp.ui.theme.HairLine
 import uz.speakingapp.ui.theme.InkMuted
+import uz.speakingapp.ui.theme.InkStrong
 import uz.speakingapp.ui.theme.MnemonicBadge
-import uz.speakingapp.ui.theme.OnCoralContainer
-import uz.speakingapp.ui.theme.OnVioletContainer
+import uz.speakingapp.ui.theme.Navy
+import uz.speakingapp.ui.theme.NavyContainer
+import uz.speakingapp.ui.theme.OnGoldContainer
+import uz.speakingapp.ui.theme.OnNavyContainer
+import uz.speakingapp.ui.theme.OutlineSoft
+import uz.speakingapp.ui.theme.OverlineLabel
 import uz.speakingapp.ui.theme.Pill
-import uz.speakingapp.ui.theme.PrimaryGradient
 import uz.speakingapp.ui.theme.ScoreRing
 import uz.speakingapp.ui.theme.SectionTitle
 import uz.speakingapp.ui.theme.SoftButton
@@ -69,8 +78,7 @@ import uz.speakingapp.ui.theme.StatTile
 import uz.speakingapp.ui.theme.Success
 import uz.speakingapp.ui.theme.SuccessContainer
 import uz.speakingapp.ui.theme.SurfaceMuted
-import uz.speakingapp.ui.theme.Violet
-import uz.speakingapp.ui.theme.VioletContainer
+import uz.speakingapp.ui.theme.VisualTile
 
 @Composable
 fun ExerciseScreen(
@@ -100,6 +108,7 @@ fun ExerciseScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         BrandTopBar(title = exercise.title, subtitle = exercise.topic, onBack = onBack)
+        HairLine()
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -114,13 +123,7 @@ fun ExerciseScreen(
                 onListen = { vm.speakPrompts() },
             )
 
-            state.error?.let { err ->
-                Text(
-                    "⚠️ $err",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
+            state.error?.let { err -> ErrorNote(err) }
 
             when (state.phase) {
                 Phase.NeedModel -> ModelPrepareSection(onPrepare = { vm.prepareModel() })
@@ -156,22 +159,29 @@ fun ExerciseScreen(
 }
 
 @Composable
+private fun ErrorNote(message: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.small)
+            .background(SurfaceMuted)
+            .border(1.dp, OutlineSoft, MaterialTheme.shapes.small)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Default.Warning, contentDescription = null, tint = Danger, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.size(10.dp))
+        Text(message, style = MaterialTheme.typography.bodyMedium, color = InkStrong)
+    }
+}
+
+@Composable
 private fun VisualStrip(visuals: List<String>) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        items(visuals) { emoji ->
-            Box(
-                modifier = Modifier
-                    .size(92.dp)
-                    .clip(RoundedCornerShape(22.dp))
-                    .background(VioletContainer),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(emoji, fontSize = 48.sp)
-            }
-        }
+        items(visuals) { token -> VisualTile(token, size = 88.dp) }
     }
 }
 
@@ -179,57 +189,68 @@ private fun VisualStrip(visuals: List<String>) {
 private fun PromptCard(exercise: Exercise, speaking: Boolean, onListen: () -> Unit) {
     SoftCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.weight(1f)) { Pill(exercise.topic, VioletContainer, OnVioletContainer) }
+            Box(Modifier.weight(1f)) { Pill(exercise.topic, NavyContainer, OnNavyContainer) }
             if (exercise.prompts.isNotEmpty()) {
                 ListenButton(speaking = speaking, onClick = onListen)
             }
         }
-        Spacer(Modifier.size(10.dp))
-        exercise.prompts.forEach { p ->
-            Row(Modifier.padding(vertical = 3.dp)) {
-                Text("💬 ", fontSize = 15.sp)
+        Spacer(Modifier.size(12.dp))
+        exercise.prompts.forEachIndexed { i, p ->
+            Row(Modifier.padding(vertical = 4.dp)) {
+                Text(
+                    "${i + 1}.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = InkMuted,
+                    modifier = Modifier.size(width = 22.dp, height = 24.dp),
+                )
                 Text(p, style = MaterialTheme.typography.bodyLarge)
             }
         }
-        Spacer(Modifier.size(14.dp))
-        SectionTitle("Struktura: ${exercise.mnemonic.acronym}")
-        Spacer(Modifier.size(10.dp))
+
+        Spacer(Modifier.size(16.dp))
+        SectionTitle("Struktura · ${exercise.mnemonic.acronym}")
+        Spacer(Modifier.size(12.dp))
         exercise.mnemonic.steps.forEach { s ->
-            Row(Modifier.padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-                MnemonicBadge(s.letter, PrimaryGradient, size = 28.dp)
-                Spacer(Modifier.size(10.dp))
-                Text("${s.en} ", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            Row(Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                MnemonicBadge(s.letter, size = 26.dp)
+                Spacer(Modifier.size(12.dp))
+                Text(s.en, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.size(6.dp))
                 Text("· ${s.uz}", style = MaterialTheme.typography.bodySmall, color = InkMuted)
             }
         }
     }
 }
 
-/** Savollarni ingliz tilida eshitish tugmasi (TTS). */
+/** Savollarni ingliz tilida eshitish (TTS). */
 @Composable
 private fun ListenButton(speaking: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
-            .clip(CircleShape)
-            .background(if (speaking) CoralContainer else VioletContainer)
+            .clip(MaterialTheme.shapes.extraSmall)
+            .border(1.dp, if (speaking) Navy else OutlineSoft, MaterialTheme.shapes.extraSmall)
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
+            .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(if (speaking) "⏹️" else "🔊", fontSize = 14.sp)
+        Icon(
+            if (speaking) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
+            contentDescription = null,
+            tint = Navy,
+            modifier = Modifier.size(15.dp),
+        )
         Spacer(Modifier.size(6.dp))
         Text(
             if (speaking) "To'xtatish" else "Eshitish",
-            color = if (speaking) OnCoralContainer else OnVioletContainer,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.SemiBold,
+            color = Navy,
+            style = OverlineLabel,
         )
     }
 }
 
 /**
- * Kalit so'zlar yorliqlari. Aytilganlari yashil bo'ladi —
- * yozish paytida jonli, natijada esa yakuniy holat sifatida ko'rinadi.
+ * Kalit so'zlar yorliqlari. Aytilganlari belgilanadi —
+ * yozish paytida jonli, natijada esa yakuniy holat sifatida.
  */
 @Composable
 private fun KeywordChips(keywords: List<String>, spoken: Set<String>) {
@@ -242,17 +263,25 @@ private fun KeywordChips(keywords: List<String>, spoken: Set<String>) {
                 val hit = kw in spoken
                 Row(
                     modifier = Modifier
-                        .clip(CircleShape)
+                        .clip(MaterialTheme.shapes.extraSmall)
                         .background(if (hit) SuccessContainer else SurfaceMuted)
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                        .padding(horizontal = 8.dp, vertical = 5.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(if (hit) "✓ " else "", fontSize = 12.sp, color = Success)
+                    if (hit) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = null,
+                            tint = Success,
+                            modifier = Modifier.size(12.dp),
+                        )
+                        Spacer(Modifier.size(4.dp))
+                    }
                     Text(
                         kw,
                         style = MaterialTheme.typography.labelMedium,
                         color = if (hit) Success else InkMuted,
-                        fontWeight = if (hit) FontWeight.Bold else FontWeight.Normal,
+                        fontWeight = if (hit) FontWeight.SemiBold else FontWeight.Normal,
                     )
                 }
             }
@@ -265,34 +294,25 @@ private fun spokenKeywords(text: String, keywords: List<String>): Set<String> =
     KeywordMatcher.matched(text, keywords).toSet()
 
 /**
- * Mikrofon darajasi ko'rsatkichi. Jim bo'lsa maslahat beradi —
- * ko'p hollarda "tanimadi" muammosining sababi bola juda sekin gapirgani bo'ladi.
+ * Mikrofon darajasi. Jim bo'lsa maslahat beradi — "tanimadi" muammosining
+ * ko'p qismi bola juda sekin gapirganidan kelib chiqadi.
  */
 @Composable
 private fun MicLevelBar(level: Float) {
-    val tooQuiet = level < 0.08f
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(3.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            repeat(12) { i ->
-                val active = level * 12 > i
+        Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
+            repeat(16) { i ->
+                val active = level * 16 > i
                 Box(
                     Modifier
-                        .size(width = 6.dp, height = if (i % 2 == 0) 14.dp else 20.dp)
-                        .clip(CircleShape)
-                        .background(if (active) Success else SurfaceMuted)
+                        .size(width = 4.dp, height = 16.dp)
+                        .background(if (active) Navy else OutlineSoft)
                 )
             }
         }
-        if (tooQuiet) {
-            Spacer(Modifier.size(6.dp))
-            Text(
-                "Balandroq gapir 🔊",
-                style = MaterialTheme.typography.bodySmall,
-                color = InkMuted,
-            )
+        if (level < 0.08f) {
+            Spacer(Modifier.size(8.dp))
+            Text("Balandroq gapiring", style = OverlineLabel, color = InkMuted)
         }
     }
 }
@@ -300,8 +320,8 @@ private fun MicLevelBar(level: Float) {
 @Composable
 private fun ModelPrepareSection(onPrepare: () -> Unit) {
     SoftCard {
-        Text("🎧 Til modeli", style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.size(6.dp))
+        SectionTitle("Til modeli")
+        Spacer(Modifier.size(12.dp))
         Text(
             "Nutqni tanish uchun til modeli kerak. Bir marta yuklab olinadi " +
                 "(~${ModelManager.MODEL_SIZE_MB}MB), keyin butunlay internetsiz ishlaydi. " +
@@ -309,7 +329,7 @@ private fun ModelPrepareSection(onPrepare: () -> Unit) {
             style = MaterialTheme.typography.bodyMedium,
             color = InkMuted,
         )
-        Spacer(Modifier.size(14.dp))
+        Spacer(Modifier.size(16.dp))
         GradientButton("Modelni tayyorlash", onClick = onPrepare, modifier = Modifier.fillMaxWidth())
     }
 }
@@ -317,9 +337,11 @@ private fun ModelPrepareSection(onPrepare: () -> Unit) {
 @Composable
 private fun DownloadSection(progress: Float) {
     SoftCard {
-        Text("Model yuklanmoqda… ${(progress * 100).toInt()}%", style = MaterialTheme.typography.titleSmall)
+        Text("Model yuklanmoqda", style = MaterialTheme.typography.titleSmall)
         Spacer(Modifier.size(10.dp))
         BrandProgressBar(progress = progress)
+        Spacer(Modifier.size(8.dp))
+        Text("${(progress * 100).toInt()}%", style = OverlineLabel, color = InkMuted)
     }
 }
 
@@ -332,13 +354,19 @@ private fun RecordSection(
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Text(
-            "Tayyor bo'lsangiz, mikrofonni bosing va gapiring",
+            "Tayyor bo'lsangiz mikrofonni bosing va gapiring",
             style = MaterialTheme.typography.bodyLarge,
         )
-        Text("(maksimal ${timeLimitSec} soniya)", style = MaterialTheme.typography.bodySmall, color = InkMuted)
-        Spacer(Modifier.size(18.dp))
+        Spacer(Modifier.size(4.dp))
+        Text("Maksimal $timeLimitSec soniya", style = OverlineLabel, color = InkMuted)
+        Spacer(Modifier.size(20.dp))
         if (hasPermission) {
-            BrandMicButton(recording = false, onClick = onStart, micIcon = Icons.Default.Mic, stopIcon = Icons.Default.Stop)
+            BrandMicButton(
+                recording = false,
+                onClick = onStart,
+                micIcon = Icons.Default.Mic,
+                stopIcon = Icons.Default.Stop,
+            )
         } else {
             GradientButton("Mikrofonga ruxsat berish", onClick = onRequestPermission)
         }
@@ -360,57 +388,61 @@ private fun RecordingSection(
     val spoken = remember(shown, keywords) { spokenKeywords(shown, keywords) }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Text("🔴 Yozilmoqda  ${elapsed}s / ${limit}s", style = MaterialTheme.typography.titleMedium, color = Coral)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(8.dp).clip(MaterialTheme.shapes.extraSmall).background(Danger))
+            Spacer(Modifier.size(8.dp))
+            Text(
+                "YOZILMOQDA · ${elapsed}s / ${limit}s",
+                style = OverlineLabel,
+                color = Danger,
+            )
+        }
         Spacer(Modifier.size(10.dp))
-        BrandProgressBar(progress = if (limit == 0) 0f else elapsed.toFloat() / limit, brush = CoralGradient)
-        Spacer(Modifier.size(18.dp))
-        BrandMicButton(recording = true, onClick = onStop, micIcon = Icons.Default.Mic, stopIcon = Icons.Default.Stop)
-        Spacer(Modifier.size(12.dp))
-
-        // Ovoz darajasi — bola o'zi eshitilayotganini ko'rib turadi.
+        BrandProgressBar(
+            progress = if (limit == 0) 0f else elapsed.toFloat() / limit,
+            brush = SolidColor(Danger),
+        )
+        Spacer(Modifier.size(20.dp))
+        BrandMicButton(
+            recording = true,
+            onClick = onStop,
+            micIcon = Icons.Default.Mic,
+            stopIcon = Icons.Default.Stop,
+        )
+        Spacer(Modifier.size(14.dp))
         MicLevelBar(micLevel)
-        Spacer(Modifier.size(18.dp))
+        Spacer(Modifier.size(20.dp))
 
-        // Gapirayotganda strukturani unutmaslik uchun mnemonika eslatmasi.
         if (mnemonic.steps.isNotEmpty()) {
             SoftCard {
-                Text(
-                    "Strukturaga amal qil: ${mnemonic.acronym}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = InkMuted,
-                )
-                Spacer(Modifier.size(8.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SectionTitle("Strukturaga amal qiling · ${mnemonic.acronym}")
+                Spacer(Modifier.size(10.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(mnemonic.steps) { step ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            MnemonicBadge(step.letter, PrimaryGradient, size = 24.dp)
+                            MnemonicBadge(step.letter, size = 22.dp)
                             Spacer(Modifier.size(6.dp))
                             Text(step.en, style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 }
             }
-            Spacer(Modifier.size(10.dp))
+            Spacer(Modifier.size(12.dp))
         }
 
-        // Kalit so'zlar aytilgani sayin yashil bo'ladi — jonli fikr-mulohaza.
         if (keywords.isNotEmpty()) {
             SoftCard {
-                Text(
-                    "Kalit so'zlar: ${spoken.size}/${keywords.size}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = InkMuted,
-                )
-                Spacer(Modifier.size(6.dp))
+                SectionTitle("Kalit so'zlar · ${spoken.size}/${keywords.size}")
+                Spacer(Modifier.size(10.dp))
                 KeywordChips(keywords, spoken)
             }
-            Spacer(Modifier.size(10.dp))
+            Spacer(Modifier.size(12.dp))
         }
 
         if (shown.isNotBlank()) {
             SoftCard {
-                Text("Nutqingiz:", style = MaterialTheme.typography.labelMedium, color = InkMuted)
-                Spacer(Modifier.size(4.dp))
+                SectionTitle("Nutqingiz")
+                Spacer(Modifier.size(10.dp))
                 Text(shown, style = MaterialTheme.typography.bodyLarge)
             }
         }
@@ -425,33 +457,32 @@ private fun ResultSection(
     onRetry: () -> Unit,
 ) {
     val message = when {
-        result.overallScore >= 80 -> "Zo'r natija! 🎉"
-        result.overallScore >= 50 -> "Yaxshi ish! 👍"
-        else -> "Mashq qilishda davom et! 💪"
+        result.overallScore >= 80 -> "A'lo natija"
+        result.overallScore >= 50 -> "Yaxshi natija"
+        else -> "Mashq qilishda davom eting"
     }
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SoftCard {
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 ScoreRing(result.overallScore)
-                Spacer(Modifier.size(10.dp))
-                Text(message, style = MaterialTheme.typography.titleMedium, color = Violet)
+                Spacer(Modifier.size(12.dp))
+                Text(message, style = MaterialTheme.typography.titleMedium, color = Navy)
             }
         }
 
-        // Metrikalar — 2 ustunli plitkalar
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatTile("${result.wordCount}", "So'zlar", Modifier.weight(1f))
-                StatTile("${result.uniqueWordCount}", "Noyob so'z", Modifier.weight(1f), accent = Coral)
+                StatTile("${result.uniqueWordCount}", "Noyob so'z", Modifier.weight(1f))
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatTile("${result.wordsPerMinute}", "So'z/daqiqa", Modifier.weight(1f))
-                StatTile("${result.durationSec}s", "Davomiylik", Modifier.weight(1f), accent = Coral)
+                StatTile("${result.durationSec}s", "Davomiylik", Modifier.weight(1f))
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatTile(
                     "${result.matchedKeywords.size}/${result.totalKeywords}",
-                    "Kalit so'zlar (${result.keywordCoverage}%)",
+                    "Kalit so'zlar",
                     Modifier.weight(1f),
                     accent = Success,
                 )
@@ -466,8 +497,8 @@ private fun ResultSection(
 
         if (keywords.isNotEmpty()) {
             SoftCard {
-                SectionTitle("Kalit so'zlar (${result.matchedKeywords.size}/${keywords.size})")
-                Spacer(Modifier.size(8.dp))
+                SectionTitle("Kalit so'zlar · ${result.matchedKeywords.size}/${keywords.size}")
+                Spacer(Modifier.size(10.dp))
                 KeywordChips(keywords, result.matchedKeywords.toSet())
             }
         }
@@ -475,29 +506,35 @@ private fun ResultSection(
         if (result.grammarIssues.isNotEmpty()) {
             SoftCard {
                 SectionTitle("Grammatika e'tibori")
-                Spacer(Modifier.size(8.dp))
+                Spacer(Modifier.size(10.dp))
                 result.grammarIssues.forEach {
-                    Text("• $it", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(vertical = 2.dp))
+                    BulletLine(it)
                 }
             }
         }
 
         SoftCard {
             SectionTitle("Tavsiyalar")
-            Spacer(Modifier.size(8.dp))
-            result.feedback.forEach {
-                Text("• $it", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(vertical = 2.dp))
-            }
+            Spacer(Modifier.size(10.dp))
+            result.feedback.forEach { BulletLine(it) }
         }
 
         if (result.transcript.isNotBlank()) {
             SoftCard {
                 SectionTitle("Nutqingiz (matn)")
-                Spacer(Modifier.size(8.dp))
+                Spacer(Modifier.size(10.dp))
                 Text(result.transcript, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
             }
         }
 
-        SoftButton("🔁 Qayta urinish", onClick = onRetry, modifier = Modifier.fillMaxWidth())
+        SoftButton("Qayta urinish", onClick = onRetry, modifier = Modifier.fillMaxWidth())
+    }
+}
+
+@Composable
+private fun BulletLine(text: String) {
+    Row(Modifier.padding(vertical = 3.dp)) {
+        Text("—", color = InkMuted, fontSize = 14.sp, modifier = Modifier.size(width = 18.dp, height = 20.dp))
+        Text(text, style = MaterialTheme.typography.bodyMedium)
     }
 }

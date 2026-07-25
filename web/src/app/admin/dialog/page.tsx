@@ -57,7 +57,7 @@ function DialogEditor() {
     });
   }, [id, isNew, moduleId]);
 
-  if (!d) return <p className="text-slate-500">Yuklanmoqda…</p>;
+  if (!d) return <p className="text-ink-muted">Yuklanmoqda…</p>;
   const set = (patch: Partial<DialogEdit>) => setD((x) => ({ ...x!, ...patch }));
 
   const updTurn = (i: number, patch: Partial<TurnEdit>) =>
@@ -87,7 +87,7 @@ function DialogEditor() {
 
   return (
     <div className="space-y-5">
-      <Link href="/admin" className="text-sm text-brand hover:underline">
+      <Link href="/admin" className="text-sm text-navy hover:underline">
         ← Kontentga qaytish
       </Link>
       <h1 className="text-2xl font-bold">{isNew ? "Yangi dialog" : "Dialogni tahrirlash"}</h1>
@@ -147,14 +147,14 @@ function DialogEditor() {
             ＋ Almashish
           </button>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-ink-muted">
           Rolli o'yin: avval <b>personaj gapi</b>, keyin o'quvchi javob beradi. Intervyu: avval{" "}
           <b>o'quvchi ishorasi</b> bo'yicha savol beradi, keyin personaj javobi.
         </p>
         {d.turns.map((t, i) => (
-          <div key={i} className="rounded-lg border border-slate-200 p-3">
+          <div key={i} className="rounded border border-line p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">#{i + 1}</span>
+              <span className="text-xs font-semibold text-ink-muted">#{i + 1}</span>
               <button className="btn-danger px-3 py-1" onClick={() => removeTurn(i)}>
                 ✕
               </button>
@@ -200,7 +200,7 @@ function DialogEditor() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<p className="text-slate-500">Yuklanmoqda…</p>}>
+    <Suspense fallback={<p className="text-ink-muted">Yuklanmoqda…</p>}>
       <DialogEditor />
     </Suspense>
   );

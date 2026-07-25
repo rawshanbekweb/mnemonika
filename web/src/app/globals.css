@@ -6,65 +6,80 @@
   color-scheme: light;
 }
 
+/* Akademik uslub: tekis fon, gradient yo'q. */
 body {
-  @apply text-ink antialiased;
-  background:
-    radial-gradient(1200px 600px at 100% -10%, rgba(139, 92, 246, 0.10), transparent 60%),
-    radial-gradient(900px 500px at -10% 10%, rgba(251, 113, 133, 0.08), transparent 55%),
-    #f7f5fc;
+  @apply bg-surface-page text-ink antialiased;
   min-height: 100vh;
 }
 
 /* ── Buttons ─────────────────────────────────────────── */
 .btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded px-5 py-2.5 text-sm font-medium transition disabled:opacity-40;
 }
 .btn-primary {
-  @apply btn text-white shadow-soft;
-  background-image: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  @apply btn bg-navy text-white;
 }
-.btn-primary:hover {
-  filter: brightness(1.06);
+.btn-primary:hover:not(:disabled) {
+  @apply bg-navy-deep;
 }
 .btn-ghost {
-  @apply btn bg-white text-ink ring-1 ring-slate-200 hover:bg-slate-50;
+  @apply btn border border-line bg-white text-ink hover:bg-surface-muted;
 }
 .btn-danger {
-  @apply btn bg-white text-coral-dark ring-1 ring-rose-200 hover:bg-rose-50;
+  @apply btn border border-red-200 bg-white text-state-danger hover:bg-red-50;
 }
 
 /* ── Inputs ──────────────────────────────────────────── */
 .input {
-  @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/15;
+  @apply w-full rounded border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition;
+}
+.input:focus {
+  @apply border-navy ring-1 ring-navy;
 }
 .label {
-  @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-muted;
+  @apply mb-1.5 block text-overline font-semibold uppercase text-ink-muted;
 }
 
 /* ── Cards ───────────────────────────────────────────── */
 .card {
-  @apply rounded-2xl border border-slate-100 bg-white p-5 shadow-soft;
+  @apply rounded border border-line bg-white p-5;
 }
 
 /* ── Chips / pills ───────────────────────────────────── */
 .pill {
-  @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+  @apply inline-flex items-center rounded-sm px-2 py-1 text-overline font-semibold uppercase;
 }
 .pill-brand {
-  @apply pill bg-brand/10 text-brand;
+  @apply pill bg-navy-container text-navy-deep;
 }
 .pill-coral {
-  @apply pill;
-  background-color: rgba(251, 113, 133, 0.12);
-  color: #f43f5e;
+  @apply pill bg-gold-container text-gold-deep;
 }
 
-/* ── Section title ───────────────────────────────────── */
+/* ── Section title: hujjat uslubidagi yorliq + chiziq ── */
 .section-title {
-  @apply flex items-center gap-2 text-base font-bold text-ink;
+  @apply block text-overline font-semibold uppercase text-ink-muted;
 }
-.section-title::before {
+.section-title::after {
   content: "";
-  @apply inline-block h-4 w-1 rounded-full;
-  background-image: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
+  @apply mt-1.5 block h-px w-full bg-line;
+}
+
+/* ── Overline yorlig'i (chiziqsiz) ───────────────────── */
+.overline {
+  @apply text-overline font-semibold uppercase text-ink-muted;
+}
+
+/* ── Jadval: hisobot ko'rinishi ──────────────────────── */
+.table-report {
+  @apply w-full text-sm;
+}
+.table-report thead th {
+  @apply border-b border-line pb-2 text-left text-overline font-semibold uppercase text-ink-muted;
+}
+.table-report tbody tr {
+  @apply border-b border-line/60;
+}
+.table-report tbody td {
+  @apply py-2.5;
 }

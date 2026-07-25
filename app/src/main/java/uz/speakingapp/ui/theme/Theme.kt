@@ -13,15 +13,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 private val LightColors = lightColorScheme(
-    primary = Violet,
+    primary = Navy,
     onPrimary = Color.White,
-    primaryContainer = VioletContainer,
-    onPrimaryContainer = OnVioletContainer,
-    secondary = Coral,
+    primaryContainer = NavyContainer,
+    onPrimaryContainer = OnNavyContainer,
+    secondary = Gold,
     onSecondary = Color.White,
-    secondaryContainer = CoralContainer,
-    onSecondaryContainer = OnCoralContainer,
-    tertiary = Amber,
+    secondaryContainer = GoldContainer,
+    onSecondaryContainer = OnGoldContainer,
+    tertiary = NavyLight,
     onTertiary = Color.White,
     background = AppBackground,
     onBackground = InkStrong,
@@ -35,33 +35,52 @@ private val LightColors = lightColorScheme(
     onError = Color.White,
 )
 
+/** Akademik uslub: burchaklar deyarli tekis. */
 private val AppShapes = Shapes(
-    extraSmall = RoundedCornerShape(10.dp),
-    small = RoundedCornerShape(14.dp),
-    medium = RoundedCornerShape(20.dp),
-    large = RoundedCornerShape(26.dp),
-    extraLarge = RoundedCornerShape(32.dp),
+    extraSmall = RoundedCornerShape(3.dp),
+    small = RoundedCornerShape(4.dp),
+    medium = RoundedCornerShape(4.dp),
+    large = RoundedCornerShape(6.dp),
+    extraLarge = RoundedCornerShape(8.dp),
 )
 
+/**
+ * Tipografika ierarxiya orqali ishlaydi, rang va gradient orqali emas:
+ * sarlavhalar zich va qat'iy, kichik yorliqlar katta harfda va kengaytirilgan.
+ */
 private val AppTypography = Typography().run {
     copy(
-        headlineLarge = headlineLarge.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp),
-        headlineMedium = headlineMedium.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp),
-        headlineSmall = headlineSmall.copy(fontWeight = FontWeight.Bold),
-        titleLarge = titleLarge.copy(fontWeight = FontWeight.Bold),
-        titleMedium = titleMedium.copy(fontWeight = FontWeight.Bold),
-        titleSmall = titleSmall.copy(fontWeight = FontWeight.SemiBold),
-        labelLarge = labelLarge.copy(fontWeight = FontWeight.SemiBold),
+        headlineLarge = headlineLarge.copy(fontWeight = FontWeight.Bold, letterSpacing = (-0.4).sp),
+        headlineMedium = headlineMedium.copy(fontWeight = FontWeight.Bold, letterSpacing = (-0.4).sp),
+        headlineSmall = headlineSmall.copy(fontWeight = FontWeight.SemiBold),
+        titleLarge = titleLarge.copy(fontWeight = FontWeight.SemiBold),
+        titleMedium = titleMedium.copy(fontWeight = FontWeight.SemiBold),
+        titleSmall = titleSmall.copy(fontWeight = FontWeight.Medium),
+        labelLarge = labelLarge.copy(fontWeight = FontWeight.Medium),
         bodyLarge = bodyLarge.copy(lineHeight = 24.sp),
     )
 }
 
-/** Sarlavhalar uchun juda katta ball ko'rsatkichi (ScoreRing markazida). */
-val DisplayScore = TextStyle(fontWeight = FontWeight.ExtraBold, fontSize = 40.sp, letterSpacing = (-1).sp)
+/** Bo'lim yorlig'i: KICHIK, KATTA HARFDA, kengaytirilgan — hujjat uslubi. */
+val OverlineLabel = TextStyle(
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 11.sp,
+    letterSpacing = 1.2.sp,
+)
+
+/** Ball ko'rsatkichi (ScoreRing markazida). */
+val DisplayScore = TextStyle(fontWeight = FontWeight.Bold, fontSize = 38.sp, letterSpacing = (-1).sp)
+
+/** Modul tartib raqami (01, 02 …). */
+val ModuleNumber = TextStyle(
+    fontWeight = FontWeight.Bold,
+    fontSize = 15.sp,
+    letterSpacing = 0.5.sp,
+)
 
 @Composable
 fun SpeakUpTheme(
-    // Bolalar ilovasi — doim yorug' (bright) tema, izchil ko'rinish uchun.
+    // Doim yorug' tema — bosma hujjatga o'xshash izchil ko'rinish uchun.
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(

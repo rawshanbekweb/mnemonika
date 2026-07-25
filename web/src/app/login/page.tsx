@@ -28,13 +28,10 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-5 rounded-2xl border border-slate-100 bg-white p-7 shadow-soft-lg">
-        <div className="text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-hero-gradient text-3xl shadow-soft">
-            🎙️
-          </div>
-          <h1 className="mt-4 text-2xl font-extrabold tracking-tight">SpeakUp</h1>
-          <p className="text-sm text-ink-muted">Boshqaruv paneliga kirish</p>
+      <form onSubmit={submit} className="w-full max-w-sm space-y-5 rounded border border-line bg-white p-7">
+        <div className="border-b border-line pb-5">
+          <h1 className="text-xl font-bold tracking-[0.12em] text-navy">SPEAKUP</h1>
+          <p className="mt-1 text-sm text-ink-muted">Boshqaruv paneliga kirish</p>
         </div>
         <div>
           <label className="label">Email</label>
@@ -58,7 +55,7 @@ export default function LoginPage() {
             autoComplete="current-password"
           />
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-state-danger">{error}</p>}
         <button className="btn-primary w-full" disabled={loading}>
           {loading ? "Kirilmoqda…" : "Kirish"}
         </button>

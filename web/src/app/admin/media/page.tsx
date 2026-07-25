@@ -53,16 +53,12 @@ export default function MediaPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-hero-gradient text-2xl shadow-soft">
-          🖼️
-        </div>
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Media kutubxonasi</h1>
-          <p className="text-sm text-ink-muted">
-            Haqiqiy rasmlarni yuklang, so'ng URL'ni mashq/dialog "Vizuallar" maydoniga qo'ying.
-          </p>
-        </div>
+      <div className="border-b border-line pb-4">
+        <h1 className="text-2xl font-bold text-ink">Media kutubxonasi</h1>
+        <p className="mt-1 text-sm text-ink-muted">
+          Rasmlarni yuklang, so&apos;ng URL&apos;ni mashq yoki dialogning &quot;Vizuallar&quot;
+          maydoniga qo&apos;ying — ilova emoji o&apos;rniga o&apos;sha rasmni ko&apos;rsatadi.
+        </p>
       </div>
 
       <div className="card flex flex-wrap items-end gap-4">
@@ -92,14 +88,14 @@ export default function MediaPage() {
           {uploading ? "Yuklanmoqda…" : "Yuklash"}
         </button>
       </div>
-      {error && <p className="text-sm text-coral-dark">{error}</p>}
+      {error && <p className="text-sm text-state-danger">{error}</p>}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {rows.map((m) => (
           <div key={m.id} className="card space-y-2 p-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={m.url} alt={m.alt} className="h-28 w-full rounded-lg object-cover" />
-            <p className="truncate text-xs text-slate-500">{m.alt || m.pathname}</p>
+            <img src={m.url} alt={m.alt} className="h-28 w-full rounded object-cover" />
+            <p className="truncate text-xs text-ink-muted">{m.alt || m.pathname}</p>
             <div className="flex gap-1">
               <button
                 className="btn-ghost flex-1 px-2 py-1 text-xs"
@@ -113,7 +109,7 @@ export default function MediaPage() {
             </div>
           </div>
         ))}
-        {rows.length === 0 && <p className="text-sm text-slate-400">Hali rasm yo'q.</p>}
+        {rows.length === 0 && <p className="text-sm text-ink-muted">Hali rasm yo'q.</p>}
       </div>
     </div>
   );

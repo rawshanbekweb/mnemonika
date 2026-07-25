@@ -44,43 +44,38 @@ export default function TeacherPage() {
   }, []);
 
   if (error) return <p className="text-red-600">{error}</p>;
-  if (!p) return <p className="text-slate-500">Yuklanmoqda…</p>;
+  if (!p) return <p className="text-ink-muted">Yuklanmoqda…</p>;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-hero-gradient text-2xl shadow-soft">
-          📊
-        </div>
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">O'quvchilar progressi</h1>
-          <p className="text-sm text-ink-muted">Sinf faoliyati va natijalar</p>
-        </div>
+      <div className="border-b border-line pb-4">
+        <h1 className="text-2xl font-bold text-ink">O&apos;quvchilar progressi</h1>
+        <p className="mt-1 text-sm text-ink-muted">Sinf faoliyati va natijalar</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <Stat icon="📝" label="Urinishlar" value={p.totalAttempts} grad="linear-gradient(135deg,#8b5cf6,#6d28d9)" />
-        <Stat icon="👦" label="O'quvchilar" value={p.totalStudents} grad="linear-gradient(135deg,#38bdf8,#0ea5e9)" />
-        <Stat icon="⭐" label="O'rtacha ball" value={p.avgScore} suffix="/100" grad="linear-gradient(135deg,#34d399,#10b981)" />
-        <Stat icon="⚡" label="O'rtacha WPM" value={p.avgWpm} grad="linear-gradient(135deg,#fb7185,#f43f5e)" />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Stat label="Urinishlar" value={p.totalAttempts} />
+        <Stat label="O'quvchilar" value={p.totalStudents} />
+        <Stat label="O'rtacha ball" value={p.avgScore} suffix="/100" />
+        <Stat label="O'rtacha WPM" value={p.avgWpm} />
       </div>
 
       <div className="card">
         <h2 className="mb-3 font-semibold">Modul bo'yicha o'rtacha ball</h2>
         {p.byModule.length === 0 ? (
-          <p className="text-sm text-slate-400">Ma'lumot yo'q</p>
+          <p className="text-sm text-ink-muted">Ma'lumot yo'q</p>
         ) : (
           <div className="space-y-2">
             {p.byModule.map((m) => (
               <div key={m.moduleId} className="flex items-center gap-3">
                 <span className="w-40 truncate text-sm">{m.moduleId}</span>
-                <div className="h-3 flex-1 rounded-full bg-slate-100">
+                <div className="h-2 flex-1 overflow-hidden rounded-sm bg-surface-muted">
                   <div
-                    className="h-3 rounded-full bg-brand-gradient"
+                    className="h-2 bg-navy"
                     style={{ width: `${m.avgScore}%` }}
                   />
                 </div>
-                <span className="w-24 text-right text-sm text-slate-500">
+                <span className="w-24 text-right text-sm text-ink-muted">
                   {m.avgScore}/100 ({m.attempts})
                 </span>
               </div>
@@ -93,7 +88,7 @@ export default function TeacherPage() {
         <h2 className="mb-3 font-semibold">O'quvchilar</h2>
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-xs uppercase text-slate-500">
+            <tr className="border-b border-line text-left text-overline uppercase text-ink-muted">
               <th className="py-2">O'quvchi</th>
               <th>Sinf</th>
               <th className="text-right">Urinish</th>
@@ -103,25 +98,25 @@ export default function TeacherPage() {
               <th className="text-right">Oxirgi faollik</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-line">
             {p.byStudent.map((s) => (
               <tr key={s.studentId}>
                 <td className="py-2 font-medium">
-                  {s.name || <span className="text-slate-400">Ismsiz ({s.studentId.slice(0, 10)}…)</span>}
+                  {s.name || <span className="text-ink-muted">Ismsiz ({s.studentId.slice(0, 10)}…)</span>}
                 </td>
-                <td className="text-slate-500">{s.classGroup || "—"}</td>
+                <td className="text-ink-muted">{s.classGroup || "—"}</td>
                 <td className="text-right">{s.attempts}</td>
                 <td className="text-right font-medium">{s.avgScore}</td>
                 <td className="text-right">{s.bestScore}</td>
-                <td className="text-right text-slate-500">{s.words}</td>
-                <td className="text-right text-slate-500">
+                <td className="text-right text-ink-muted">{s.words}</td>
+                <td className="text-right text-ink-muted">
                   {new Date(s.lastActive).toLocaleDateString("uz")}
                 </td>
               </tr>
             ))}
             {p.byStudent.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-4 text-center text-slate-400">
+                <td colSpan={7} className="py-4 text-center text-ink-muted">
                   Hali o'quvchilar yo'q
                 </td>
               </tr>
@@ -134,7 +129,7 @@ export default function TeacherPage() {
         <h2 className="mb-3 font-semibold">So'nggi urinishlar</h2>
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-xs uppercase text-slate-500">
+            <tr className="border-b border-line text-left text-overline uppercase text-ink-muted">
               <th className="py-2">Sana</th>
               <th>O'quvchi</th>
               <th>Mashq</th>
@@ -142,15 +137,15 @@ export default function TeacherPage() {
               <th className="text-right">WPM</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-line">
             {p.recent.map((a) => (
               <tr key={a.id}>
-                <td className="py-2 text-slate-500">
+                <td className="py-2 text-ink-muted">
                   {new Date(a.createdAt).toLocaleString("uz")}
                 </td>
                 <td>
-                  {a.studentName || <span className="text-slate-400">{a.studentId}</span>}
-                  {a.classGroup && <span className="ml-1 text-xs text-slate-400">({a.classGroup})</span>}
+                  {a.studentName || <span className="text-ink-muted">{a.studentId}</span>}
+                  {a.classGroup && <span className="ml-1 text-xs text-ink-muted">({a.classGroup})</span>}
                 </td>
                 <td>{a.exerciseTitle || a.moduleId}</td>
                 <td className="text-right font-medium">{a.overallScore}</td>
@@ -159,7 +154,7 @@ export default function TeacherPage() {
             ))}
             {p.recent.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-4 text-center text-slate-400">
+                <td colSpan={5} className="py-4 text-center text-ink-muted">
                   Hali urinishlar yo'q
                 </td>
               </tr>
@@ -175,30 +170,18 @@ function Stat({
   label,
   value,
   suffix,
-  icon,
-  grad,
 }: {
   label: string;
   value: number;
   suffix?: string;
-  icon: string;
-  grad: string;
 }) {
   return (
-    <div className="card flex items-center gap-3">
-      <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-soft"
-        style={{ backgroundImage: grad }}
-      >
-        {icon}
-      </div>
-      <div>
-        <p className="text-3xl font-extrabold leading-none text-ink">
-          {value}
-          {suffix && <span className="text-sm font-medium text-ink-muted">{suffix}</span>}
-        </p>
-        <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-ink-muted">{label}</p>
-      </div>
+    <div className="card">
+      <p className="text-3xl font-bold leading-none text-ink">
+        {value}
+        {suffix && <span className="text-sm font-normal text-ink-muted">{suffix}</span>}
+      </p>
+      <p className="mt-2 text-overline uppercase text-ink-muted">{label}</p>
     </div>
   );
 }

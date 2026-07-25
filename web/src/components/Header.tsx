@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { Icon } from "@/components/Icon";
 
 const links = [
   { href: "/admin", label: "Kontent" },
@@ -32,14 +33,14 @@ export default function Header({ name, role }: { name: string; role: string }) {
   }
 
   return (
-    <header className="border-b border-slate-200 bg-white">
+    <header className="border-b border-line bg-white">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-6">
-          <Link href="/admin" className="flex items-center gap-2 text-lg font-extrabold tracking-tight">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-hero-gradient text-base shadow-soft">
-              🎙️
-            </span>
-            SpeakUp
+        <div className="flex items-center gap-8">
+          <Link
+            href="/admin"
+            className="text-lg font-bold tracking-[0.12em] text-navy"
+          >
+            SPEAKUP
           </Link>
           <nav className="flex gap-1">
             {links
@@ -50,8 +51,10 @@ export default function Header({ name, role }: { name: string; role: string }) {
                   <Link
                     key={l.href}
                     href={l.href}
-                    className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
-                      active ? "bg-brand/10 text-brand" : "text-slate-600 hover:bg-slate-100"
+                    className={`rounded-sm px-3 py-1.5 text-sm ${
+                      active
+                        ? "bg-navy-container font-semibold text-navy"
+                        : "text-ink-muted hover:bg-surface-muted"
                     }`}
                   >
                     {l.label}
@@ -61,8 +64,9 @@ export default function Header({ name, role }: { name: string; role: string }) {
           </nav>
         </div>
         <div className="flex items-center gap-3 text-sm">
-          <span className="text-slate-500">{name}</span>
-          <button onClick={logout} className="btn-ghost px-3 py-1.5">
+          <span className="text-ink-muted">{name}</span>
+          <button onClick={logout} className="btn-ghost !px-3 !py-1.5 !text-xs">
+            <Icon name="logout" size={15} />
             Chiqish
           </button>
         </div>

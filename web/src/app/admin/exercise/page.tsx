@@ -45,7 +45,7 @@ function ExerciseEditor() {
     });
   }, [id, isNew, moduleId]);
 
-  if (!ex) return <p className="text-slate-500">Yuklanmoqda…</p>;
+  if (!ex) return <p className="text-ink-muted">Yuklanmoqda…</p>;
   const set = (patch: Partial<ExerciseRow>) => setEx((x) => ({ ...x!, ...patch }));
 
   async function save() {
@@ -69,7 +69,7 @@ function ExerciseEditor() {
 
   return (
     <div className="space-y-5">
-      <Link href="/admin" className="text-sm text-brand hover:underline">
+      <Link href="/admin" className="text-sm text-navy hover:underline">
         ← Kontentga qaytish
       </Link>
       <h1 className="text-2xl font-bold">{isNew ? "Yangi mashq" : "Mashqni tahrirlash"}</h1>
@@ -157,7 +157,7 @@ function ListArea({
 
 export default function Page() {
   return (
-    <Suspense fallback={<p className="text-slate-500">Yuklanmoqda…</p>}>
+    <Suspense fallback={<p className="text-ink-muted">Yuklanmoqda…</p>}>
       <ExerciseEditor />
     </Suspense>
   );

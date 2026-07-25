@@ -3,9 +3,11 @@ package uz.speakingapp.ui.dialog
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,11 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,9 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -43,11 +46,14 @@ import uz.speakingapp.data.model.DialogScenario
 import uz.speakingapp.ui.theme.BrandMicButton
 import uz.speakingapp.ui.theme.BrandProgressBar
 import uz.speakingapp.ui.theme.BrandTopBar
-import uz.speakingapp.ui.theme.Coral
+import uz.speakingapp.ui.theme.Danger
 import uz.speakingapp.ui.theme.GradientButton
+import uz.speakingapp.ui.theme.HairLine
 import uz.speakingapp.ui.theme.InkMuted
 import uz.speakingapp.ui.theme.InkStrong
-import uz.speakingapp.ui.theme.PrimaryGradient
+import uz.speakingapp.ui.theme.Navy
+import uz.speakingapp.ui.theme.OutlineSoft
+import uz.speakingapp.ui.theme.OverlineLabel
 import uz.speakingapp.ui.theme.ScoreRing
 import uz.speakingapp.ui.theme.SoftButton
 import uz.speakingapp.ui.theme.SurfaceMuted
@@ -88,72 +94,95 @@ fun DialogScreen(
                 if (state.totalTurns > 0 && state.phase != DialogPhase.Done) {
                     Box(
                         Modifier
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.18f))
-                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                            .clip(MaterialTheme.shapes.extraSmall)
+                            .background(Color.White.copy(alpha = 0.14f))
+                            .padding(horizontal = 10.dp, vertical = 5.dp),
                     ) {
                         Text(
-                            "${(state.turnIndex + 1).coerceAtMost(state.totalTurns)}/${state.totalTurns}",
+                            "${(state.turnIndex + 1).coerceAtMost(state.totalTurns)} / ${state.totalTurns}",
                             color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
+                            style = OverlineLabel,
                         )
                     }
                 }
             },
         )
+        HairLine()
 
-        // Suhbat tarixi
         LazyColumn(
             modifier = Modifier.weight(1f).fillMaxWidth(),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+            contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             items(state.messages.size) { i ->
                 val msg = state.messages[i]
-                MessageBubble(msg.text, msg.fromCharacter, scenario.characterEmoji)
+                MessageBubble(msg.text, msg.fromCharacter, scenario.characterName)
             }
             if (state.liveText.isNotBlank()) {
-                item { MessageBubble(state.liveText, false, scenario.characterEmoji, faded = true) }
+                item { MessageBubble(state.liveText, false, scenario.characterName, faded = true) }
             }
         }
 
         state.error?.let {
-            Text("⚠️ $it", color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(horizontal = 16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Default.Warning, contentDescription = null, tint = Danger, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.size(8.dp))
+                Text(it, style = MaterialTheme.typography.bodySmall, color = InkStrong)
+            }
         }
 
-        // Pastki interaktiv panel
-        Surface(
-            color = SurfaceWhite,
-            shadowElevation = 12.dp,
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
+        HairLine()
+        Surface(color = SurfaceWhite, modifier = Modifier.fillMaxWidth()) {
             Box(Modifier.padding(20.dp), contentAlignment = Alignment.Center) {
                 when (state.phase) {
-                    DialogPhase.NeedModel -> GradientButton("Suhbatni boshlash 💬", onClick = { vm.prepareModel() })
+                    DialogPhase.NeedModel ->
+                        GradientButton("Suhbatni boshlash", onClick = { vm.prepareModel() })
 
                     DialogPhase.PreparingModel -> Column(
-                        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("Model yuklanmoqda… ${(state.downloadProgress * 100).toInt()}%")
+                        Text("Model yuklanmoqda", style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.size(10.dp))
                         BrandProgressBar(progress = state.downloadProgress)
+                        Spacer(Modifier.size(8.dp))
+                        Text(
+                            "${(state.downloadProgress * 100).toInt()}%",
+                            style = OverlineLabel,
+                            color = InkMuted,
+                        )
                     }
 
-                    DialogPhase.CharacterSpeaking -> Text(
-                        "🔊 ${scenario.characterName} gapiryapti…",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = InkMuted,
-                    )
+                    DialogPhase.CharacterSpeaking -> Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.VolumeUp,
+                            contentDescription = null,
+                            tint = Navy,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.size(10.dp))
+                        Text(
+                            "${scenario.characterName} gapirmoqda",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = InkMuted,
+                        )
+                    }
 
                     DialogPhase.StudentTurn -> Column(
-                        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text(state.currentHint, style = MaterialTheme.typography.bodyLarge, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                        Spacer(Modifier.size(14.dp))
+                        Text(
+                            state.currentHint,
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                        )
+                        Spacer(Modifier.size(16.dp))
                         if (hasMic) {
-                            BrandMicButton(false, { vm.startRecording() }, Icons.Default.Mic, Icons.Default.Stop, size = 76.dp)
+                            BrandMicButton(false, { vm.startRecording() }, Icons.Default.Mic, Icons.Default.Stop, size = 68.dp)
                         } else {
                             GradientButton("Mikrofonga ruxsat berish", onClick = {
                                 permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
@@ -162,11 +191,16 @@ fun DialogScreen(
                     }
 
                     DialogPhase.Recording -> Column(
-                        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("🔴 Yozilmoqda ${state.elapsedSec}s", color = Coral, fontWeight = FontWeight.Bold)
-                        Spacer(Modifier.size(14.dp))
-                        BrandMicButton(true, { vm.stopRecording() }, Icons.Default.Mic, Icons.Default.Stop, size = 76.dp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.size(8.dp).clip(MaterialTheme.shapes.extraSmall).background(Danger))
+                            Spacer(Modifier.size(8.dp))
+                            Text("YOZILMOQDA · ${state.elapsedSec}s", style = OverlineLabel, color = Danger)
+                        }
+                        Spacer(Modifier.size(16.dp))
+                        BrandMicButton(true, { vm.stopRecording() }, Icons.Default.Mic, Icons.Default.Stop, size = 68.dp)
                     }
 
                     DialogPhase.Done -> DonePanel(
@@ -185,57 +219,38 @@ fun DialogScreen(
 private fun MessageBubble(
     text: String,
     fromCharacter: Boolean,
-    characterEmoji: String,
+    characterName: String,
     faded: Boolean = false,
 ) {
-    Row(
+    Column(
         Modifier.fillMaxWidth(),
-        horizontalArrangement = if (fromCharacter) Arrangement.Start else Arrangement.End,
-        verticalAlignment = Alignment.Bottom,
+        horizontalAlignment = if (fromCharacter) Alignment.Start else Alignment.End,
     ) {
-        if (fromCharacter) {
-            Avatar(characterEmoji.ifBlank { "🎭" }, gradient = false)
-            Spacer(Modifier.size(8.dp))
-        }
+        Text(
+            if (fromCharacter) characterName.uppercase() else "SIZ",
+            style = OverlineLabel,
+            color = InkMuted,
+        )
+        Spacer(Modifier.size(4.dp))
         Box(
             modifier = Modifier
-                .widthIn(max = 280.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 20.dp, topEnd = 20.dp,
-                        bottomStart = if (fromCharacter) 4.dp else 20.dp,
-                        bottomEnd = if (fromCharacter) 20.dp else 4.dp,
-                    )
-                )
+                .widthIn(max = 300.dp)
+                .clip(RoundedCornerShape(4.dp))
                 .then(
-                    if (fromCharacter) Modifier.background(SurfaceMuted)
-                    else Modifier.background(PrimaryGradient)
+                    if (fromCharacter) {
+                        Modifier.background(SurfaceMuted).border(1.dp, OutlineSoft, RoundedCornerShape(4.dp))
+                    } else {
+                        Modifier.background(Navy)
+                    }
                 )
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 10.dp),
         ) {
             Text(
                 text,
-                color = if (fromCharacter) InkStrong else Color.White.copy(alpha = if (faded) 0.7f else 1f),
+                color = if (fromCharacter) InkStrong else Color.White.copy(alpha = if (faded) 0.65f else 1f),
                 style = MaterialTheme.typography.bodyLarge,
             )
         }
-        if (!fromCharacter) {
-            Spacer(Modifier.size(8.dp))
-            Avatar("🧒", gradient = true)
-        }
-    }
-}
-
-@Composable
-private fun Avatar(emoji: String, gradient: Boolean) {
-    Box(
-        modifier = Modifier
-            .size(36.dp)
-            .clip(CircleShape)
-            .then(if (gradient) Modifier.background(PrimaryGradient) else Modifier.background(SurfaceMuted)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(emoji, fontSize = 18.sp)
     }
 }
 
@@ -247,22 +262,23 @@ private fun DonePanel(
     onBack: () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        ScoreRing(score, ringSize = 108.dp, stroke = 11.dp)
-        Spacer(Modifier.size(6.dp))
-        Text("✅ Suhbat tugadi", style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.size(8.dp))
+        ScoreRing(score, ringSize = 96.dp, stroke = 7.dp)
+        Spacer(Modifier.size(10.dp))
+        Text("SUHBAT TUGADI", style = OverlineLabel, color = InkMuted)
+        Spacer(Modifier.size(10.dp))
         feedback.forEach {
             Text(
-                "• $it",
-                style = MaterialTheme.typography.bodyMedium,
+                it,
+                style = MaterialTheme.typography.bodySmall,
                 color = InkMuted,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
             )
         }
-        Spacer(Modifier.size(14.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SoftButton("Qaytadan", onClick = onRestart)
-            GradientButton("Tugatish", onClick = onBack)
+        Spacer(Modifier.size(16.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            SoftButton("Qaytadan", onClick = onRestart, modifier = Modifier.weight(1f))
+            GradientButton("Tugatish", onClick = onBack, modifier = Modifier.weight(1f))
         }
     }
 }

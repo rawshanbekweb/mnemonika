@@ -85,6 +85,8 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+    // Kontentdagi rasm URL'larini ko'rsatish uchun (visuals emoji ham, URL ham bo'lishi mumkin)
+    implementation(libs.coil.compose)
     implementation(libs.kotlinx.coroutines.android)
     // Offline speech recognition (Vosk)
     implementation(libs.vosk.android)

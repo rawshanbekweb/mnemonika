@@ -1,8 +1,6 @@
 package uz.speakingapp.ui.module
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,31 +11,34 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Forum
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import uz.speakingapp.data.model.DialogScenario
 import uz.speakingapp.data.model.Exercise
 import uz.speakingapp.data.model.SpeakingModule
 import uz.speakingapp.ui.theme.BrandTopBar
-import uz.speakingapp.ui.theme.CoralContainer
+import uz.speakingapp.ui.theme.GoldContainer
 import uz.speakingapp.ui.theme.GradientButton
+import uz.speakingapp.ui.theme.HairLine
 import uz.speakingapp.ui.theme.InkMuted
 import uz.speakingapp.ui.theme.MnemonicBadge
-import uz.speakingapp.ui.theme.OnCoralContainer
-import uz.speakingapp.ui.theme.OnVioletContainer
+import uz.speakingapp.ui.theme.NavyContainer
+import uz.speakingapp.ui.theme.OnGoldContainer
+import uz.speakingapp.ui.theme.OnNavyContainer
 import uz.speakingapp.ui.theme.Pill
 import uz.speakingapp.ui.theme.SoftCard
-import uz.speakingapp.ui.theme.VioletContainer
-import uz.speakingapp.ui.theme.accentGradientFor
+import uz.speakingapp.ui.theme.VisualThumb
+import uz.speakingapp.ui.theme.accentColorFor
 
 @Composable
 fun ModuleDetailScreen(
@@ -56,10 +57,11 @@ fun ModuleDetailScreen(
             Text("Modul topilmadi", modifier = Modifier.padding(16.dp))
             return@Column
         }
-        val accent = accentGradientFor(module.type)
+        HairLine()
+        val accent = accentColorFor(module.type)
         LazyColumn(
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(module.exercises, key = { it.id }) { exercise ->
                 ExerciseCard(exercise, accent, onStart = { onExerciseClick(exercise.id) })
@@ -72,57 +74,57 @@ fun ModuleDetailScreen(
 }
 
 @Composable
-private fun ExerciseCard(exercise: Exercise, accent: Brush, onStart: () -> Unit) {
+private fun ExerciseCard(exercise: Exercise, accent: Color, onStart: () -> Unit) {
     SoftCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(16.dp)).background(accent),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(exercise.visuals.firstOrNull() ?: "📝", fontSize = 24.sp)
-            }
-            Spacer(Modifier.size(12.dp))
+            exercise.visuals.firstOrNull()?.let { VisualThumb(it, size = 46.dp) }
+            if (exercise.visuals.isNotEmpty()) Spacer(Modifier.size(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(exercise.title, style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.size(2.dp))
                 Text(exercise.topic, style = MaterialTheme.typography.bodySmall, color = InkMuted)
             }
         }
+
         Spacer(Modifier.size(14.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Pill("Struktura: ${exercise.mnemonic.acronym}", VioletContainer, OnVioletContainer)
-        }
-        Spacer(Modifier.size(10.dp))
+        Pill("Struktura · ${exercise.mnemonic.acronym}", NavyContainer, OnNavyContainer)
+
+        Spacer(Modifier.size(12.dp))
         exercise.mnemonic.steps.forEach { step ->
             Row(
                 modifier = Modifier.padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                MnemonicBadge(step.letter, accent, size = 30.dp)
-                Spacer(Modifier.size(10.dp))
+                MnemonicBadge(step.letter, SolidColor(accent), size = 26.dp)
+                Spacer(Modifier.size(12.dp))
                 Column {
-                    Text(step.en, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                    Text(step.en, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                     Text(step.uz, style = MaterialTheme.typography.bodySmall, color = InkMuted)
                 }
             }
         }
-        Spacer(Modifier.size(14.dp))
-        GradientButton("Boshlash ✨", onClick = onStart, modifier = Modifier.fillMaxWidth())
+
+        Spacer(Modifier.size(16.dp))
+        GradientButton(
+            "Mashqni boshlash",
+            onClick = onStart,
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = Icons.Default.PlayArrow,
+        )
     }
 }
 
 @Composable
-private fun DialogCard(dialog: DialogScenario, accent: Brush, onStart: () -> Unit) {
+private fun DialogCard(dialog: DialogScenario, accent: Color, onStart: () -> Unit) {
     SoftCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(16.dp)).background(accent),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(dialog.characterEmoji.ifBlank { "🎭" }, fontSize = 24.sp)
+            if (dialog.characterEmoji.isNotBlank()) {
+                VisualThumb(dialog.characterEmoji, size = 46.dp)
+                Spacer(Modifier.size(12.dp))
             }
-            Spacer(Modifier.size(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(dialog.title, style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.size(2.dp))
                 Text(
                     "${dialog.topic} · ${dialog.characterName}",
                     style = MaterialTheme.typography.bodySmall,
@@ -130,12 +132,26 @@ private fun DialogCard(dialog: DialogScenario, accent: Brush, onStart: () -> Uni
                 )
             }
         }
+
         Spacer(Modifier.size(14.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Pill("Struktura: ${dialog.mnemonic.acronym}", VioletContainer, OnVioletContainer)
-            Pill("${dialog.turns.size} ta almashish", CoralContainer, OnCoralContainer)
+            Pill("Struktura · ${dialog.mnemonic.acronym}", NavyContainer, OnNavyContainer)
+            Pill("${dialog.turns.size} ta almashish", GoldContainer, OnGoldContainer)
         }
-        Spacer(Modifier.size(14.dp))
-        GradientButton("Suhbatni boshlash 💬", onClick = onStart, modifier = Modifier.fillMaxWidth())
+
+        Spacer(Modifier.size(12.dp))
+        Text(
+            "Suhbatda ${dialog.characterName} bilan navbatma-navbat gaplashasiz.",
+            style = MaterialTheme.typography.bodySmall,
+            color = InkMuted,
+        )
+
+        Spacer(Modifier.size(16.dp))
+        GradientButton(
+            "Suhbatni boshlash",
+            onClick = onStart,
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = Icons.Default.Forum,
+        )
     }
 }

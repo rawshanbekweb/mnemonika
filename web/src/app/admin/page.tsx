@@ -5,15 +5,15 @@ import Link from "next/link";
 import { api } from "@/lib/client";
 import type { FullContent, ModuleRow } from "@/lib/admin-types";
 
-const MODULE_GRADIENT: Record<string, string> = {
-  discussion: "linear-gradient(135deg,#8b5cf6,#6d28d9)",
-  roleplay: "linear-gradient(135deg,#fb7185,#f43f5e)",
-  storytelling: "linear-gradient(135deg,#38bdf8,#0ea5e9)",
-  interview: "linear-gradient(135deg,#fbbf24,#f59e0b)",
-  picture_narrating: "linear-gradient(135deg,#34d399,#10b981)",
+// Modul urg'u ranglari — Android'dagi accentColorFor bilan bir xil.
+const MODULE_COLOR: Record<string, string> = {
+  discussion: "#1E3A5F",
+  roleplay: "#7B341E",
+  storytelling: "#2C5282",
+  interview: "#A07E14",
+  picture_narrating: "#2F855A",
 };
-const moduleGradient = (type: string) =>
-  MODULE_GRADIENT[type] ?? "linear-gradient(135deg,#7c3aed,#6d28d9)";
+const moduleColor = (type: string) => MODULE_COLOR[type] ?? "#1E3A5F";
 
 const EMPTY_MODULE: ModuleRow = {
   id: "",
@@ -73,21 +73,16 @@ export default function AdminDashboard() {
   }
 
   if (err) return <p className="text-red-600">{err}</p>;
-  if (!data) return <p className="text-slate-500">Yuklanmoqda…</p>;
+  if (!data) return <p className="text-ink-muted">Yuklanmoqda…</p>;
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-hero-gradient text-2xl shadow-soft">
-            🗂️
-          </div>
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">Kontent boshqaruvi</h1>
-            <div className="mt-0.5 flex items-center gap-2 text-sm text-ink-muted">
-              <span className="pill-brand">v{data.version}</span>
-              {data.publishedAt && <span>{new Date(data.publishedAt).toLocaleString("uz")}</span>}
-            </div>
+        <div>
+          <h1 className="text-2xl font-bold text-ink">Kontent boshqaruvi</h1>
+          <div className="mt-1.5 flex items-center gap-2 text-sm text-ink-muted">
+            <span className="pill-brand">Versiya {data.version}</span>
+            {data.publishedAt && <span>{new Date(data.publishedAt).toLocaleString("uz")}</span>}
           </div>
         </div>
         <div className="flex gap-2">
@@ -98,7 +93,7 @@ export default function AdminDashboard() {
               setIsNew(true);
             }}
           >
-            ＋ Modul
+Yangi modul
           </button>
           <button className="btn-primary" onClick={publish} disabled={publishing}>
             {publishing ? "Nashr…" : "Nashr qilish"}
@@ -106,8 +101,8 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {msg && <p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">{msg}</p>}
-      <p className="text-xs text-slate-500">
+      {msg && <p className="rounded bg-green-50 px-3 py-2 text-sm text-green-700">{msg}</p>}
+      <p className="text-xs text-ink-muted">
         O'zgarishlar bazaga darhol saqlanadi, lekin ilova ularni faqat{" "}
         <b>Nashr qilish</b> bosilib versiya oshgandan keyin yuklaydi.
       </p>
@@ -120,17 +115,17 @@ export default function AdminDashboard() {
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <div
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-2xl shadow-soft"
-                  style={{ backgroundImage: moduleGradient(m.type) }}
+                  className="flex h-12 w-12 items-center justify-center rounded-sm text-lg font-bold text-white"
+                  style={{ backgroundColor: moduleColor(m.type) }}
                 >
-                  {m.emoji}
+                  {m.titleUz.slice(0, 1).toUpperCase()}
                 </div>
                 <div>
-                  <h2 className="flex items-center gap-2 text-lg font-bold">
+                  <h2 className="flex items-center gap-2 text-lg font-semibold">
                     {m.titleUz}
                     {!m.enabled && (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-ink-muted">
-                        o'chirilgan
+                      <span className="rounded-sm bg-surface-muted px-2 py-0.5 text-xs text-ink-muted">
+                        o&apos;chirilgan
                       </span>
                     )}
                   </h2>
@@ -201,25 +196,25 @@ function ItemList({
   items: { id: string; label: string; sub: string; href: string }[];
 }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-3">
+    <div className="rounded bg-surface-muted p-3">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
           {title} ({items.length})
         </span>
-        <Link href={addHref} className="text-sm font-medium text-brand hover:underline">
+        <Link href={addHref} className="text-sm font-medium text-navy hover:underline">
           ＋ Yangi
         </Link>
       </div>
       {items.length === 0 ? (
-        <p className="text-sm text-slate-400">Hali yo'q</p>
+        <p className="text-sm text-ink-muted">Hali yo'q</p>
       ) : (
-        <ul className="divide-y divide-slate-200">
+        <ul className="divide-y divide-line">
           {items.map((it) => (
             <li key={it.id} className="flex items-center justify-between py-1.5">
               <span className="text-sm">
-                {it.label} <span className="text-xs text-slate-400">{it.sub}</span>
+                {it.label} <span className="text-xs text-ink-muted">{it.sub}</span>
               </span>
-              <Link href={it.href} className="text-sm text-brand hover:underline">
+              <Link href={it.href} className="text-sm text-navy hover:underline">
                 Tahrirlash →
               </Link>
             </li>
