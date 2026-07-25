@@ -43,8 +43,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import uz.speakingapp.analysis.KeywordMatcher
 import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.data.model.Exercise
+import uz.speakingapp.speech.ModelManager
 import uz.speakingapp.data.model.Mnemonic
 import uz.speakingapp.ui.theme.BrandMicButton
 import uz.speakingapp.ui.theme.BrandProgressBar
@@ -136,6 +138,7 @@ fun ExerciseScreen(
                     live = state.liveText,
                     keywords = exercise.keywords,
                     mnemonic = exercise.mnemonic,
+                    micLevel = state.micLevel,
                     onStop = { vm.stopRecording() },
                 )
                 Phase.Done -> state.result?.let { result ->
@@ -257,11 +260,41 @@ private fun KeywordChips(keywords: List<String>, spoken: Set<String>) {
     }
 }
 
-/** Transkriptda uchragan kalit so'zlarni topadi (SpeechAnalyzer bilan bir xil qoida). */
-private fun spokenKeywords(text: String, keywords: List<String>): Set<String> {
-    if (text.isBlank()) return emptySet()
-    val lower = text.lowercase()
-    return keywords.filterTo(mutableSetOf()) { lower.contains(it.lowercase()) }
+/** Transkriptda uchragan kalit so'zlar — yakuniy baholash bilan aynan bir xil qoida. */
+private fun spokenKeywords(text: String, keywords: List<String>): Set<String> =
+    KeywordMatcher.matched(text, keywords).toSet()
+
+/**
+ * Mikrofon darajasi ko'rsatkichi. Jim bo'lsa maslahat beradi —
+ * ko'p hollarda "tanimadi" muammosining sababi bola juda sekin gapirgani bo'ladi.
+ */
+@Composable
+private fun MicLevelBar(level: Float) {
+    val tooQuiet = level < 0.08f
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(3.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            repeat(12) { i ->
+                val active = level * 12 > i
+                Box(
+                    Modifier
+                        .size(width = 6.dp, height = if (i % 2 == 0) 14.dp else 20.dp)
+                        .clip(CircleShape)
+                        .background(if (active) Success else SurfaceMuted)
+                )
+            }
+        }
+        if (tooQuiet) {
+            Spacer(Modifier.size(6.dp))
+            Text(
+                "Balandroq gapir 🔊",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkMuted,
+            )
+        }
+    }
 }
 
 @Composable
@@ -270,7 +303,9 @@ private fun ModelPrepareSection(onPrepare: () -> Unit) {
         Text("🎧 Til modeli", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.size(6.dp))
         Text(
-            "Nutqni tanish uchun til modeli kerak. Birinchi marta bir marta yuklab olinadi (~40MB), keyin internetsiz ishlaydi.",
+            "Nutqni tanish uchun til modeli kerak. Bir marta yuklab olinadi " +
+                "(~${ModelManager.MODEL_SIZE_MB}MB), keyin butunlay internetsiz ishlaydi. " +
+                "Wi-Fi'da yuklab olish tavsiya etiladi.",
             style = MaterialTheme.typography.bodyMedium,
             color = InkMuted,
         )
@@ -318,6 +353,7 @@ private fun RecordingSection(
     live: String,
     keywords: List<String>,
     mnemonic: Mnemonic,
+    micLevel: Float,
     onStop: () -> Unit,
 ) {
     val shown = listOf(transcript, live).filter { it.isNotBlank() }.joinToString(" ")
@@ -329,6 +365,10 @@ private fun RecordingSection(
         BrandProgressBar(progress = if (limit == 0) 0f else elapsed.toFloat() / limit, brush = CoralGradient)
         Spacer(Modifier.size(18.dp))
         BrandMicButton(recording = true, onClick = onStop, micIcon = Icons.Default.Mic, stopIcon = Icons.Default.Stop)
+        Spacer(Modifier.size(12.dp))
+
+        // Ovoz darajasi — bola o'zi eshitilayotganini ko'rib turadi.
+        MicLevelBar(micLevel)
         Spacer(Modifier.size(18.dp))
 
         // Gapirayotganda strukturani unutmaslik uchun mnemonika eslatmasi.

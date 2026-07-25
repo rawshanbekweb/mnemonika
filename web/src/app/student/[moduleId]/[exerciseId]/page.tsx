@@ -7,6 +7,7 @@ import { useContent } from "@/lib/use-content";
 import { loadStudent } from "@/lib/student";
 import { speak, stopSpeaking, useSpeechRecognition } from "@/lib/use-speech";
 import { analyze, withGrammar, type GrammarReport, type SpeechResult } from "@/lib/speech-analyzer";
+import { matchedKeywords } from "@/lib/keyword-matcher";
 import type { Exercise } from "@/lib/content-types";
 
 type Phase = "ready" | "recording" | "done";
@@ -84,7 +85,13 @@ export default function ExercisePage() {
     window.setTimeout(async () => {
       const transcript = finalTextRef.current.trim();
       const seconds = Math.max(1, elapsedRef.current);
-      const local = analyze(transcript, seconds, exercise?.keywords ?? []);
+      const local = analyze(
+        transcript,
+        seconds,
+        exercise?.keywords ?? [],
+        // takeAlternatives barqaror (useCallback + ref), shuning uchun eskirmaydi.
+        speech.takeAlternatives(),
+      );
       setResult(local);
 
       if (local.wordCount === 0) return;
@@ -491,9 +498,7 @@ function Centered({ children }: { children: React.ReactNode }) {
   return <p className="mt-16 text-center text-sm text-ink-muted">{children}</p>;
 }
 
-/** speech-analyzer'dagi qoida bilan bir xil moslashtirish. */
+/** Jonli chiplar yakuniy baholash bilan AYNAN bir xil qoidadan foydalanadi. */
 function matchKeywords(text: string, keywords: string[]): Set<string> {
-  if (!text.trim()) return new Set();
-  const lower = text.toLowerCase();
-  return new Set(keywords.filter((k) => lower.includes(k.toLowerCase())));
+  return new Set(matchedKeywords(text, keywords));
 }

@@ -5,6 +5,8 @@
 // bir xil nutq Android'da va web'da turli ball olib, o'qituvchi panelidagi
 // raqamlarni taqqoslab bo'lmay qoladi.
 
+import { matchedKeywords } from "./keyword-matcher";
+
 export type SpeechResult = {
   transcript: string;
   wordCount: number;
@@ -100,10 +102,16 @@ function buildFeedback(
   return tips;
 }
 
+/**
+ * @param alternatives tanigichning qo'shimcha variantlari — FAQAT kalit so'z
+ *   qidirishda ishlatiladi. So'z soni va tezlik asosiy transkriptdan olinadi,
+ *   aks holda variantlar so'zlarni ikki marta sanab yuborardi.
+ */
 export function analyze(
   transcript: string,
   durationSec: number,
   keywords: string[],
+  alternatives: string[] = [],
 ): SpeechResult {
   const words = splitWords(transcript);
 
@@ -112,12 +120,8 @@ export function analyze(
   const safeDuration = Math.max(durationSec, 1);
   const wpm = Math.floor((wordCount * 60) / safeDuration);
 
-  const spoken = new Set(words);
-  const lowerTranscript = transcript.toLowerCase();
-  const matched = keywords.filter((kw) => {
-    const k = kw.toLowerCase();
-    return spoken.has(k) || lowerTranscript.includes(k);
-  });
+  // ASR xatolariga chidamli solishtirish (qarang: keyword-matcher.ts).
+  const matched = matchedKeywords(transcript, keywords, alternatives);
 
   const keywordScore =
     keywords.length === 0 ? 100 : Math.floor((matched.length * 100) / keywords.length);

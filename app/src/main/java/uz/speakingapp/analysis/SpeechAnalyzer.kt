@@ -41,10 +41,16 @@ object SpeechAnalyzer {
         )
     }
 
+    /**
+     * @param alternatives tanigichning qo'shimcha variantlari — FAQAT kalit so'z
+     *   qidirishda ishlatiladi. So'z soni va tezlik asosiy transkriptdan olinadi,
+     *   aks holda variantlar so'zlarni ikki marta sanab yuborardi.
+     */
     fun analyze(
         transcript: String,
         durationSec: Int,
         keywords: List<String>,
+        alternatives: List<String> = emptyList(),
     ): SpeechResult {
         val words = transcript
             .lowercase()
@@ -56,11 +62,8 @@ object SpeechAnalyzer {
         val safeDuration = durationSec.coerceAtLeast(1)
         val wpm = (wordCount * 60.0 / safeDuration).toInt()
 
-        val spoken = words.toSet()
-        val matched = keywords.filter { kw ->
-            val k = kw.lowercase()
-            spoken.contains(k) || transcript.lowercase().contains(k)
-        }
+        // ASR xatolariga chidamli solishtirish (qarang: KeywordMatcher).
+        val matched = KeywordMatcher.matched(transcript, keywords, alternatives)
 
         val fluencyScore = fluencyScore(wpm)
         val vocabScore = vocabScore(uniqueWordCount)

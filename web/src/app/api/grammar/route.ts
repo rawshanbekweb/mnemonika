@@ -10,6 +10,11 @@ export const dynamic = "force-dynamic";
  */
 const API_URL = "https://api.languagetool.org/v2/check";
 
+// Bu qiymatlar Android'dagi GrammarChecker.kt bilan AYNAN bir xil bo'lishi shart —
+// aks holda bir xil nutq ikki platformada turli grammatika balli oladi.
+const MIN_WORDS = 10;
+const PENALTY_PER_ERROR_PCT = 3;
+
 type LtMatch = {
   message?: string;
   shortMessage?: string;
@@ -26,7 +31,8 @@ export async function POST(req: NextRequest) {
 
   const text = String(body.text ?? "").slice(0, 4000);
   const wordCount = Number(body.wordCount ?? 0);
-  if (!text.trim() || !Number.isFinite(wordCount) || wordCount <= 0) {
+  // Qisqa javobda bitta xato ham foizni keskin oshiradi — baholamaymiz.
+  if (!text.trim() || !Number.isFinite(wordCount) || wordCount < MIN_WORDS) {
     return NextResponse.json(null);
   }
 
@@ -54,7 +60,10 @@ export async function POST(req: NextRequest) {
 
     // Har 100 so'zga to'g'ri keladigan xato asosida ball (Kotlin bilan bir xil).
     const errorsPer100 = (count * 100) / wordCount;
-    const score = Math.min(Math.max(Math.trunc(100 - errorsPer100 * 8), 0), 100);
+    const score = Math.min(
+      Math.max(Math.trunc(100 - errorsPer100 * PENALTY_PER_ERROR_PCT), 0),
+      100,
+    );
 
     return NextResponse.json({ score, issueCount: count, issues });
   } catch {

@@ -69,6 +69,12 @@ export function useSpeechRecognition() {
   const wantListeningRef = useRef(false);
   const finalRef = useRef("");
 
+  /**
+   * Tanigichning ikkinchi/uchinchi variantlari — faqat kalit so'z qidirish uchun.
+   * Ekranda ko'rsatilmaydi (bola uchun chalkash bo'lardi).
+   */
+  const alternativesRef = useRef<string[]>([]);
+
   // Brauzer qo'llab-quvvatlashini faqat mijozda tekshiramiz (hydration mos kelishi uchun).
   useEffect(() => {
     setSupported(getConstructor() !== null);
@@ -93,6 +99,7 @@ export function useSpeechRecognition() {
     }
 
     finalRef.current = "";
+    alternativesRef.current = [];
     setFinalText("");
     setInterimText("");
     setError(null);
@@ -103,7 +110,8 @@ export function useSpeechRecognition() {
       recognition.lang = "en-US";
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.maxAlternatives = 1;
+      // Kalit so'z qidirishda tanigichning boshqa taxminlari ham tekshiriladi.
+      recognition.maxAlternatives = 3;
 
       recognition.onresult = (e) => {
         let interim = "";
@@ -112,6 +120,10 @@ export function useSpeechRecognition() {
           const text = result[0]?.transcript ?? "";
           if (result.isFinal) {
             finalRef.current = (finalRef.current + " " + text).trim();
+            for (let a = 1; a < result.length; a++) {
+              const alt = result[a]?.transcript;
+              if (alt) alternativesRef.current.push(alt);
+            }
           } else {
             interim += text;
           }
@@ -168,7 +180,10 @@ export function useSpeechRecognition() {
     };
   }, []);
 
-  return { supported, listening, finalText, interimText, error, start, stop };
+  /** Yozish tugagach chaqiriladi — to'plangan variantlar ro'yxati. */
+  const takeAlternatives = useCallback(() => [...alternativesRef.current], []);
+
+  return { supported, listening, finalText, interimText, error, start, stop, takeAlternatives };
 }
 
 /** Matnni ingliz tilida ovoz chiqarib o'qiydi (brauzer TTS — bepul). */

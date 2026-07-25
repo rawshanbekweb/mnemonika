@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uz.speakingapp.analysis.KeywordMatcher
 import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.data.ProgressRepository
 import uz.speakingapp.data.model.DialogScenario
@@ -50,6 +51,9 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
     private var timerJob: Job? = null
     private val segments = StringBuilder()
 
+    /** Tanigichning qo'shimcha variantlari — faqat kalit so'z qidirish uchun. */
+    private val altSegments = mutableListOf<String>()
+
     private val studentResponses = mutableListOf<String>()
     private val matchedKeywords = linkedSetOf<String>()
     private var totalKeywords = 0
@@ -60,9 +64,10 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         recognizer.onPartial = { p -> _state.update { it.copy(liveText = p) } }
-        recognizer.onSegment = { s ->
+        recognizer.onSegment = { s, alternatives ->
             if (segments.isNotEmpty()) segments.append(' ')
             segments.append(s)
+            altSegments.addAll(alternatives.drop(1))
             _state.update { it.copy(liveText = "") }
         }
         recognizer.onErrorMsg = { msg -> _state.update { it.copy(error = msg) } }
@@ -103,6 +108,7 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
     private fun startScenario() {
         val sc = scenario ?: return
         segments.clear()
+        altSegments.clear()
         studentResponses.clear()
         matchedKeywords.clear()
         _state.update { it.copy(messages = emptyList(), turnIndex = 0) }
@@ -146,6 +152,7 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
     fun startRecording() {
         if (_state.value.phase != DialogPhase.StudentTurn) return
         segments.clear()
+        altSegments.clear()
         _state.update { it.copy(phase = DialogPhase.Recording, liveText = "", elapsedSec = 0) }
         try {
             recognizer.startListening()
@@ -181,11 +188,10 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
             studentResponses.add(transcript)
             addStudent(transcript)
 
-            // Kalit so'z mosligi
-            val lower = transcript.lowercase()
-            turn.expectedKeywords.forEach { kw ->
-                if (lower.contains(kw.lowercase())) matchedKeywords.add(kw)
-            }
+            // Kalit so'z mosligi — mashqlardagi bilan bir xil, ASR xatolariga chidamli.
+            matchedKeywords.addAll(
+                KeywordMatcher.matched(transcript, turn.expectedKeywords, altSegments.toList())
+            )
 
             if (isInterview) {
                 // Personaj javob beradi

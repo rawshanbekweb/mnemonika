@@ -23,9 +23,23 @@ object GrammarChecker {
 
     private const val API_URL = "https://api.languagetool.org/v2/check"
 
+    /**
+     * Shundan kam so'zda grammatika BAHOLANMAYDI.
+     * Sabab: qisqa javobda bitta xato ham foizni keskin oshiradi
+     * ("She go to school" — 4 so'z, 1 xato = 25%), bu esa adolatsiz past ball beradi.
+     */
+    private const val MIN_WORDS = 10
+
+    /**
+     * Har 100 so'zdagi xato uchun ayiriladigan ball.
+     * Ilgari 8 edi — 20 so'zda 2 ta xato 20 ball berardi va bolani tushkunlikka solardi.
+     * 3 bilan xuddi shu javob 70 ball oladi: xato hisobga olinadi, lekin jazolamaydi.
+     */
+    private const val PENALTY_PER_ERROR_PCT = 3.0
+
     suspend fun check(text: String, wordCount: Int): GrammarReport? =
         withContext(Dispatchers.IO) {
-            if (text.isBlank() || wordCount == 0) return@withContext null
+            if (text.isBlank() || wordCount < MIN_WORDS) return@withContext null
             try {
                 val body = "text=" + URLEncoder.encode(text, "UTF-8") +
                     "&language=en-US&level=default"
@@ -67,7 +81,7 @@ object GrammarChecker {
         }
         // Har 100 so'zga to'g'ri keladigan xato asosida ball
         val errorsPer100 = count * 100.0 / wordCount
-        val score = (100 - errorsPer100 * 8).toInt().coerceIn(0, 100)
+        val score = (100 - errorsPer100 * PENALTY_PER_ERROR_PCT).toInt().coerceIn(0, 100)
         return GrammarReport(score = score, issueCount = count, issues = issues)
     }
 }

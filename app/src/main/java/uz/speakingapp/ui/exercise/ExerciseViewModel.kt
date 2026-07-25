@@ -28,6 +28,8 @@ data class ExerciseUiState(
     val transcript: String = "",
     val elapsedSec: Int = 0,
     val timeLimitSec: Int = 60,
+    /** Mikrofon signal darajasi 0f..1f — "seni eshityapman" indikatori uchun. */
+    val micLevel: Float = 0f,
     val result: SpeechResult? = null,
     val checkingGrammar: Boolean = false,
     val speaking: Boolean = false,
@@ -49,17 +51,25 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
     private var timerJob: Job? = null
     private val segments = StringBuilder()
 
+    /** Tanigichning ikkinchi/uchinchi variantlari — faqat kalit so'z qidirish uchun. */
+    private val altSegments = mutableListOf<String>()
+
     init {
         recognizer.onPartial = { partial ->
             _state.update { it.copy(liveText = partial) }
         }
-        recognizer.onSegment = { segment ->
+        recognizer.onSegment = { segment, alternatives ->
             if (segments.isNotEmpty()) segments.append(' ')
             segments.append(segment)
+            // Qolgan variantlarni faqat kalit so'z qidirish uchun alohida to'playmiz.
+            alternatives.drop(1).forEach { altSegments.add(it) }
             _state.update { it.copy(transcript = segments.toString(), liveText = "") }
         }
         recognizer.onErrorMsg = { msg ->
             _state.update { it.copy(error = msg) }
+        }
+        recognizer.onLevel = { level ->
+            _state.update { it.copy(micLevel = level) }
         }
     }
 
@@ -117,6 +127,7 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
         // Namuna hali o'qilayotgan bo'lsa uni to'xtatamiz — mikrofon TTS ovozini yozib olmasin.
         speaker.stop()
         segments.clear()
+        altSegments.clear()
         _state.update {
             it.copy(
                 phase = Phase.Recording,
@@ -161,6 +172,7 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
                 transcript = transcript,
                 durationSec = _state.value.elapsedSec,
                 keywords = ex?.keywords ?: emptyList(),
+                alternatives = altSegments.toList(),
             )
             // Avval mahalliy natijani darhol ko'rsatamiz.
             _state.update {
