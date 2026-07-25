@@ -12,6 +12,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "test:matcher": "tsx scripts/keyword-matcher.test.ts",
+    "upload:apk": "tsx scripts/upload-apk.ts",
     "seed": "tsx src/db/seed.ts",
     "create-admin": "tsx src/db/create-admin.ts"
   },

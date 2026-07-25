@@ -73,6 +73,7 @@ export default function StudentHome() {
       </header>
 
       <BrowserWarning />
+      <AndroidDownload />
 
       {error && <p className="mt-6 text-sm text-red-600">{error}</p>}
 
@@ -158,6 +159,67 @@ function ModuleCard({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+type ApkInfo = { url: string; sizeMb: number; uploadedAt: string; version: string };
+
+/**
+ * Android ilovasini yuklab olish taklifi.
+ *
+ * Android telefonlarda ko'zga tashlanadigan qilib ko'rsatiladi (u yerda ilova
+ * web'dan afzal: internetsiz ishlaydi va suhbat mashqlari ham bor),
+ * boshqa qurilmalarda esa oddiy havola sifatida.
+ */
+function AndroidDownload() {
+  const [apk, setApk] = useState<ApkInfo | null>(null);
+  const [isAndroid, setIsAndroid] = useState(false);
+
+  useEffect(() => {
+    setIsAndroid(/android/i.test(navigator.userAgent));
+    fetch("/api/apk")
+      .then((r) => r.json())
+      .then((d: ApkInfo | null) => setApk(d))
+      .catch(() => setApk(null));
+  }, []);
+
+  if (!apk) return null;
+
+  if (!isAndroid) {
+    return (
+      <p className="mt-6 text-center text-xs text-ink-muted">
+        Android telefoningiz bormi?{" "}
+        <a href={apk.url} className="font-semibold text-brand underline">
+          Ilovani yuklab oling
+        </a>{" "}
+        — internetsiz ham ishlaydi.
+      </p>
+    );
+  }
+
+  return (
+    <div className="card mt-6 border-brand/20 bg-brand/5">
+      <div className="flex items-start gap-4">
+        <span className="text-3xl">📱</span>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-bold text-ink">Android ilovasini o&apos;rnating</h3>
+          <p className="mt-1 text-sm text-ink-muted">
+            Internetsiz ishlaydi va suhbat mashqlari (Rolli o&apos;yin, Intervyu) ham bor.
+          </p>
+          <a
+            href={apk.url}
+            className="btn-primary mt-4 inline-flex"
+            download
+          >
+            Yuklab olish · {apk.sizeMb} MB
+          </a>
+          <p className="mt-2 text-xs text-ink-muted">
+            {apk.version && `Versiya ${apk.version} · `}
+            O&apos;rnatishda &quot;Noma&apos;lum manbalarga ruxsat&quot; so&apos;raladi.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
