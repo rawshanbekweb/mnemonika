@@ -1,12 +1,12 @@
 import { requireSession } from "@/lib/session";
-import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
 
 export default async function TeacherLayout({ children }: { children: React.ReactNode }) {
   const user = await requireSession();
   return (
-    <div className="min-h-screen">
-      <Header name={user.name || user.email} role={user.role} />
-      <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
+    <div className="pattern-page min-h-screen lg:pl-60">
+      <Sidebar name={user.name || user.email} role={user.role} />
+      <main className="mx-auto max-w-5xl px-4 pb-10 pt-[4.5rem] lg:pt-8">{children}</main>
     </div>
   );
 }
