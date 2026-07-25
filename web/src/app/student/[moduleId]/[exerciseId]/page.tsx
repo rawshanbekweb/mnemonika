@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useContent } from "@/lib/use-content";
 import { loadStudent } from "@/lib/student";
+import { saveAttempt as saveAttemptLocally } from "@/lib/attempts-store";
 import { speak, stopSpeaking, useSpeechRecognition } from "@/lib/use-speech";
 import { analyze, withGrammar, type GrammarReport, type SpeechResult } from "@/lib/speech-analyzer";
 import { matchedKeywords } from "@/lib/keyword-matcher";
@@ -50,6 +51,22 @@ export default function ExercisePage() {
   const saveAttempt = useCallback(
     async (r: SpeechResult) => {
       const profile = loadStudent();
+
+      // Avval mahalliy saqlaymiz — progress sahifasi shundan hisoblanadi va
+      // internet bo'lmasa ham natija yo'qolmaydi.
+      saveAttemptLocally({
+        moduleId,
+        exerciseId,
+        exerciseTitle: exercise?.title ?? "",
+        overallScore: r.overallScore,
+        wordCount: r.wordCount,
+        uniqueWordCount: r.uniqueWordCount,
+        wordsPerMinute: r.wordsPerMinute,
+        durationSec: r.durationSec,
+        keywordCoverage: r.keywordCoverage,
+        grammarScore: r.grammarScore,
+      });
+
       try {
         await fetch("/api/student/attempts", {
           method: "POST",

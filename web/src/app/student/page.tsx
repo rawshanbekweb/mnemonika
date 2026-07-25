@@ -11,6 +11,8 @@ import {
   type StudentProfile,
 } from "@/lib/student";
 import type { SpeakingModule } from "@/lib/content-types";
+import { loadAttempts } from "@/lib/attempts-store";
+import { computeGameStats, type GameStats } from "@/lib/gamification";
 
 const CLASS_SUGGESTIONS = ["5-A", "5-B", "5-V", "6-A", "6-B", "6-V"];
 
@@ -65,11 +67,7 @@ export default function StudentHome() {
             {profile.name.slice(0, 1).toUpperCase()}
           </button>
         </div>
-        {profile.classGroup && (
-          <span className="mt-4 inline-flex rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
-            {profile.classGroup}
-          </span>
-        )}
+        <StatsStrip classGroup={profile.classGroup} moduleCount={modules.length} />
       </header>
 
       <BrowserWarning />
@@ -160,6 +158,49 @@ function ModuleCard({
         </div>
       )}
     </div>
+  );
+}
+
+/** Hero ichidagi seriya/daraja yorliqlari + natijalar sahifasiga havola. */
+function StatsStrip({ classGroup, moduleCount }: { classGroup: string; moduleCount: number }) {
+  const [game, setGame] = useState<GameStats | null>(null);
+
+  useEffect(() => {
+    setGame(computeGameStats(loadAttempts(), moduleCount));
+  }, [moduleCount]);
+
+  return (
+    <>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {classGroup && (
+          <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
+            {classGroup}
+          </span>
+        )}
+        {game && game.totalAttempts > 0 && (
+          <>
+            <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
+              🔥 {game.streakDays > 0 ? `${game.streakDays} kun` : "Seriya yo'q"}
+            </span>
+            <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
+              ⭐ {game.level}-daraja
+            </span>
+            {game.unlockedBadges > 0 && (
+              <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
+                🏅 {game.unlockedBadges} nishon
+              </span>
+            )}
+          </>
+        )}
+      </div>
+
+      <Link
+        href="/student/progress"
+        className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-brand transition hover:bg-white/90"
+      >
+        📊 Mening natijalarim
+      </Link>
+    </>
   );
 }
 
