@@ -8,29 +8,20 @@ export const dynamic = "force-dynamic";
  *
  * Ro'yxat Blob'dan o'qiladi — shuning uchun yangi APK yuklaganda saytni qayta
  * deploy qilish yoki bironta URL'ni qo'lda yangilash shart emas.
- * APK bo'lmasa yoki Blob sozlanmagan bo'lsa `null` qaytadi va sahifada
- * yuklab olish bo'limi umuman ko'rinmaydi.
+ *
+ * APK bo'lmasa yoki Blob sozlanmagan bo'lsa `null` qaytadi va sahifada yuklab
+ * olish bo'limi umuman ko'rinmaydi. Bu ataylab: sayt Blob nosozligi tufayli
+ * ishdan chiqmasligi kerak. Ammo shu sababli nosozlik jimgina yashirinadi —
+ * agar tugma paydo bo'lmasa, MUAMMO ODATDA `BLOB_READ_WRITE_TOKEN` NOTO'G'RI
+ * DO'KONGA QARAYOTGANIDA bo'ladi. Tekshirish uchun bu yerga vaqtincha
+ * `storeId: process.env.BLOB_READ_WRITE_TOKEN?.split("_")[3]` ni qaytaring —
+ * store ID maxfiy emas, u ommaviy blob manzilida ham bor.
  */
-export async function GET(req: Request) {
-  // ?debug=1 — nosozlikni aniqlash uchun. Sir chiqmaydi: token ichidagi store ID
-  // ommaviy blob URL manzilida allaqachon ko'rinadi, maxfiy qismi esa kesiladi.
-  const debug = new URL(req.url).searchParams.get("debug") === "1";
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  const storeId = token?.split("_")[3] ?? null;
-
-  if (!token) {
-    return NextResponse.json(debug ? { error: "BLOB_READ_WRITE_TOKEN yo'q" } : null);
-  }
+export async function GET() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json(null);
 
   try {
     const { blobs } = await list({ prefix: "apk/" });
-    if (debug) {
-      return NextResponse.json({
-        storeId,
-        blobCount: blobs.length,
-        pathnames: blobs.map((b) => b.pathname),
-      });
-    }
     if (blobs.length === 0) return NextResponse.json(null);
 
     const newest = blobs.sort(
@@ -47,13 +38,7 @@ export async function GET(req: Request) {
       uploadedAt: newest.uploadedAt,
       version,
     });
-  } catch (e) {
-    if (debug) {
-      return NextResponse.json({
-        storeId,
-        error: e instanceof Error ? e.message : String(e),
-      });
-    }
+  } catch {
     return NextResponse.json(null);
   }
 }
