@@ -16,6 +16,7 @@ import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.data.ProgressRepository
 import uz.speakingapp.data.model.Exercise
 import uz.speakingapp.speech.ModelManager
+import uz.speakingapp.speech.Speaker
 import uz.speakingapp.speech.VoskRecognizer
 
 enum class Phase { NeedModel, PreparingModel, Ready, Recording, Done }
@@ -29,6 +30,7 @@ data class ExerciseUiState(
     val timeLimitSec: Int = 60,
     val result: SpeechResult? = null,
     val checkingGrammar: Boolean = false,
+    val speaking: Boolean = false,
     val error: String? = null,
 )
 
@@ -37,6 +39,7 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
     private val modelManager = ModelManager(app)
     private val recognizer = VoskRecognizer()
     private val progressRepository = ProgressRepository(app)
+    private val speaker = Speaker(app)
 
     private val _state = MutableStateFlow(ExerciseUiState())
     val state: StateFlow<ExerciseUiState> = _state.asStateFlow()
@@ -71,6 +74,25 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * Savollarni ingliz tilida ovoz chiqarib o'qiydi (Android TTS — bepul).
+     * O'quvchi to'g'ri talaffuzni eshitib, keyin takrorlashi uchun.
+     */
+    fun speakPrompts() {
+        val ex = exercise ?: return
+        if (_state.value.phase == Phase.Recording) return
+        if (_state.value.speaking) {
+            speaker.stop()
+            _state.update { it.copy(speaking = false) }
+            return
+        }
+        val text = ex.prompts.joinToString(" ").ifBlank { ex.title }
+        _state.update { it.copy(speaking = true) }
+        speaker.speak(text) {
+            _state.update { it.copy(speaking = false) }
+        }
+    }
+
     /** Modelni tayyorlaydi (kerak bo'lsa yuklab oladi). */
     fun prepareModel() {
         if (_state.value.phase == Phase.PreparingModel) return
@@ -92,6 +114,8 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
 
     fun startRecording() {
         if (_state.value.phase != Phase.Ready && _state.value.phase != Phase.Done) return
+        // Namuna hali o'qilayotgan bo'lsa uni to'xtatamiz — mikrofon TTS ovozini yozib olmasin.
+        speaker.stop()
         segments.clear()
         _state.update {
             it.copy(
@@ -181,6 +205,7 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
     override fun onCleared() {
         timerJob?.cancel()
         recognizer.release()
+        speaker.shutdown()
         super.onCleared()
     }
 }

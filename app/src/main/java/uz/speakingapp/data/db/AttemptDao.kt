@@ -31,4 +31,16 @@ interface AttemptDao {
 
     @Query("SELECT COUNT(*) FROM attempts")
     fun observeTotalCount(): Flow<Int>
+
+    // ── Offline navbat ──────────────────────────────────────────────
+
+    /** Hali serverga yuborilmagan natijalar (eng eskisidan boshlab). */
+    @Query("SELECT * FROM attempts WHERE synced = 0 ORDER BY timestamp ASC LIMIT :limit")
+    suspend fun pendingUploads(limit: Int = 50): List<AttemptEntity>
+
+    @Query("UPDATE attempts SET synced = 1 WHERE id = :id")
+    suspend fun markSynced(id: Long)
+
+    @Query("SELECT COUNT(*) FROM attempts WHERE synced = 0")
+    fun observePendingCount(): Flow<Int>
 }

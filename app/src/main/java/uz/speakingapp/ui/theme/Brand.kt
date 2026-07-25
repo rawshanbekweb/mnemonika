@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -80,7 +82,11 @@ fun BrandTopBar(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             if (onBack != null) {
-                CircleIconButton(emoji = "←", onClick = onBack)
+                CircleIconButton(
+                    icon = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Orqaga",
+                    onClick = onBack,
+                )
                 Spacer(Modifier.size(10.dp))
             }
             Column(Modifier.weight(1f)) {
@@ -102,8 +108,17 @@ fun BrandTopBar(
     }
 }
 
+/**
+ * Yumaloq ikonka tugmasi (gradient panel ustida).
+ * Matn glifi ("←") emas, haqiqiy vektor ikonka ishlatiladi — shunda belgi
+ * doira markazida aniq turadi va RTL tillarda avtomatik aylanadi.
+ */
 @Composable
-fun CircleIconButton(emoji: String, onClick: () -> Unit) {
+fun CircleIconButton(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+) {
     Box(
         modifier = Modifier
             .size(40.dp)
@@ -112,7 +127,12 @@ fun CircleIconButton(emoji: String, onClick: () -> Unit) {
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(emoji, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = Color.White,
+            modifier = Modifier.size(22.dp),
+        )
     }
 }
 

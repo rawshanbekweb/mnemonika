@@ -22,21 +22,26 @@ export async function POST(req: NextRequest) {
   }
 
   const studentId = String(body.studentId ?? "anon").slice(0, 128);
+  const studentName = String(body.studentName ?? "").trim().slice(0, 120);
+  const classGroup = String(body.classGroup ?? "").trim().slice(0, 40);
   const num = (v: unknown, d = 0) => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.trunc(n) : d;
   };
 
   try {
-    // O'quvchini ro'yxatga olamiz (bo'lmasa).
-    await db
+    // O'quvchini ro'yxatga olamiz. Ilova ism yuborgan bo'lsa — mavjud yozuvni
+    // yangilaymiz (o'quvchi profilda ismini o'zgartirgan bo'lishi mumkin).
+    const insert = db
       .insert(schema.students)
-      .values({
-        id: studentId,
-        name: String(body.studentName ?? ""),
-        classGroup: String(body.classGroup ?? ""),
-      })
-      .onConflictDoNothing();
+      .values({ id: studentId, name: studentName, classGroup });
+
+    await (studentName
+      ? insert.onConflictDoUpdate({
+          target: schema.students.id,
+          set: { name: studentName, classGroup },
+        })
+      : insert.onConflictDoNothing());
 
     await db.insert(schema.attempts).values({
       studentId,

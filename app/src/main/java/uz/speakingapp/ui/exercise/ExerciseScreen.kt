@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -43,14 +45,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.data.model.Exercise
+import uz.speakingapp.data.model.Mnemonic
 import uz.speakingapp.ui.theme.BrandMicButton
 import uz.speakingapp.ui.theme.BrandProgressBar
 import uz.speakingapp.ui.theme.BrandTopBar
 import uz.speakingapp.ui.theme.Coral
+import uz.speakingapp.ui.theme.CoralContainer
 import uz.speakingapp.ui.theme.CoralGradient
 import uz.speakingapp.ui.theme.GradientButton
 import uz.speakingapp.ui.theme.InkMuted
 import uz.speakingapp.ui.theme.MnemonicBadge
+import uz.speakingapp.ui.theme.OnCoralContainer
 import uz.speakingapp.ui.theme.OnVioletContainer
 import uz.speakingapp.ui.theme.Pill
 import uz.speakingapp.ui.theme.PrimaryGradient
@@ -60,6 +65,8 @@ import uz.speakingapp.ui.theme.SoftButton
 import uz.speakingapp.ui.theme.SoftCard
 import uz.speakingapp.ui.theme.StatTile
 import uz.speakingapp.ui.theme.Success
+import uz.speakingapp.ui.theme.SuccessContainer
+import uz.speakingapp.ui.theme.SurfaceMuted
 import uz.speakingapp.ui.theme.Violet
 import uz.speakingapp.ui.theme.VioletContainer
 
@@ -99,7 +106,11 @@ fun ExerciseScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (exercise.visuals.isNotEmpty()) VisualStrip(exercise.visuals)
-            PromptCard(exercise)
+            PromptCard(
+                exercise = exercise,
+                speaking = state.speaking,
+                onListen = { vm.speakPrompts() },
+            )
 
             state.error?.let { err ->
                 Text(
@@ -123,11 +134,14 @@ fun ExerciseScreen(
                     limit = state.timeLimitSec,
                     transcript = state.transcript,
                     live = state.liveText,
+                    keywords = exercise.keywords,
+                    mnemonic = exercise.mnemonic,
                     onStop = { vm.stopRecording() },
                 )
                 Phase.Done -> state.result?.let { result ->
                     ResultSection(
                         result = result,
+                        keywords = exercise.keywords,
                         checkingGrammar = state.checkingGrammar,
                         onRetry = { vm.startRecording() },
                     )
@@ -159,9 +173,14 @@ private fun VisualStrip(visuals: List<String>) {
 }
 
 @Composable
-private fun PromptCard(exercise: Exercise) {
+private fun PromptCard(exercise: Exercise, speaking: Boolean, onListen: () -> Unit) {
     SoftCard {
-        Pill(exercise.topic, VioletContainer, OnVioletContainer)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.weight(1f)) { Pill(exercise.topic, VioletContainer, OnVioletContainer) }
+            if (exercise.prompts.isNotEmpty()) {
+                ListenButton(speaking = speaking, onClick = onListen)
+            }
+        }
         Spacer(Modifier.size(10.dp))
         exercise.prompts.forEach { p ->
             Row(Modifier.padding(vertical = 3.dp)) {
@@ -181,6 +200,68 @@ private fun PromptCard(exercise: Exercise) {
             }
         }
     }
+}
+
+/** Savollarni ingliz tilida eshitish tugmasi (TTS). */
+@Composable
+private fun ListenButton(speaking: Boolean, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(if (speaking) CoralContainer else VioletContainer)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(if (speaking) "⏹️" else "🔊", fontSize = 14.sp)
+        Spacer(Modifier.size(6.dp))
+        Text(
+            if (speaking) "To'xtatish" else "Eshitish",
+            color = if (speaking) OnCoralContainer else OnVioletContainer,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+    }
+}
+
+/**
+ * Kalit so'zlar yorliqlari. Aytilganlari yashil bo'ladi —
+ * yozish paytida jonli, natijada esa yakuniy holat sifatida ko'rinadi.
+ */
+@Composable
+private fun KeywordChips(keywords: List<String>, spoken: Set<String>) {
+    keywords.chunked(3).forEach { row ->
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            row.forEach { kw ->
+                val hit = kw in spoken
+                Row(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (hit) SuccessContainer else SurfaceMuted)
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(if (hit) "✓ " else "", fontSize = 12.sp, color = Success)
+                    Text(
+                        kw,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (hit) Success else InkMuted,
+                        fontWeight = if (hit) FontWeight.Bold else FontWeight.Normal,
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Transkriptda uchragan kalit so'zlarni topadi (SpeechAnalyzer bilan bir xil qoida). */
+private fun spokenKeywords(text: String, keywords: List<String>): Set<String> {
+    if (text.isBlank()) return emptySet()
+    val lower = text.lowercase()
+    return keywords.filterTo(mutableSetOf()) { lower.contains(it.lowercase()) }
 }
 
 @Composable
@@ -235,8 +316,13 @@ private fun RecordingSection(
     limit: Int,
     transcript: String,
     live: String,
+    keywords: List<String>,
+    mnemonic: Mnemonic,
     onStop: () -> Unit,
 ) {
+    val shown = listOf(transcript, live).filter { it.isNotBlank() }.joinToString(" ")
+    val spoken = remember(shown, keywords) { spokenKeywords(shown, keywords) }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Text("🔴 Yozilmoqda  ${elapsed}s / ${limit}s", style = MaterialTheme.typography.titleMedium, color = Coral)
         Spacer(Modifier.size(10.dp))
@@ -244,7 +330,43 @@ private fun RecordingSection(
         Spacer(Modifier.size(18.dp))
         BrandMicButton(recording = true, onClick = onStop, micIcon = Icons.Default.Mic, stopIcon = Icons.Default.Stop)
         Spacer(Modifier.size(18.dp))
-        val shown = listOf(transcript, live).filter { it.isNotBlank() }.joinToString(" ")
+
+        // Gapirayotganda strukturani unutmaslik uchun mnemonika eslatmasi.
+        if (mnemonic.steps.isNotEmpty()) {
+            SoftCard {
+                Text(
+                    "Strukturaga amal qil: ${mnemonic.acronym}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = InkMuted,
+                )
+                Spacer(Modifier.size(8.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(mnemonic.steps) { step ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            MnemonicBadge(step.letter, PrimaryGradient, size = 24.dp)
+                            Spacer(Modifier.size(6.dp))
+                            Text(step.en, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.size(10.dp))
+        }
+
+        // Kalit so'zlar aytilgani sayin yashil bo'ladi — jonli fikr-mulohaza.
+        if (keywords.isNotEmpty()) {
+            SoftCard {
+                Text(
+                    "Kalit so'zlar: ${spoken.size}/${keywords.size}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = InkMuted,
+                )
+                Spacer(Modifier.size(6.dp))
+                KeywordChips(keywords, spoken)
+            }
+            Spacer(Modifier.size(10.dp))
+        }
+
         if (shown.isNotBlank()) {
             SoftCard {
                 Text("Nutqingiz:", style = MaterialTheme.typography.labelMedium, color = InkMuted)
@@ -258,6 +380,7 @@ private fun RecordingSection(
 @Composable
 private fun ResultSection(
     result: SpeechResult,
+    keywords: List<String>,
     checkingGrammar: Boolean,
     onRetry: () -> Unit,
 ) {
@@ -298,6 +421,14 @@ private fun ResultSection(
                     else -> "—"
                 }
                 StatTile(grammar, "Grammatika", Modifier.weight(1f))
+            }
+        }
+
+        if (keywords.isNotEmpty()) {
+            SoftCard {
+                SectionTitle("Kalit so'zlar (${result.matchedKeywords.size}/${keywords.size})")
+                Spacer(Modifier.size(8.dp))
+                KeywordChips(keywords, result.matchedKeywords.toSet())
             }
         }
 

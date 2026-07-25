@@ -5,7 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import uz.speakingapp.data.AttemptUploader
 import uz.speakingapp.data.ProgressRepository
 import uz.speakingapp.data.db.AttemptEntity
 import uz.speakingapp.data.db.ModuleStat
@@ -21,5 +23,13 @@ class ProgressViewModel(app: Application) : AndroidViewModel(app) {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val total: StateFlow<Int> = repo.observeTotalCount()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    /**
+     * Hali o'qituvchi paneliga yuborilmagan (offline qolgan) natijalar soni.
+     * Backend umuman sozlanmagan bo'lsa 0 — bunda "kutmoqda" deyish noto'g'ri bo'lardi.
+     */
+    val pending: StateFlow<Int> = repo.observePendingCount()
+        .map { if (AttemptUploader.isConfigured()) it else 0 }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 }

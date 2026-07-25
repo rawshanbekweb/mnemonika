@@ -10,15 +10,19 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import uz.speakingapp.data.AttemptUploader
 import uz.speakingapp.data.ContentRepository
+import uz.speakingapp.data.ProfileStore
 import uz.speakingapp.ui.home.HomeScreen
 import uz.speakingapp.ui.module.ModuleDetailScreen
+import uz.speakingapp.ui.profile.ProfileScreen
 import uz.speakingapp.ui.theme.SpeakUpTheme
 
 class MainActivity : ComponentActivity() {
@@ -28,24 +32,57 @@ class MainActivity : ComponentActivity() {
         setContent {
             SpeakUpTheme {
                 val repository = remember { ContentRepository(applicationContext) }
+                val profileStore = remember { ProfileStore(applicationContext) }
+                var profile by remember { mutableStateOf(profileStore.load()) }
                 val navController = rememberNavController()
-                // Ochilishda onlayn kontentni tekshiramiz; yangilansa ro'yxatni qayta yuklaymiz.
+
+                // Ochilishda: onlayn kontentni tekshiramiz va offline qolgan
+                // natijalarni serverga uzatamiz (ikkalasi ham best-effort).
                 var refreshKey by remember { mutableIntStateOf(0) }
                 LaunchedEffect(Unit) {
                     if (repository.sync()) refreshKey++
+                    AttemptUploader.flushPending(applicationContext)
                 }
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "home",
+                        startDestination = if (profile.isComplete) "home" else "welcome",
                         modifier = Modifier.padding(padding),
                     ) {
+                        composable("welcome") {
+                            ProfileScreen(
+                                profile = profile,
+                                firstTime = true,
+                                onSave = { name, classGroup ->
+                                    profileStore.save(name, classGroup)
+                                    profile = profileStore.load()
+                                    navController.navigate("home") {
+                                        popUpTo("welcome") { inclusive = true }
+                                    }
+                                },
+                            )
+                        }
+                        composable("profile") {
+                            ProfileScreen(
+                                profile = profile,
+                                firstTime = false,
+                                onBack = { navController.popBackStack() },
+                                onSave = { name, classGroup ->
+                                    profileStore.save(name, classGroup)
+                                    profile = profileStore.load()
+                                    navController.popBackStack()
+                                },
+                            )
+                        }
                         composable("home") {
                             val modules = remember(refreshKey) { repository.loadModules() }
                             HomeScreen(
                                 modules = modules,
+                                studentName = profile.firstName,
                                 onModuleClick = { id -> navController.navigate("module/$id") },
                                 onProgressClick = { navController.navigate("progress") },
+                                onProfileClick = { navController.navigate("profile") },
                             )
                         }
                         composable("progress") {

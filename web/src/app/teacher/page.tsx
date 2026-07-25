@@ -9,9 +9,21 @@ type Progress = {
   avgScore: number;
   avgWpm: number;
   byModule: { moduleId: string; attempts: number; avgScore: number }[];
+  byStudent: {
+    studentId: string;
+    name: string;
+    classGroup: string;
+    attempts: number;
+    avgScore: number;
+    bestScore: number;
+    words: number;
+    lastActive: string;
+  }[];
   recent: {
     id: number;
     studentId: string;
+    studentName: string;
+    classGroup: string;
     exerciseTitle: string;
     moduleId: string;
     overallScore: number;
@@ -78,6 +90,47 @@ export default function TeacherPage() {
       </div>
 
       <div className="card overflow-x-auto">
+        <h2 className="mb-3 font-semibold">O'quvchilar</h2>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-xs uppercase text-slate-500">
+              <th className="py-2">O'quvchi</th>
+              <th>Sinf</th>
+              <th className="text-right">Urinish</th>
+              <th className="text-right">O'rtacha</th>
+              <th className="text-right">Eng yaxshi</th>
+              <th className="text-right">So'zlar</th>
+              <th className="text-right">Oxirgi faollik</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {p.byStudent.map((s) => (
+              <tr key={s.studentId}>
+                <td className="py-2 font-medium">
+                  {s.name || <span className="text-slate-400">Ismsiz ({s.studentId.slice(0, 10)}…)</span>}
+                </td>
+                <td className="text-slate-500">{s.classGroup || "—"}</td>
+                <td className="text-right">{s.attempts}</td>
+                <td className="text-right font-medium">{s.avgScore}</td>
+                <td className="text-right">{s.bestScore}</td>
+                <td className="text-right text-slate-500">{s.words}</td>
+                <td className="text-right text-slate-500">
+                  {new Date(s.lastActive).toLocaleDateString("uz")}
+                </td>
+              </tr>
+            ))}
+            {p.byStudent.length === 0 && (
+              <tr>
+                <td colSpan={7} className="py-4 text-center text-slate-400">
+                  Hali o'quvchilar yo'q
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="card overflow-x-auto">
         <h2 className="mb-3 font-semibold">So'nggi urinishlar</h2>
         <table className="w-full text-sm">
           <thead>
@@ -95,7 +148,10 @@ export default function TeacherPage() {
                 <td className="py-2 text-slate-500">
                   {new Date(a.createdAt).toLocaleString("uz")}
                 </td>
-                <td>{a.studentId}</td>
+                <td>
+                  {a.studentName || <span className="text-slate-400">{a.studentId}</span>}
+                  {a.classGroup && <span className="ml-1 text-xs text-slate-400">({a.classGroup})</span>}
+                </td>
                 <td>{a.exerciseTitle || a.moduleId}</td>
                 <td className="text-right font-medium">{a.overallScore}</td>
                 <td className="text-right">{a.wordsPerMinute}</td>

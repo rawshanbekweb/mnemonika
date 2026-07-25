@@ -17,6 +17,7 @@ val OnCoralContainer = Color(0xFF7A0B24)
 // ── Yordamchi ranglar ───────────────────────────────────────────
 val Amber = Color(0xFFF59E0B)
 val Success = Color(0xFF10B981)
+val SuccessContainer = Color(0xFFD1FAE5)
 val Danger = Color(0xFFEF4444)
 val Sky = Color(0xFF38BDF8)
 
