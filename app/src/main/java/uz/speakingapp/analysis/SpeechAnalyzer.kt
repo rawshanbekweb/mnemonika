@@ -10,9 +10,12 @@ data class SpeechResult(
     val matchedKeywords: List<String>,
     val totalKeywords: Int,
     val overallScore: Int,
+    /** Ko'rsatiladigan matnlar. `tips` bo'lsa — undan olinadi (qarang: Coach). */
     val feedback: List<String>,
     val grammarScore: Int? = null,
     val grammarIssues: List<String> = emptyList(),
+    /** Sarlavhali, turkumlangan maslahatlar. Suhbat moduli ishlatmaydi. */
+    val tips: List<CoachTip> = emptyList(),
 ) {
     val keywordCoverage: Int
         get() = if (totalKeywords == 0) 0 else (matchedKeywords.size * 100 / totalKeywords)
@@ -28,16 +31,13 @@ object SpeechAnalyzer {
     /** Grammatika hisobotini natijaga qo'shadi va umumiy ballni qayta hisoblaydi. */
     fun withGrammar(result: SpeechResult, report: GrammarReport): SpeechResult {
         val newOverall = ((result.overallScore * 4 + report.score) / 5).coerceIn(0, 100)
-        val feedback = result.feedback.toMutableList()
-        feedback.add(
-            if (report.issueCount == 0) "Grammatik xatolar topilmadi — juda yaxshi!"
-            else "Grammatikada ${report.issueCount} ta e'tibor talab qiladigan joy bor."
-        )
+        val tips = result.tips + Coach.grammarTip(report.issueCount)
         return result.copy(
             overallScore = newOverall,
             grammarScore = report.score,
             grammarIssues = report.issues,
-            feedback = feedback,
+            feedback = result.feedback + Coach.grammarTip(report.issueCount).detail,
+            tips = if (result.tips.isEmpty()) emptyList() else tips,
         )
     }
 
@@ -51,6 +51,7 @@ object SpeechAnalyzer {
         durationSec: Int,
         keywords: List<String>,
         alternatives: List<String> = emptyList(),
+        mnemonicSteps: List<String> = emptyList(),
     ): SpeechResult {
         val words = transcript
             .lowercase()
@@ -74,6 +75,18 @@ object SpeechAnalyzer {
         val overall = ((fluencyScore + vocabScore + keywordScore + lengthScore) / 4)
             .coerceIn(0, 100)
 
+        // Maslahatlar BALLGA TA'SIR QILMAYDI — formula o'zgarmadi, aks holda
+        // eski urinishlar bilan taqqoslab bo'lmay qolardi.
+        val tips = Coach.tips(
+            transcript = transcript,
+            wordCount = wordCount,
+            uniqueWordCount = uniqueWordCount,
+            wordsPerMinute = wpm,
+            matchedKeywords = matched,
+            keywords = keywords,
+            mnemonicSteps = mnemonicSteps,
+        )
+
         return SpeechResult(
             transcript = transcript.trim(),
             wordCount = wordCount,
@@ -83,7 +96,8 @@ object SpeechAnalyzer {
             matchedKeywords = matched,
             totalKeywords = keywords.size,
             overallScore = overall,
-            feedback = buildFeedback(wpm, wordCount, uniqueWordCount, matched, keywords),
+            feedback = tips.map { it.detail },
+            tips = tips,
         )
     }
 
@@ -112,38 +126,4 @@ object SpeechAnalyzer {
         else -> 20
     }
 
-    private fun buildFeedback(
-        wpm: Int,
-        words: Int,
-        unique: Int,
-        matched: List<String>,
-        keywords: List<String>,
-    ): List<String> {
-        val tips = mutableListOf<String>()
-
-        if (words < 25) {
-            tips.add("Ko'proq gapirishga harakat qiling — hikoyangizni kengaytiring.")
-        } else {
-            tips.add("Yaxshi! Yetarlicha gapirdingiz ($words so'z).")
-        }
-
-        when {
-            wpm < 40 -> tips.add("Biroz tezroq va ravonroq gapirishga urinib ko'ring.")
-            wpm > 140 -> tips.add("Sekinroq gapiring — har bir so'z aniq eshitilsin.")
-            else -> tips.add("Nutq tezligingiz yaxshi ($wpm so'z/daqiqa).")
-        }
-
-        if (unique < 15) {
-            tips.add("Turli xil so'zlardan foydalaning — so'z boyligini oshiring.")
-        }
-
-        val missing = keywords.filter { it !in matched }
-        if (missing.isNotEmpty()) {
-            tips.add("Bu so'zlarni ham qo'shsangiz bo'lardi: ${missing.joinToString(", ")}.")
-        } else if (keywords.isNotEmpty()) {
-            tips.add("Barcha tavsiya etilgan kalit so'zlarni ishlatdingiz!")
-        }
-
-        return tips
-    }
 }

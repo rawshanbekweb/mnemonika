@@ -110,6 +110,8 @@ export default function ExercisePage() {
         exercise?.keywords ?? [],
         // takeAlternatives barqaror (useCallback + ref), shuning uchun eskirmaydi.
         speech.takeAlternatives(),
+        // Murabbiy struktura bo'yicha maslahat bera olishi uchun.
+        exercise?.mnemonic.steps.map((s) => s.en) ?? [],
       );
       setResult(local);
 
@@ -456,11 +458,24 @@ function Result({
 
       <div className="card">
         <p className="section-title">Tavsiyalar</p>
-        <ul className="mt-3 space-y-1.5 text-sm text-ink">
-          {result.feedback.map((f, i) => (
-            <li key={i} className="flex gap-2">
-              <span className="text-ink-muted">—</span>
-              <span>{f}</span>
+        <ul className="mt-3 space-y-3">
+          {result.tips.map((t, i) => (
+            <li key={i} className="flex gap-3">
+              <span
+                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-sm ${
+                  t.kind === "PRAISE"
+                    ? "bg-emerald-50 text-state-success"
+                    : t.kind === "STRUCTURE"
+                      ? "bg-gold-container text-gold-deep"
+                      : "bg-navy-container text-navy"
+                }`}
+              >
+                <Icon name={t.kind === "PRAISE" ? "check" : "chevronRight"} size={14} />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-ink">{t.title}</span>
+                <span className="block text-sm leading-relaxed text-ink-muted">{t.detail}</span>
+              </span>
             </li>
           ))}
         </ul>

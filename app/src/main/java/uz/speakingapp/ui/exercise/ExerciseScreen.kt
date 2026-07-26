@@ -47,8 +47,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import uz.speakingapp.analysis.CoachTip
 import uz.speakingapp.analysis.KeywordMatcher
 import uz.speakingapp.analysis.SpeechResult
+import uz.speakingapp.analysis.TipKind
 import uz.speakingapp.data.model.Exercise
 import uz.speakingapp.data.model.Mnemonic
 import uz.speakingapp.speech.ModelManager
@@ -506,7 +508,12 @@ private fun ResultSection(
         SoftCard {
             SectionTitle("Tavsiyalar")
             Spacer(Modifier.size(10.dp))
-            result.feedback.forEach { BulletLine(it) }
+            // Suhbat moduli tips'siz SpeechResult yasaydi — u yerda eski ko'rinish.
+            if (result.tips.isEmpty()) {
+                result.feedback.forEach { BulletLine(it) }
+            } else {
+                result.tips.forEach { TipLine(it) }
+            }
 
             if (result.grammarIssues.isNotEmpty()) {
                 Spacer(Modifier.size(18.dp))
@@ -523,6 +530,31 @@ private fun ResultSection(
         }
 
         SoftButton("Qayta urinish", onClick = onRetry, modifier = Modifier.fillMaxWidth())
+    }
+}
+
+/**
+ * Sarlavhali maslahat. Rangli kvadratcha turini bildiradi: yashil — maqtov,
+ * oltin — struktura (eng muhim tuzatish), ko'k — qolgani.
+ */
+@Composable
+private fun TipLine(tip: CoachTip) {
+    val mark = when (tip.kind) {
+        TipKind.PRAISE -> Success
+        TipKind.STRUCTURE -> OnGoldContainer
+        else -> Navy
+    }
+    Row(Modifier.padding(vertical = 6.dp)) {
+        Box(
+            Modifier
+                .padding(top = 6.dp, end = 10.dp)
+                .size(8.dp)
+                .background(mark)
+        )
+        Column {
+            Text(tip.title, style = MaterialTheme.typography.titleSmall, color = InkStrong)
+            Text(tip.detail, style = MaterialTheme.typography.bodyMedium, color = InkMuted)
+        }
     }
 }
 

@@ -6,6 +6,7 @@
 // raqamlarni taqqoslab bo'lmay qoladi.
 
 import { matchedKeywords } from "./keyword-matcher";
+import { coachTips, grammarTip, type CoachTip } from "./coach";
 
 export type SpeechResult = {
   transcript: string;
@@ -16,10 +17,13 @@ export type SpeechResult = {
   matchedKeywords: string[];
   totalKeywords: number;
   overallScore: number;
+  /** Ko'rsatiladigan matnlar — `tips` dan olinadi (qarang: coach.ts). */
   feedback: string[];
   grammarScore: number | null;
   grammarIssues: string[];
   keywordCoverage: number;
+  /** Sarlavhali, turkumlangan maslahatlar. */
+  tips: CoachTip[];
 };
 
 export type GrammarReport = {
@@ -65,43 +69,6 @@ function clamp(n: number, min: number, max: number): number {
   return Math.min(Math.max(n, min), max);
 }
 
-function buildFeedback(
-  wpm: number,
-  words: number,
-  unique: number,
-  matched: string[],
-  keywords: string[],
-): string[] {
-  const tips: string[] = [];
-
-  if (words < 25) {
-    tips.push("Ko'proq gapirishga harakat qiling — hikoyangizni kengaytiring.");
-  } else {
-    tips.push(`Yaxshi! Yetarlicha gapirdingiz (${words} so'z).`);
-  }
-
-  if (wpm < 40) {
-    tips.push("Biroz tezroq va ravonroq gapirishga urinib ko'ring.");
-  } else if (wpm > 140) {
-    tips.push("Sekinroq gapiring — har bir so'z aniq eshitilsin.");
-  } else {
-    tips.push(`Nutq tezligingiz yaxshi (${wpm} so'z/daqiqa).`);
-  }
-
-  if (unique < 15) {
-    tips.push("Turli xil so'zlardan foydalaning — so'z boyligini oshiring.");
-  }
-
-  const missing = keywords.filter((k) => !matched.includes(k));
-  if (missing.length > 0) {
-    tips.push(`Bu so'zlarni ham qo'shsangiz bo'lardi: ${missing.join(", ")}.`);
-  } else if (keywords.length > 0) {
-    tips.push("Barcha tavsiya etilgan kalit so'zlarni ishlatdingiz!");
-  }
-
-  return tips;
-}
-
 /**
  * @param alternatives tanigichning qo'shimcha variantlari — FAQAT kalit so'z
  *   qidirishda ishlatiladi. So'z soni va tezlik asosiy transkriptdan olinadi,
@@ -112,6 +79,7 @@ export function analyze(
   durationSec: number,
   keywords: string[],
   alternatives: string[] = [],
+  mnemonicSteps: string[] = [],
 ): SpeechResult {
   const words = splitWords(transcript);
 
@@ -134,6 +102,18 @@ export function analyze(
     100,
   );
 
+  // Maslahatlar BALLGA TA'SIR QILMAYDI — formula o'zgarmadi, aks holda
+  // eski urinishlar bilan taqqoslab bo'lmay qolardi.
+  const tips = coachTips(
+    transcript,
+    wordCount,
+    uniqueWordCount,
+    wpm,
+    matched,
+    keywords,
+    mnemonicSteps,
+  );
+
   return {
     transcript: transcript.trim(),
     wordCount,
@@ -143,27 +123,25 @@ export function analyze(
     matchedKeywords: matched,
     totalKeywords: keywords.length,
     overallScore: overall,
-    feedback: buildFeedback(wpm, wordCount, uniqueWordCount, matched, keywords),
+    feedback: tips.map((t) => t.detail),
     grammarScore: null,
     grammarIssues: [],
     keywordCoverage:
       keywords.length === 0 ? 0 : Math.floor((matched.length * 100) / keywords.length),
+    tips,
   };
 }
 
 /** Grammatika hisobotini natijaga qo'shadi va umumiy ballni qayta hisoblaydi. */
 export function withGrammar(result: SpeechResult, report: GrammarReport): SpeechResult {
   const newOverall = clamp(Math.floor((result.overallScore * 4 + report.score) / 5), 0, 100);
+  const tip = grammarTip(report.issueCount);
   return {
     ...result,
     overallScore: newOverall,
     grammarScore: report.score,
     grammarIssues: report.issues,
-    feedback: [
-      ...result.feedback,
-      report.issueCount === 0
-        ? "Grammatik xatolar topilmadi — juda yaxshi!"
-        : `Grammatikada ${report.issueCount} ta e'tibor talab qiladigan joy bor.`,
-    ],
+    feedback: [...result.feedback, tip.detail],
+    tips: [...result.tips, tip],
   };
 }

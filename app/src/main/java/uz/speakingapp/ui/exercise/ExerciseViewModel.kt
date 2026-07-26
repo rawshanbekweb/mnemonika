@@ -173,6 +173,8 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
                 durationSec = _state.value.elapsedSec,
                 keywords = ex?.keywords ?: emptyList(),
                 alternatives = altSegments.toList(),
+                // Murabbiy struktura bo'yicha maslahat bera olishi uchun.
+                mnemonicSteps = ex?.mnemonic?.steps?.map { it.en } ?: emptyList(),
             )
             // Avval mahalliy natijani darhol ko'rsatamiz.
             _state.update {

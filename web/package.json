@@ -11,9 +11,10 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "test": "npm run test:matcher && npm run test:gamification",
+    "test": "npm run test:matcher && npm run test:gamification && npm run test:coach",
     "test:matcher": "tsx scripts/keyword-matcher.test.ts",
     "test:gamification": "tsx scripts/gamification.test.ts",
+    "test:coach": "tsx scripts/coach.test.ts",
     "upload:apk": "tsx scripts/upload-apk.ts",
     "seed": "tsx src/db/seed.ts",
     "create-admin": "tsx src/db/create-admin.ts"
