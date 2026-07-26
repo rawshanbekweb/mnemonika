@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.vosk.Model
 import org.vosk.Recognizer
+import uz.speakingapp.BuildConfig
 import kotlin.math.sqrt
 
 /**
@@ -84,6 +85,10 @@ class VoskRecognizer {
 
         val rec = Recognizer(m, SAMPLE_RATE.toFloat())
         runCatching { rec.setMaxAlternatives(MAX_ALTERNATIVES) }
+        // So'z darajasidagi ishonch (conf) uchun. Vosk versiyasi buni
+        // `alternatives` bilan birga bermasligi mumkin — shuning uchun
+        // runCatching, va haqiqiy shakl DEBUG jurnalidan ko'riladi.
+        runCatching { rec.setWords(true) }
 
         val minBuffer = AudioRecord.getMinBufferSize(
             SAMPLE_RATE,
@@ -194,6 +199,18 @@ class VoskRecognizer {
      * Birinchi element — eng ishonchli variant.
      */
     private fun parseHypotheses(json: String): List<String> {
+        // Vosk qaytaradigan XOM JSON — faqat debug qurilishida.
+        //
+        // Nega kerak: `setMaxAlternatives` va `setWords` birga yoqilganda bu
+        // Vosk versiyasi so'z darajasidagi `conf` ni beradimi — hujjatdan emas,
+        // faqat qurilmadan bilinadi. Bir marta ishga tushirilsa shu jurnal
+        // savolga javob beradi va taxminiy parsing yozish shart bo'lmaydi.
+        //
+        // Release qurilishida CHIQMAYDI: bola nutqi jurnalga tushmasligi kerak.
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "XOM natija: ${json.take(600)}")
+        }
+
         val root = JSONObject(json)
         val alternatives = root.optJSONArray("alternatives")
         if (alternatives != null) {

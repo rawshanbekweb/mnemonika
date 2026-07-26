@@ -118,7 +118,13 @@ private fun ExerciseCard(
         }
 
         Spacer(Modifier.size(14.dp))
-        Pill("Struktura · ${exercise.mnemonic.acronym}", NavyContainer, OnNavyContainer)
+        // "Takrorlang" mashqida mnemonika yo'q — akronimsiz "Struktura · "
+        // osilib qolmasligi uchun mashq turini ko'rsatamiz.
+        if (exercise.isReadAloud) {
+            Pill("Takrorlang · talaffuz", GoldContainer, OnGoldContainer)
+        } else if (exercise.mnemonic.acronym.isNotBlank()) {
+            Pill("Struktura · ${exercise.mnemonic.acronym}", NavyContainer, OnNavyContainer)
+        }
 
         Spacer(Modifier.size(12.dp))
         exercise.mnemonic.steps.forEach { step ->

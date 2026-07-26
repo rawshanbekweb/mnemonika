@@ -156,7 +156,8 @@ Yangi modul
               items={exs.map((e) => ({
                 id: e.id,
                 label: e.title,
-                sub: e.acronym,
+                // "Takrorlang" mashqida akronim bo'sh — turi ko'rinib tursin.
+                sub: e.targetText?.trim() ? "Takrorlang" : e.acronym,
                 href: `/admin/exercise?module=${m.id}&id=${e.id}`,
               }))}
             />

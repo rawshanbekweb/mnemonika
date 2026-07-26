@@ -39,8 +39,12 @@ export default async function Landing() {
   const panelHref = user?.role === "admin" ? "/admin" : "/teacher";
   const exerciseCount = modules.reduce((n, m) => n + m.exercises.length, 0);
   const dialogCount = modules.reduce((n, m) => n + m.dialogs.length, 0);
-  // Mnemonika bo'limi uchun jonli misol — birinchi topilgan mashqniki.
-  const sampleMnemonic = modules.flatMap((m) => m.exercises)[0]?.mnemonic;
+  // Mnemonika bo'limi uchun jonli misol. Bosqichlari BOR birinchi mashq
+  // olinadi: "Takrorlang" mashqlarida mnemonika yo'q, va ular ro'yxat boshiga
+  // tushib qolsa bo'lim bo'sh akronim bilan chiqib qolardi.
+  const sampleMnemonic = modules
+    .flatMap((m) => m.exercises)
+    .find((e) => e.mnemonic.steps.length > 0)?.mnemonic;
 
   return (
     <div className="pattern-page">

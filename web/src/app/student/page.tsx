@@ -282,7 +282,15 @@ function ModuleRow({
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold text-ink">{ex.title}</span>
                   <span className="block text-xs text-ink-muted">
-                    {ex.topic} · {ex.mnemonic.acronym} · {ex.timeLimitSec}s
+                    {/* "Takrorlang" mashqida mnemonika yo'q — bo'sh akronim
+                        osilib qolgan "·" chiqarmasligi uchun yig'ib beramiz. */}
+                    {[
+                      ex.topic,
+                      ex.targetText.trim() !== "" ? "Takrorlang" : ex.mnemonic.acronym,
+                      `${ex.timeLimitSec}s`,
+                    ]
+                      .filter((p) => p !== "")
+                      .join(" · ")}
                   </span>
                   {st && (
                     <span className="mt-1 block text-overline uppercase text-ink-muted">
