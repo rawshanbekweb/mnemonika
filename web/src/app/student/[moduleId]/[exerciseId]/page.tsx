@@ -8,6 +8,7 @@ import { loadStudent } from "@/lib/student";
 import { saveAttempt as saveAttemptLocally } from "@/lib/attempts-store";
 import { speak, stopSpeaking, useSpeechRecognition } from "@/lib/use-speech";
 import { analyze, withGrammar, type GrammarReport, type SpeechResult } from "@/lib/speech-analyzer";
+import { analyzeReadAloud, type ReadAloudResult } from "@/lib/read-aloud";
 import { matchedKeywords } from "@/lib/keyword-matcher";
 import type { Exercise } from "@/lib/content-types";
 import { Icon } from "@/components/Icon";
@@ -26,6 +27,7 @@ export default function ExercisePage() {
   const [phase, setPhase] = useState<Phase>("ready");
   const [elapsed, setElapsed] = useState(0);
   const [result, setResult] = useState<SpeechResult | null>(null);
+  const [readResult, setReadResult] = useState<ReadAloudResult | null>(null);
   const [checkingGrammar, setCheckingGrammar] = useState(false);
   const [speaking, setSpeaking] = useState(false);
 
@@ -104,6 +106,36 @@ export default function ExercisePage() {
     window.setTimeout(async () => {
       const transcript = finalTextRef.current.trim();
       const seconds = Math.max(1, elapsedRef.current);
+
+      // "Takrorlang" mashqi: kutilgan matn ma'lum, so'zma-so'z solishtiramiz.
+      // Grammatika tekshirilmaydi — matn bolaniki emas, bizniki.
+      const target = exercise?.targetText ?? "";
+      if (target.trim() !== "") {
+        const read = analyzeReadAloud(target, transcript, seconds, speech.takeAlternatives());
+        setReadResult(read);
+        const spokenWords = transcript.split(/\s+/).filter(Boolean);
+        const asResult: SpeechResult = {
+          transcript,
+          wordCount: spokenWords.length,
+          uniqueWordCount: new Set(spokenWords.map((w) => w.toLowerCase())).size,
+          durationSec: seconds,
+          wordsPerMinute: Math.floor((spokenWords.length * 60) / seconds),
+          // Aniq o'qilgan so'zlar "kalit so'z" o'rnida saqlanadi — shunda
+          // o'qituvchi panelidagi qamrov ustuni o'qish aniqligini ko'rsatadi.
+          matchedKeywords: read.words.filter((w) => w.status === "CORRECT").map((w) => w.word),
+          totalKeywords: read.targetCount,
+          overallScore: read.accuracy,
+          feedback: read.tips.map((t) => t.detail),
+          grammarScore: null,
+          grammarIssues: [],
+          keywordCoverage: read.accuracy,
+          tips: read.tips,
+        };
+        setResult(asResult);
+        if (spokenWords.length > 0) void saveAttempt(asResult);
+        return;
+      }
+
       const local = analyze(
         transcript,
         seconds,
@@ -154,10 +186,13 @@ export default function ExercisePage() {
     }
   }, [speech.error, phase]);
 
+  const isReadAloud = (exercise?.targetText ?? "").trim() !== "";
+
   const start = () => {
     stopSpeaking();
     setSpeaking(false);
     setResult(null);
+    setReadResult(null);
     setElapsed(0);
     elapsedRef.current = 0;
     finalTextRef.current = "";
@@ -173,7 +208,12 @@ export default function ExercisePage() {
       return;
     }
     setSpeaking(true);
-    speak(exercise.prompts.join(" ") || exercise.title, () => setSpeaking(false));
+    // "Takrorlang" mashqida namunani eshitish — mashqning asosiy qismi:
+    // bola avval to'g'ri talaffuzni eshitadi, keyin takrorlaydi.
+    const text = isReadAloud
+      ? exercise.targetText
+      : exercise.prompts.join(" ") || exercise.title;
+    speak(text, () => setSpeaking(false));
   };
 
   if (contentError) return <Centered>{contentError}</Centered>;
@@ -235,35 +275,48 @@ export default function ExercisePage() {
         <section className="card">
           <div className="flex items-start justify-between gap-3">
             <span className="pill-brand">{exercise.topic}</span>
-            {exercise.prompts.length > 0 && (
+            {(isReadAloud || exercise.prompts.length > 0) && (
               <button onClick={onListen} className="btn-ghost !px-3 !py-1.5 !text-xs">
                 <Icon name={speaking ? "volumeOff" : "volumeUp"} size={15} />
-                {speaking ? "To'xtatish" : "Eshitish"}
+                {speaking ? "To'xtatish" : isReadAloud ? "Namunani eshitish" : "Eshitish"}
               </button>
             )}
           </div>
 
-          <ol className="mt-4 space-y-2">
-            {exercise.prompts.map((p, i) => (
-              <li key={i} className="flex gap-3 text-[15px] text-ink">
-                <span className="text-ink-muted">{i + 1}.</span>
-                <span>{p}</span>
-              </li>
-            ))}
-          </ol>
+          {isReadAloud ? (
+            <>
+              <p className="section-title mt-5">Shu jumlani o&apos;qing</p>
+              <p className="mt-4 text-xl leading-relaxed text-ink">{exercise.targetText}</p>
+              <p className="mt-4 text-sm text-ink-muted">
+                Avval namunani eshiting, keyin mikrofonni bosib aynan shu jumlani o&apos;qing.
+                Har bir so&apos;z alohida tekshiriladi.
+              </p>
+            </>
+          ) : (
+            <>
+              <ol className="mt-4 space-y-2">
+                {exercise.prompts.map((p, i) => (
+                  <li key={i} className="flex gap-3 text-[15px] text-ink">
+                    <span className="text-ink-muted">{i + 1}.</span>
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ol>
 
-          <p className="section-title mt-6">Struktura · {exercise.mnemonic.acronym}</p>
-          <ul className="mt-3 space-y-2.5">
-            {exercise.mnemonic.steps.map((s, i) => (
-              <li key={i} className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-navy text-[11px] font-bold text-white">
-                  {s.letter.toUpperCase()}
-                </span>
-                <span className="text-sm font-medium text-ink">{s.en}</span>
-                <span className="text-xs text-ink-muted">· {s.uz}</span>
-              </li>
-            ))}
-          </ul>
+              <p className="section-title mt-6">Struktura · {exercise.mnemonic.acronym}</p>
+              <ul className="mt-3 space-y-2.5">
+                {exercise.mnemonic.steps.map((s, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-navy text-[11px] font-bold text-white">
+                      {s.letter.toUpperCase()}
+                    </span>
+                    <span className="text-sm font-medium text-ink">{s.en}</span>
+                    <span className="text-xs text-ink-muted">· {s.uz}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
 
         {phase === "ready" && (
@@ -293,13 +346,20 @@ export default function ExercisePage() {
               </span>
             </div>
 
-            {exercise.keywords.length > 0 && (
+            {isReadAloud ? (
               <div className="card mt-6">
-                <p className="section-title">
-                  Kalit so&apos;zlar · {spokenNow.size}/{exercise.keywords.length}
-                </p>
-                <KeywordChips keywords={exercise.keywords} spoken={spokenNow} />
+                <p className="section-title">O&apos;qilayotgan matn</p>
+                <p className="mt-3 text-lg leading-relaxed text-ink">{exercise.targetText}</p>
               </div>
+            ) : (
+              exercise.keywords.length > 0 && (
+                <div className="card mt-6">
+                  <p className="section-title">
+                    Kalit so&apos;zlar · {spokenNow.size}/{exercise.keywords.length}
+                  </p>
+                  <KeywordChips keywords={exercise.keywords} spoken={spokenNow} />
+                </div>
+              )
             )}
 
             {liveText && (
@@ -317,8 +377,9 @@ export default function ExercisePage() {
         {phase === "done" && result && (
           <Result
             result={result}
-            keywords={exercise.keywords}
+            keywords={isReadAloud ? [] : exercise.keywords}
             checkingGrammar={checkingGrammar}
+            readResult={readResult}
             onRetry={start}
           />
         )}
@@ -392,11 +453,13 @@ function Result({
   result,
   keywords,
   checkingGrammar,
+  readResult,
   onRetry,
 }: {
   result: SpeechResult;
   keywords: string[];
   checkingGrammar: boolean;
+  readResult: ReadAloudResult | null;
   onRetry: () => void;
 }) {
   const message =
@@ -437,15 +500,45 @@ function Result({
             <Stat value={`${result.durationSec}s`} label="Davomiylik" />
             <Stat
               value={`${result.matchedKeywords.length}/${result.totalKeywords}`}
-              label="Kalit so'zlar"
+              label={readResult ? "To'g'ri so'z" : "Kalit so'zlar"}
             />
             <Stat
-              value={result.grammarScore ?? (checkingGrammar ? "…" : "—")}
-              label="Grammatika"
+              value={
+                readResult
+                  ? readResult.extraCount
+                  : (result.grammarScore ?? (checkingGrammar ? "…" : "—"))
+              }
+              label={readResult ? "Ortiqcha so'z" : "Grammatika"}
             />
           </div>
         </div>
       </div>
+
+      {/* "Takrorlang": har bir kutilgan so'z alohida belgilanadi. */}
+      {readResult && readResult.words.length > 0 && (
+        <div className="card">
+          <p className="section-title">
+            So&apos;zma-so&apos;z · {readResult.correctCount}/{readResult.targetCount} to&apos;g&apos;ri
+          </p>
+          <p className="mt-3 flex flex-wrap gap-x-2 gap-y-2 text-lg leading-relaxed">
+            {readResult.words.map((w, i) => (
+              <span
+                key={i}
+                className={
+                  w.status === "CORRECT"
+                    ? "text-state-success"
+                    : "rounded-sm bg-red-50 px-1 font-semibold text-state-danger underline decoration-wavy underline-offset-4"
+                }
+              >
+                {w.word}
+              </span>
+            ))}
+          </p>
+          <p className="mt-4 text-xs text-ink-muted">
+            Qizil belgilangan so&apos;zlar eshitilmadi yoki boshqacha aytildi.
+          </p>
+        </div>
+      )}
 
       {keywords.length > 0 && (
         <div className="card">

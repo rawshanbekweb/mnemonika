@@ -23,6 +23,8 @@ export type ExerciseRow = {
   visuals: string[];
   timeLimitSec: number;
   sortOrder: number;
+  /** Bo'sh bo'lmasa — "Takrorlang" mashqi. */
+  targetText: string;
 };
 
 export type DialogRow = {

@@ -52,6 +52,17 @@
           ],
           "keywords": ["pollution", "recycle", "plastic", "forest", "protect"],
           "timeLimitSec": 60
+        },
+        {
+          "id": "discussion_read_aloud_pets",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: My Pet",
+          "visuals": ["🔊", "🗣️"],
+          "mnemonic": { "acronym": "", "steps": [] },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "targetText": "My dog is very friendly and he likes to play in the garden every morning."
         }
       ]
     },

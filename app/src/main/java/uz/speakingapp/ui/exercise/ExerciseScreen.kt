@@ -47,10 +47,17 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import uz.speakingapp.analysis.CoachTip
 import uz.speakingapp.analysis.KeywordMatcher
+import uz.speakingapp.analysis.ReadAloudResult
+import uz.speakingapp.analysis.ReadWord
 import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.analysis.TipKind
+import uz.speakingapp.analysis.WordStatus
 import uz.speakingapp.data.model.Exercise
 import uz.speakingapp.data.model.Mnemonic
 import uz.speakingapp.speech.ModelManager
@@ -149,8 +156,9 @@ fun ExerciseScreen(
                 Phase.Done -> state.result?.let { result ->
                     ResultSection(
                         result = result,
-                        keywords = exercise.keywords,
+                        keywords = if (exercise.isReadAloud) emptyList() else exercise.keywords,
                         checkingGrammar = state.checkingGrammar,
+                        readResult = state.readResult,
                         onRetry = { vm.startRecording() },
                     )
                 }
@@ -192,10 +200,31 @@ private fun PromptCard(exercise: Exercise, speaking: Boolean, onListen: () -> Un
     SoftCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.weight(1f)) { Pill(exercise.topic, NavyContainer, OnNavyContainer) }
-            if (exercise.prompts.isNotEmpty()) {
+            if (exercise.isReadAloud || exercise.prompts.isNotEmpty()) {
                 ListenButton(speaking = speaking, onClick = onListen)
             }
         }
+
+        // "Takrorlang" mashqi: savollar va mnemonika o'rniga o'qiladigan matn.
+        if (exercise.isReadAloud) {
+            Spacer(Modifier.size(14.dp))
+            SectionTitle("Shu jumlani o'qing")
+            Spacer(Modifier.size(12.dp))
+            Text(
+                exercise.targetText,
+                style = MaterialTheme.typography.headlineSmall,
+                color = InkStrong,
+            )
+            Spacer(Modifier.size(14.dp))
+            Text(
+                "Avval namunani eshiting, keyin mikrofonni bosib aynan shu jumlani o'qing. " +
+                    "Har bir so'z alohida tekshiriladi.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkMuted,
+            )
+            return@SoftCard
+        }
+
         Spacer(Modifier.size(12.dp))
         exercise.prompts.forEachIndexed { i, p ->
             Row(Modifier.padding(vertical = 4.dp)) {
@@ -455,6 +484,7 @@ private fun ResultSection(
     result: SpeechResult,
     keywords: List<String>,
     checkingGrammar: Boolean,
+    readResult: ReadAloudResult?,
     onRetry: () -> Unit,
 ) {
     val message = when {
@@ -483,16 +513,37 @@ private fun ResultSection(
                 StatCell("${result.durationSec}s", "Davomiylik", Modifier.weight(1f))
                 StatCell(
                     "${result.matchedKeywords.size}/${result.totalKeywords}",
-                    "Kalit so'zlar",
+                    if (readResult != null) "To'g'ri so'z" else "Kalit so'zlar",
                     Modifier.weight(1f),
                     accent = Success,
                 )
-                val grammar = when {
-                    result.grammarScore != null -> "${result.grammarScore}"
-                    checkingGrammar -> "…"
-                    else -> "—"
+                if (readResult != null) {
+                    StatCell("${readResult.extraCount}", "Ortiqcha so'z", Modifier.weight(1f))
+                } else {
+                    val grammar = when {
+                        result.grammarScore != null -> "${result.grammarScore}"
+                        checkingGrammar -> "…"
+                        else -> "—"
+                    }
+                    StatCell(grammar, "Grammatika", Modifier.weight(1f))
                 }
-                StatCell(grammar, "Grammatika", Modifier.weight(1f))
+            }
+        }
+
+        // "Takrorlang": har bir kutilgan so'z alohida belgilanadi.
+        if (readResult != null && readResult.words.isNotEmpty()) {
+            SoftCard {
+                SectionTitle(
+                    "So'zma-so'z · ${readResult.correctCount}/${readResult.targetCount} to'g'ri"
+                )
+                Spacer(Modifier.size(12.dp))
+                ReadWords(readResult.words)
+                Spacer(Modifier.size(14.dp))
+                Text(
+                    "Qizil belgilangan so'zlar eshitilmadi yoki boshqacha aytildi.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = InkMuted,
+                )
             }
         }
 
@@ -531,6 +582,29 @@ private fun ResultSection(
 
         SoftButton("Qayta urinish", onClick = onRetry, modifier = Modifier.fillMaxWidth())
     }
+}
+
+/**
+ * "Takrorlang" natijasi: kutilgan matn, har bir so'z alohida bo'yalgan.
+ * Bitta AnnotatedString ishlatiladi — shunda satrga sig'magan so'zlar
+ * o'z-o'zidan keyingi qatorga o'tadi.
+ */
+@Composable
+private fun ReadWords(words: List<ReadWord>) {
+    val text = buildAnnotatedString {
+        words.forEachIndexed { i, w ->
+            val correct = w.status == WordStatus.CORRECT
+            withStyle(
+                SpanStyle(
+                    color = if (correct) Success else Danger,
+                    fontWeight = if (correct) FontWeight.Normal else FontWeight.Bold,
+                    textDecoration = if (correct) null else TextDecoration.Underline,
+                )
+            ) { append(w.word) }
+            if (i < words.size - 1) append(" ")
+        }
+    }
+    Text(text, style = MaterialTheme.typography.titleMedium)
 }
 
 /**

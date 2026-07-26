@@ -13,6 +13,12 @@ export type Exercise = {
   keywords: string[];
   timeLimitSec: number;
   visuals: string[];
+  /**
+   * Bo'sh bo'lmasa — mashq "Takrorlang" turiga o'tadi: bola aynan shu matnni
+   * o'qiydi va aytilgan so'zlar so'zma-so'z solishtiriladi (qarang: read-aloud.ts).
+   * Bo'sh bo'lsa — odatdagi erkin nutq mashqi.
+   */
+  targetText: string;
 };
 
 export type DialogTurn = {

@@ -11,8 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.speakingapp.analysis.GrammarChecker
+import uz.speakingapp.analysis.ReadAloud
+import uz.speakingapp.analysis.ReadAloudResult
 import uz.speakingapp.analysis.SpeechAnalyzer
 import uz.speakingapp.analysis.SpeechResult
+import uz.speakingapp.analysis.WordStatus
 import uz.speakingapp.data.ProgressRepository
 import uz.speakingapp.data.model.Exercise
 import uz.speakingapp.speech.ModelManager
@@ -31,6 +34,8 @@ data class ExerciseUiState(
     /** Mikrofon signal darajasi 0f..1f — "seni eshityapman" indikatori uchun. */
     val micLevel: Float = 0f,
     val result: SpeechResult? = null,
+    /** "Takrorlang" mashqida so'zma-so'z solishtirish natijasi. */
+    val readResult: ReadAloudResult? = null,
     val checkingGrammar: Boolean = false,
     val speaking: Boolean = false,
     val error: String? = null,
@@ -96,7 +101,13 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
             _state.update { it.copy(speaking = false) }
             return
         }
-        val text = ex.prompts.joinToString(" ").ifBlank { ex.title }
+        // "Takrorlang" mashqida namunani eshitish — mashqning asosiy qismi:
+        // bola avval to'g'ri talaffuzni eshitadi, keyin takrorlaydi.
+        val text = if (ex.isReadAloud) {
+            ex.targetText
+        } else {
+            ex.prompts.joinToString(" ").ifBlank { ex.title }
+        }
         _state.update { it.copy(speaking = true) }
         speaker.speak(text) {
             _state.update { it.copy(speaking = false) }
@@ -135,6 +146,7 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
                 liveText = "",
                 elapsedSec = 0,
                 result = null,
+                readResult = null,
                 error = null,
             )
         }
@@ -168,6 +180,31 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
             delay(300)
             val ex = exercise
             val transcript = segments.toString().trim()
+
+            // "Takrorlang" mashqi: kutilgan matn ma'lum, so'zma-so'z solishtiramiz.
+            // Grammatika tekshirilmaydi — matn bolaniki emas, bizniki.
+            if (ex != null && ex.isReadAloud) {
+                val read = ReadAloud.analyze(
+                    targetText = ex.targetText,
+                    transcript = transcript,
+                    durationSec = _state.value.elapsedSec,
+                    alternatives = altSegments.toList(),
+                )
+                val asResult = readAsSpeechResult(read, transcript, _state.value.elapsedSec)
+                _state.update {
+                    it.copy(
+                        phase = Phase.Done,
+                        transcript = transcript,
+                        liveText = "",
+                        result = asResult,
+                        readResult = read,
+                        checkingGrammar = false,
+                    )
+                }
+                saveAttempt(ex, asResult)
+                return@launch
+            }
+
             val localResult = SpeechAnalyzer.analyze(
                 transcript = transcript,
                 durationSec = _state.value.elapsedSec,
@@ -197,6 +234,32 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
             _state.update { it.copy(result = finalResult, checkingGrammar = false) }
             saveAttempt(ex, finalResult)
         }
+    }
+
+    /**
+     * "Takrorlang" natijasini umumiy [SpeechResult] shakliga o'tkazadi — shunda
+     * progress saqlash, o'qituvchi paneli va gamifikatsiya o'zgarishsiz ishlaydi.
+     * Aniq o'qilgan so'zlar "kalit so'z" o'rnida saqlanadi: qamrov ustuni
+     * o'qish aniqligini ko'rsatadi.
+     */
+    private fun readAsSpeechResult(
+        read: ReadAloudResult,
+        transcript: String,
+        durationSec: Int,
+    ): SpeechResult {
+        val spoken = transcript.split(Regex("\\s+")).filter { it.isNotBlank() }
+        return SpeechResult(
+            transcript = transcript,
+            wordCount = spoken.size,
+            uniqueWordCount = spoken.map { it.lowercase() }.toSet().size,
+            durationSec = durationSec,
+            wordsPerMinute = spoken.size * 60 / durationSec.coerceAtLeast(1),
+            matchedKeywords = read.words.filter { it.status == WordStatus.CORRECT }.map { it.word },
+            totalKeywords = read.targetCount,
+            overallScore = read.accuracy,
+            feedback = read.tips.map { it.detail },
+            tips = read.tips,
+        )
     }
 
     private fun saveAttempt(ex: Exercise?, result: SpeechResult) {

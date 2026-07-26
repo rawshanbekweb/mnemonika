@@ -19,6 +19,7 @@ type JsonExercise = {
   keywords?: string[];
   timeLimitSec?: number;
   visuals?: string[];
+  targetText?: string;
 };
 type JsonTurn = { characterLine?: string; studentHint: string; expectedKeywords?: string[] };
 type JsonDialog = {
@@ -100,6 +101,7 @@ async function main() {
           keywords: e.keywords ?? [],
           visuals: e.visuals ?? [],
           timeLimitSec: e.timeLimitSec ?? 60,
+          targetText: e.targetText ?? "",
           sortOrder: exOrder++,
         })
         .onConflictDoUpdate({
@@ -114,6 +116,7 @@ async function main() {
             keywords: e.keywords ?? [],
             visuals: e.visuals ?? [],
             timeLimitSec: e.timeLimitSec ?? 60,
+            targetText: e.targetText ?? "",
           },
         });
     }

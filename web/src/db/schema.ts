@@ -42,6 +42,8 @@ export const exercises = pgTable(
     visuals: jsonb("visuals").$type<string[]>().notNull().default([]),
     timeLimitSec: integer("time_limit_sec").notNull().default(60),
     sortOrder: integer("sort_order").notNull().default(0),
+    /** Bo'sh bo'lmasa — "Takrorlang" mashqi (bola aynan shu matnni o'qiydi). */
+    targetText: text("target_text").notNull().default(""),
   },
   (t) => [index("exercises_module_idx").on(t.moduleId)],
 );

@@ -20,6 +20,7 @@ function blank(moduleId: string): ExerciseRow {
     visuals: [],
     timeLimitSec: 60,
     sortOrder: 0,
+    targetText: "",
   };
 }
 
@@ -99,6 +100,27 @@ function ExerciseEditor() {
           <label className="label">Tartib</label>
           <input className="input" type="number" value={ex.sortOrder} onChange={(e) => set({ sortOrder: Number(e.target.value) })} />
         </div>
+      </div>
+
+      <div className="card space-y-3">
+        <h2 className="font-semibold">&quot;Takrorlang&quot; matni</h2>
+        <p className="text-sm text-ink-muted">
+          To&apos;ldirsangiz mashq turi o&apos;zgaradi: o&apos;quvchi erkin gapirmaydi, aynan shu
+          jumlani o&apos;qiydi va har bir so&apos;z alohida tekshiriladi. Talaffuzni o&apos;lchash
+          uchun shu tur ishlatiladi. Bo&apos;sh qoldirsangiz — odatdagi erkin nutq mashqi.
+        </p>
+        <textarea
+          className="input min-h-[70px]"
+          value={ex.targetText}
+          onChange={(e) => set({ targetText: e.target.value })}
+          placeholder="Masalan: My dog is very friendly and he likes to play in the garden."
+        />
+        {ex.targetText.trim() !== "" && (
+          <p className="text-overline uppercase text-ink-muted">
+            {ex.targetText.trim().split(/\s+/).length} ta so&apos;z · mnemonika va kalit so&apos;zlar
+            bu turda ishlatilmaydi
+          </p>
+        )}
       </div>
 
       <div className="card space-y-3">

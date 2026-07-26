@@ -23,6 +23,7 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
       visuals: asStringArray(b.visuals),
       timeLimitSec: Number(b.timeLimitSec ?? 60),
       sortOrder: Number(b.sortOrder ?? 0),
+      targetText: String(b.targetText ?? ""),
     })
     .where(eq(schema.exercises.id, id));
   return NextResponse.json({ ok: true });

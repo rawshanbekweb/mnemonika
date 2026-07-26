@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       visuals: asStringArray(b.visuals),
       timeLimitSec: Number(b.timeLimitSec ?? 60),
       sortOrder: Number(b.sortOrder ?? 0),
+      targetText: String(b.targetText ?? ""),
     });
     return NextResponse.json({ ok: true });
   } catch (e) {

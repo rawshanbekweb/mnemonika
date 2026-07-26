@@ -53,7 +53,15 @@ data class Exercise(
     val timeLimitSec: Int = 60,
     /** Vizual ishoralar — emoji tokenlari (keyin haqiqiy rasm bilan almashtirilishi mumkin). */
     val visuals: List<String> = emptyList(),
-)
+    /**
+     * Bo'sh bo'lmasa — mashq "Takrorlang" turiga o'tadi: bola aynan shu matnni
+     * o'qiydi va aytilgan so'zlar so'zma-so'z solishtiriladi (qarang: ReadAloud).
+     * Bo'sh bo'lsa — odatdagi erkin nutq mashqi.
+     */
+    val targetText: String = "",
+) {
+    val isReadAloud: Boolean get() = targetText.isNotBlank()
+}
 
 /** Mnemonik struktura (PETS, GREEN, OCEAN, ...). */
 @Serializable

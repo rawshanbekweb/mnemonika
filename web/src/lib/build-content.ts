@@ -56,6 +56,7 @@ export async function buildContentPack(): Promise<ContentPack> {
         keywords: e.keywords,
         timeLimitSec: e.timeLimitSec,
         visuals: e.visuals,
+        targetText: e.targetText,
       })),
     dialogs: allDialogs
       .filter((d) => d.moduleId === m.id)
