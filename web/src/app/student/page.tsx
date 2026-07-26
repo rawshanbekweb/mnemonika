@@ -3,13 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useContent } from "@/lib/use-content";
-import {
-  firstName,
-  isRegistered,
-  loadStudent,
-  saveStudent,
-  type StudentProfile,
-} from "@/lib/student";
+import { isRegistered, loadStudent, saveStudent, type StudentProfile } from "@/lib/student";
+import { useApk } from "@/lib/use-apk";
 import type { SpeakingModule } from "@/lib/content-types";
 import {
   exerciseStats,
@@ -335,19 +330,8 @@ function ScoreBadge({ score }: { score?: number }) {
   );
 }
 
-type ApkInfo = { url: string; sizeMb: number; uploadedAt: string; version: string };
-
 function AndroidDownload() {
-  const [apk, setApk] = useState<ApkInfo | null>(null);
-  const [isAndroid, setIsAndroid] = useState(false);
-
-  useEffect(() => {
-    setIsAndroid(/android/i.test(navigator.userAgent));
-    fetch("/api/apk")
-      .then((r) => r.json())
-      .then((d: ApkInfo | null) => setApk(d))
-      .catch(() => setApk(null));
-  }, []);
+  const { apk, isAndroid } = useApk();
 
   if (!apk) return null;
 
