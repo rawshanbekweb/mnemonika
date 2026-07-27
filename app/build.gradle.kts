@@ -25,8 +25,11 @@ android {
         applicationId = "uz.speakingapp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        // Har tarqatishdan oldin ko'tarilishi kerak: yuklab olish fayl nomi
+        // versionName'dan tuziladi, shuning uchun o'quvchi qaysi build'ni
+        // olganini shundan biladi. 0.1.1 — yozuvni to'xtatishda crash tuzatildi.
+        versionCode = 2
+        versionName = "0.1.1"
         vectorDrawables { useSupportLibrary = true }
 
         // ── Backend (Vercel) sozlamalari — local.properties'dan ────────
