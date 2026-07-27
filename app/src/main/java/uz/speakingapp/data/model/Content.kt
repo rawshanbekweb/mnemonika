@@ -59,8 +59,21 @@ data class Exercise(
      * Bo'sh bo'lsa — odatdagi erkin nutq mashqi.
      */
     val targetText: String = "",
+    /**
+     * Yaratilgan talaffuz audiosi URL'lari — [prompts] bilan INDEKS BO'YICHA
+     * moslashadi (audio yo'q savol o'rnida bo'sh satr).
+     *
+     * Standart qiymat bo'sh: audio maydonlari yo'q eski kontent JSON'i ham
+     * parse bo'lishi kerak (ilova yangi, kontent eski bo'lgan holat).
+     */
+    val promptsAudio: List<String> = emptyList(),
+    /** "Takrorlang" matnining talaffuz audiosi; bo'sh bo'lsa [Speaker] TTS'i. */
+    val targetAudioUrl: String = "",
 ) {
     val isReadAloud: Boolean get() = targetText.isNotBlank()
+
+    /** Berilgan savol uchun audio URL (yo'q bo'lsa bo'sh satr). */
+    fun promptAudioAt(index: Int): String = promptsAudio.getOrNull(index).orEmpty()
 }
 
 /** Mnemonik struktura (PETS, GREEN, OCEAN, ...). */

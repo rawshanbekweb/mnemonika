@@ -205,4 +205,68 @@ export function stopSpeaking() {
   if (typeof window !== "undefined" && "speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
+  stopCue();
+}
+
+/**
+ * Yaratilgan talaffuz audiosi (Gemini TTS) — brauzer TTS'idan ustun.
+ *
+ * Nega kerak: brauzer TTS ovozi qurilmaga bog'liq — o'zbek telefonida ingliz
+ * ovozi yo umuman yo'q, yo juda sun'iy chiqadi. "Takrorlang" mashqining butun
+ * mohiyati to'g'ri talaffuzni eshitib takrorlash, shuning uchun ovoz sifati
+ * bu yerda bezak emas, mazmun.
+ *
+ * Audio yo'q bo'lsa yoki ijro qilinmasa — eski TTS yo'li ishlaydi, ya'ni
+ * hech qanday funksiya yo'qolmaydi.
+ */
+export type AudioCue = { url: string; text: string };
+
+let currentAudio: HTMLAudioElement | null = null;
+/** Ketma-ket ijroni bekor qilish uchun: har yangi chaqiruv avvalgisini eskirtiradi. */
+let cueRun = 0;
+
+function stopCue() {
+  cueRun++;
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+}
+
+/** Bitta klipni ijro etadi; audio yo'q yoki xato bo'lsa TTS'ga qaytadi. */
+function playOne(cue: AudioCue): Promise<void> {
+  return new Promise((resolve) => {
+    if (!cue.url) {
+      speak(cue.text, resolve);
+      return;
+    }
+    const audio = new Audio(cue.url);
+    currentAudio = audio;
+    let settled = false;
+    const finish = (fallback: boolean) => {
+      if (settled) return;
+      settled = true;
+      if (currentAudio === audio) currentAudio = null;
+      if (fallback) speak(cue.text, resolve);
+      else resolve();
+    };
+    audio.onended = () => finish(false);
+    // Tarmoq yo'q, fayl yo'qolgan, format qo'llanmaydi — hammasi TTS'ga qaytadi.
+    audio.onerror = () => finish(true);
+    audio.play().catch(() => finish(true));
+  });
+}
+
+/**
+ * Klip(lar)ni ketma-ket ijro etadi. Savollar alohida klip bo'lgani uchun
+ * ular orasida tabiiy pauza qoladi — bola har savolni ajratib eshitadi.
+ */
+export async function playCues(cues: AudioCue[], onDone?: () => void) {
+  stopCue();
+  const run = cueRun;
+  for (const cue of cues) {
+    if (run !== cueRun) return; // boshqa ijro boshlandi — jimgina chiqamiz
+    await playOne(cue);
+  }
+  if (run === cueRun) onDone?.();
 }

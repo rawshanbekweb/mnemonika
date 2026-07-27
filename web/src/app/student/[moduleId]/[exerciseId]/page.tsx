@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { useContent } from "@/lib/use-content";
 import { loadStudent } from "@/lib/student";
 import { saveAttempt as saveAttemptLocally } from "@/lib/attempts-store";
-import { speak, stopSpeaking, useSpeechRecognition } from "@/lib/use-speech";
+import { type AudioCue, playCues, stopSpeaking, useSpeechRecognition } from "@/lib/use-speech";
 import { analyze, withGrammar, type GrammarReport, type SpeechResult } from "@/lib/speech-analyzer";
 import { analyzeReadAloud, type ReadAloudResult } from "@/lib/read-aloud";
 import { matchedKeywords } from "@/lib/keyword-matcher";
@@ -210,10 +210,15 @@ export default function ExercisePage() {
     setSpeaking(true);
     // "Takrorlang" mashqida namunani eshitish — mashqning asosiy qismi:
     // bola avval to'g'ri talaffuzni eshitadi, keyin takrorlaydi.
-    const text = isReadAloud
-      ? exercise.targetText
-      : exercise.prompts.join(" ") || exercise.title;
-    speak(text, () => setSpeaking(false));
+    //
+    // Yaratilgan audio bo'lsa u ijro etiladi (tabiiy talaffuz), bo'lmasa
+    // brauzer TTS'i. Savollar alohida klip — orasida pauza qoladi.
+    const cues: AudioCue[] = isReadAloud
+      ? [{ url: exercise.targetAudioUrl, text: exercise.targetText }]
+      : exercise.prompts.length > 0
+        ? exercise.prompts.map((p, i) => ({ url: exercise.promptsAudio[i] ?? "", text: p }))
+        : [{ url: "", text: exercise.title }];
+    playCues(cues, () => setSpeaking(false));
   };
 
   if (contentError) return <Centered>{contentError}</Centered>;

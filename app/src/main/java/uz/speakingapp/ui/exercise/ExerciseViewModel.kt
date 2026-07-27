@@ -22,6 +22,7 @@ import uz.speakingapp.data.ProgressRepository
 import uz.speakingapp.data.model.Exercise
 import uz.speakingapp.speech.ModelManager
 import uz.speakingapp.speech.Speaker
+import uz.speakingapp.speech.VoiceCue
 import uz.speakingapp.speech.VoskRecognizer
 
 enum class Phase { NeedModel, PreparingModel, Ready, Recording, Done }
@@ -57,6 +58,12 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
     private val recognizer = VoskRecognizer()
     private val progressRepository = ProgressRepository(app)
     private val speaker = Speaker(app)
+
+    /** Yaratilgan talaffuz audiosi (bo'lsa) → aks holda [speaker] TTS'i. */
+    private val voice = VoiceCue(app, speaker)
+
+    /** Namunani eshittirish ishi — yozuv boshlanganda bekor qilinadi. */
+    private var voiceJob: Job? = null
 
     private val _state = MutableStateFlow(ExerciseUiState())
     val state: StateFlow<ExerciseUiState> = _state.asStateFlow()
@@ -123,21 +130,38 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
         val ex = exercise ?: return
         if (_state.value.phase == Phase.Recording) return
         if (_state.value.speaking) {
-            speaker.stop()
-            _state.update { it.copy(speaking = false) }
+            stopSpeaking()
             return
         }
         // "Takrorlang" mashqida namunani eshitish — mashqning asosiy qismi:
         // bola avval to'g'ri talaffuzni eshitadi, keyin takrorlaydi.
-        val text = if (ex.isReadAloud) {
-            ex.targetText
-        } else {
-            ex.prompts.joinToString(" ").ifBlank { ex.title }
+        //
+        // Savollar alohida klip: orasida tabiiy pauza qoladi va bola har
+        // savolni ajratib eshitadi (avval hammasi bir gap bo'lib o'qilardi).
+        val cues = when {
+            ex.isReadAloud -> listOf(VoiceCue.Cue(ex.targetAudioUrl, ex.targetText))
+            ex.prompts.isNotEmpty() ->
+                ex.prompts.mapIndexed { i, p -> VoiceCue.Cue(ex.promptAudioAt(i), p) }
+            else -> listOf(VoiceCue.Cue("", ex.title))
         }
         _state.update { it.copy(speaking = true) }
-        speaker.speak(text) {
-            _state.update { it.copy(speaking = false) }
+        voiceJob?.cancel()
+        voiceJob = viewModelScope.launch {
+            try {
+                voice.play(cues)
+            } finally {
+                // Bekor qilinganda ham indikator o'chishi kerak.
+                _state.update { it.copy(speaking = false) }
+            }
         }
+    }
+
+    /** Eshittirishni to'xtatadi (tugma qayta bosilganda yoki yozuv boshlanganda). */
+    private fun stopSpeaking() {
+        voiceJob?.cancel()
+        voiceJob = null
+        voice.stop()
+        _state.update { it.copy(speaking = false) }
     }
 
     /** Modelni tayyorlaydi (kerak bo'lsa yuklab oladi). */
@@ -162,8 +186,8 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
     fun startRecording() {
         if (_state.value.phase != Phase.Ready && _state.value.phase != Phase.Done) return
         if (stopping) return
-        // Namuna hali o'qilayotgan bo'lsa uni to'xtatamiz — mikrofon TTS ovozini yozib olmasin.
-        speaker.stop()
+        // Namuna hali eshitilayotgan bo'lsa to'xtatamiz — mikrofon namuna ovozini yozib olmasin.
+        stopSpeaking()
         segments.clear()
         altSegments.clear()
         _state.update {
@@ -322,14 +346,15 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
      * shuning uchun bola aytgan javob yo'qolmaydi.
      */
     fun onScreenStopped() {
-        speaker.stop()
-        _state.update { it.copy(speaking = false) }
+        stopSpeaking()
         stopRecording()
     }
 
     override fun onCleared() {
         timerJob?.cancel()
         recognizer.release()
+        voiceJob?.cancel()
+        voice.release()
         speaker.shutdown()
         super.onCleared()
     }

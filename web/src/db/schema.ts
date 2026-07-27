@@ -94,6 +94,24 @@ export const media = pgTable("media", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/**
+ * Yaratilgan ingliz talaffuzi klipi (Gemini TTS → Vercel Blob).
+ *
+ * Kalit — MATN xeshi, mashq ID'si emas (izoh: `lib/audio-key.ts`). Shu sababli
+ * bir xil gap bir necha mashqda uchrasa bir marta yaratiladi, va savol matni
+ * tahrirlansa eski audio o'z-o'zidan uzilib qoladi (qurilma TTS'i zaxira).
+ */
+export const audioClips = pgTable("audio_clips", {
+  id: serial("id").primaryKey(),
+  /** sha256(voice + normalized text) — qarang: lib/audio-key.ts */
+  textHash: text("text_hash").notNull().unique(),
+  /** Diagnostika uchun asl matn (qaysi gap ekanini ko'rish oson bo'lsin). */
+  text: text("text").notNull(),
+  voice: text("voice").notNull().default(""),
+  url: text("url").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 /** Bitta qatorli meta jadval: joriy kontent versiyasi. */
 export const appMeta = pgTable("app_meta", {
   id: integer("id").primaryKey().default(1),

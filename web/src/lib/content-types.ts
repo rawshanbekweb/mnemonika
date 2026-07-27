@@ -19,6 +19,17 @@ export type Exercise = {
    * Bo'sh bo'lsa — odatdagi erkin nutq mashqi.
    */
   targetText: string;
+  /**
+   * Yaratilgan talaffuz audiosi (Gemini TTS). `prompts` bilan INDEKS BO'YICHA
+   * moslashadi; audio bo'lmagan savol o'rnida bo'sh satr turadi.
+   *
+   * Har build'da matn xeshi bo'yicha qaytadan hisoblanadi, shuning uchun
+   * eskirgan audio ulanib qolishi mumkin emas (qarang: lib/audio-key.ts).
+   * Bo'sh bo'lsa — qurilmaning o'z TTS'i ishlatiladi.
+   */
+  promptsAudio: string[];
+  /** "Takrorlang" matnining talaffuz audiosi; bo'sh bo'lsa qurilma TTS'i. */
+  targetAudioUrl: string;
 };
 
 export type DialogTurn = {

@@ -27,9 +27,10 @@ android {
         targetSdk = 36
         // Har tarqatishdan oldin ko'tarilishi kerak: yuklab olish fayl nomi
         // versionName'dan tuziladi, shuning uchun o'quvchi qaysi build'ni
-        // olganini shundan biladi. 0.1.1 — yozuvni to'xtatishda crash tuzatildi.
-        versionCode = 2
-        versionName = "0.1.1"
+        // olganini shundan biladi. 0.1.1 — yozuvni to'xtatishda crash tuzatildi;
+        // 0.1.2 — yaratilgan ingliz talaffuzi audiosi (VoiceCue, offline kesh).
+        versionCode = 3
+        versionName = "0.1.2"
         vectorDrawables { useSupportLibrary = true }
 
         // ── Backend (Vercel) sozlamalari — local.properties'dan ────────

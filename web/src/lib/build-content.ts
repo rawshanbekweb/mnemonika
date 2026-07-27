@@ -1,5 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
+import { audioKey, needsAudio } from "./audio-key";
 import type { ContentPack, SpeakingModule } from "./content-types";
 
 /**
@@ -38,6 +39,13 @@ export async function buildContentPack(): Promise<ContentPack> {
     turnsByDialog.set(t.dialogId, list);
   }
 
+  // Audio URL'lari har build'da matn xeshi bo'yicha qaytadan izlanadi — shuning
+  // uchun tahrirlangan savolga eski audio ulanib qolishi mumkin emas.
+  const clips = await db.select().from(schema.audioClips);
+  const urlByHash = new Map(clips.map((c) => [c.textHash, c.url]));
+  const audioFor = (text: string): string =>
+    needsAudio(text) ? (urlByHash.get(audioKey(text)) ?? "") : "";
+
   const modules: SpeakingModule[] = mods.map((m) => ({
     id: m.id,
     type: m.type,
@@ -57,6 +65,8 @@ export async function buildContentPack(): Promise<ContentPack> {
         timeLimitSec: e.timeLimitSec,
         visuals: e.visuals,
         targetText: e.targetText,
+        promptsAudio: e.prompts.map(audioFor),
+        targetAudioUrl: audioFor(e.targetText),
       })),
     dialogs: allDialogs
       .filter((d) => d.moduleId === m.id)
