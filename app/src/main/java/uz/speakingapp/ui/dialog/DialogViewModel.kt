@@ -3,8 +3,10 @@ package uz.speakingapp.ui.dialog
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,8 +60,17 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
     private val matchedKeywords = linkedSetOf<String>()
     private var totalKeywords = 0
 
+    /** To'xtatish boshlandi, lekin javob hali qayd etilmadi. */
+    private var stopping = false
+
+    /** Tanigich yakuniy natijani yuborganini kutish uchun. */
+    private var finishSignal: CompletableDeferred<Unit>? = null
+
     private companion object {
         const val TURN_LIMIT_SEC = 40
+
+        /** Yakuniy natijani kutishning eng uzun muddati (sekin qurilma uchun). */
+        const val FINISH_TIMEOUT_MS = 5_000L
     }
 
     init {
@@ -71,6 +82,7 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
             _state.update { it.copy(liveText = "") }
         }
         recognizer.onErrorMsg = { msg -> _state.update { it.copy(error = msg) } }
+        recognizer.onFinished = { finishSignal?.complete(Unit) }
     }
 
     fun bind(scenario: DialogScenario, moduleId: String, isInterview: Boolean) {
@@ -150,7 +162,7 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun startRecording() {
-        if (_state.value.phase != DialogPhase.StudentTurn) return
+        if (_state.value.phase != DialogPhase.StudentTurn || stopping) return
         segments.clear()
         altSegments.clear()
         _state.update { it.copy(phase = DialogPhase.Recording, liveText = "", elapsedSec = 0) }
@@ -176,11 +188,22 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun stopRecording() {
-        if (_state.value.phase != DialogPhase.Recording) return
+        // `stopping` ham tekshiriladi: vaqt tugashi va tugma bosilishi bir vaqtda
+        // to'g'ri kelsa, bitta javob ikki marta qayd etilib navbat ikki qadam
+        // oldinga siljib ketardi.
+        if (_state.value.phase != DialogPhase.Recording || stopping) return
+        stopping = true
         timerJob?.cancel()
+
+        val signal = CompletableDeferred<Unit>()
+        finishSignal = signal
         recognizer.stop()
+
         viewModelScope.launch {
-            delay(300)
+            // Tanigich yakuniy natijani berguncha kutamiz (muddat — himoya to'siq).
+            withTimeoutOrNull(FINISH_TIMEOUT_MS) { signal.await() }
+            finishSignal = null
+            stopping = false
             val sc = scenario ?: return@launch
             val index = _state.value.turnIndex
             val turn = sc.turns.getOrNull(index) ?: return@launch
@@ -269,6 +292,15 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun addStudent(text: String) {
         _state.update { it.copy(messages = it.messages + ChatMessage(false, text)) }
+    }
+
+    /**
+     * Ekran fonga o'tdi — mikrofon va personaj ovozi ochiq qolmasligi kerak.
+     * Yozuv odatdagidek yakunlanadi, javob yo'qolmaydi.
+     */
+    fun onScreenStopped() {
+        speaker.stop()
+        stopRecording()
     }
 
     override fun onCleared() {

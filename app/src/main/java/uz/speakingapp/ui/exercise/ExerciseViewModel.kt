@@ -3,8 +3,10 @@ package uz.speakingapp.ui.exercise
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,6 +45,14 @@ data class ExerciseUiState(
 
 class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
 
+    private companion object {
+        /**
+         * Yakuniy natijani kutishning eng uzun muddati. Katta (125MB) model
+         * sekin telefonda oxirgi bo'lakni bir necha soniya dekodlashi mumkin.
+         */
+        const val FINISH_TIMEOUT_MS = 5_000L
+    }
+
     private val modelManager = ModelManager(app)
     private val recognizer = VoskRecognizer()
     private val progressRepository = ProgressRepository(app)
@@ -55,6 +65,19 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
     private var moduleId: String = ""
     private var timerJob: Job? = null
     private val segments = StringBuilder()
+
+    /**
+     * To'xtatish boshlandi, lekin natija hali chiqmadi.
+     *
+     * Faqat `phase` ga tayanib bo'lmaydi: yozuv to'xtaganidan keyin tahlil
+     * tugagunicha phase hali ham `Recording` bo'lib turadi. Vaqt tugashi bilan
+     * o'quvchi tugmani bir vaqtda bossa, tahlil ikki marta ishga tushib
+     * urinish bazaga ikki marta saqlanardi.
+     */
+    private var stopping = false
+
+    /** Tanigich yakuniy natijani yuborganini kutish uchun. */
+    private var finishSignal: CompletableDeferred<Unit>? = null
 
     /** Tanigichning ikkinchi/uchinchi variantlari — faqat kalit so'z qidirish uchun. */
     private val altSegments = mutableListOf<String>()
@@ -75,6 +98,9 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
         }
         recognizer.onLevel = { level ->
             _state.update { it.copy(micLevel = level) }
+        }
+        recognizer.onFinished = {
+            finishSignal?.complete(Unit)
         }
     }
 
@@ -135,6 +161,7 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
 
     fun startRecording() {
         if (_state.value.phase != Phase.Ready && _state.value.phase != Phase.Done) return
+        if (stopping) return
         // Namuna hali o'qilayotgan bo'lsa uni to'xtatamiz — mikrofon TTS ovozini yozib olmasin.
         speaker.stop()
         segments.clear()
@@ -172,12 +199,21 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun stopRecording() {
-        if (_state.value.phase != Phase.Recording) return
+        if (_state.value.phase != Phase.Recording || stopping) return
+        stopping = true
         timerJob?.cancel()
+
+        val signal = CompletableDeferred<Unit>()
+        finishSignal = signal
         recognizer.stop()
-        // Yakuniy segment kelishi uchun qisqa kutamiz, keyin tahlil qilamiz.
+
         viewModelScope.launch {
-            delay(300)
+            // Yakuniy segment tanigichdan kelguncha kutamiz. Muddat — faqat
+            // himoya to'siq: audio oqimi qandaydir sababga ko'ra osilib qolsa
+            // o'quvchi natijasiz qolmasin.
+            withTimeoutOrNull(FINISH_TIMEOUT_MS) { signal.await() }
+            finishSignal = null
+            stopping = false
             val ex = exercise
             val transcript = segments.toString().trim()
 
@@ -277,6 +313,18 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
                 // progress saqlash muvaffaqiyatsiz bo'lsa ham natija ko'rsatiladi
             }
         }
+    }
+
+    /**
+     * Ekran fonga o'tdi (boshqa ilova, ekran o'chdi, orqaga bosildi).
+     * Mikrofon va TTS ochiq qolmasligi kerak — avval yozuv davom etaverar,
+     * taymer esa fonda sanashda davom etardi. Yozuv odatdagidek yakunlanadi,
+     * shuning uchun bola aytgan javob yo'qolmaydi.
+     */
+    fun onScreenStopped() {
+        speaker.stop()
+        _state.update { it.copy(speaking = false) }
+        stopRecording()
     }
 
     override fun onCleared() {

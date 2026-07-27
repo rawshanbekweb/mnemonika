@@ -29,6 +29,22 @@ import kotlin.math.sqrt
  * shovqin bostirish (NoiseSuppressor) va avtomatik kuchaytirish (AGC) ni
  * ulab bo'lmaydi. Sinf sharoitida va bolalar sekin gapirganda bular muhim,
  * shuning uchun audio quvuri qo'lda yozilgan.
+ *
+ * ## Oqimlar bo'yicha qat'iy qoida
+ *
+ * `Recognizer` va `AudioRecord` — mahalliy (native) obyektlar va oqim-xavfsiz
+ * EMAS. Ular yopilgandan keyin ishlatilsa Java istisnosi emas, SIGSEGV bo'ladi
+ * va ilova bir zumda yopiladi — hech qanday `try/catch` ushlab qololmaydi.
+ * Shuning uchun: **ikkalasi ham faqat "vosk-audio" oqimida yaratiladi,
+ * o'qiladi va yopiladi.** `stop()` faqat bayroqni tushiradi va darhol qaytadi;
+ * yakuniy natija, mikrofonni yopish va resurslarni bo'shatish — hammasi
+ * o'sha oqimning o'zida, tsikl tugagach bajariladi.
+ *
+ * (Avvalgi versiya `stop()` ichida `thread.join(1500)` qilib, keyin main
+ * oqimidan `record.release()` va `rec.close()` chaqirardi. Sekin telefonda
+ * bir bo'lakni dekodlash 1.5 soniyadan oshsa join kutmay o'tib ketardi va
+ * ikki oqim bitta yopilgan obyektga tegib, ilova yozuvni to'xtatish tugmasi
+ * bosilganda yopilib qolardi.)
  */
 class VoskRecognizer {
 
@@ -50,14 +66,37 @@ class VoskRecognizer {
         private const val MAX_ALTERNATIVES = 3
     }
 
+    /** Audio oqimi ham yopishi mumkin (`release()` yozuv paytida chaqirilsa). */
+    @Volatile
     private var model: Model? = null
-    private var recognizer: Recognizer? = null
-    private var record: AudioRecord? = null
-    private var thread: Thread? = null
+
+    /**
+     * Effektlar main oqimida (start paytida) qo'shiladi, audio oqimida
+     * bo'shatiladi. Ikkalasi bir vaqtda bo'lmaydi: yangi yozuv oldingisi
+     * yakunlanmaguncha boshlanmaydi ([finished] tekshiruvi).
+     */
     private val effects = mutableListOf<AudioEffect>()
 
     @Volatile
     private var running = false
+
+    /**
+     * Audio oqimi butunlay tugadimi (resurslar bo'shatildi, model bilan ishlash
+     * mumkin). Oqimning eng oxirgi amali — buni `true` qilish, keyin main'ga
+     * xabar yuborish; shuning uchun `onFinished` yetib kelganda bu doim `true`.
+     */
+    @Volatile
+    private var finished = true
+
+    /** `release()` yozuv paytida chaqirilsa, modelni oqim o'zi yopadi. */
+    private var closeModelWhenDone = false
+
+    /**
+     * Modelni kim yopishini hal qiladi: `release()` (main) yoki audio oqimining
+     * yakunlovchi qismi. Qulfsiz ikkalasi bir vaqtda kelib qolsa, model yo ikki
+     * marta yopilardi, yo umuman yopilmay 125MB xotira qolib ketardi.
+     */
+    private val modelLock = Any()
 
     private val main = Handler(Looper.getMainLooper())
 
@@ -72,6 +111,14 @@ class VoskRecognizer {
     var onErrorMsg: (String) -> Unit = {}
     var onLevel: (Float) -> Unit = {}
 
+    /**
+     * Yozuv to'liq yakunlandi: yakuniy [onSegment] allaqachon yuborilgan va
+     * mikrofon bo'shatilgan. Tahlilni shu signaldan keyin boshlash kerak —
+     * belgilangan muddat kutish o'rniga (sekin qurilmada yetmasdi, tezida
+     * ortiqcha kutish edi).
+     */
+    var onFinished: () -> Unit = {}
+
     /** Modelni og'ir I/O da yuklaydi (fon oqimida chaqiring). */
     suspend fun loadModel(path: String) = withContext(Dispatchers.IO) {
         model = Model(path)
@@ -82,6 +129,10 @@ class VoskRecognizer {
     fun startListening() {
         val m = model ?: error("Model yuklanmagan")
         if (running) return
+        // Oldingi yozuv hali yakunlanmagan bo'lsa ikkinchi AudioRecord ochilmasligi
+        // kerak — mikrofon band bo'ladi va ikki oqim bitta modelga tegadi.
+        // Amalda bu deyarli bo'lmaydi: natija ekrani onFinished'dan keyin chiqadi.
+        if (!finished) error("Oldingi yozuv yakunlanmoqda — bir soniyadan keyin urinib ko'ring")
 
         val rec = Recognizer(m, SAMPLE_RATE.toFloat())
         runCatching { rec.setMaxAlternatives(MAX_ALTERNATIVES) }
@@ -118,48 +169,85 @@ class VoskRecognizer {
 
         attachEffects(ar.audioSessionId)
 
-        recognizer = rec
-        record = ar
         running = true
+        finished = false
 
         ar.startRecording()
-        thread = Thread({ readLoop(rec, ar) }, "vosk-audio").apply {
+        Thread({ audioThread(rec, ar) }, "vosk-audio").apply {
             priority = Thread.MAX_PRIORITY
             start()
         }
     }
 
-    /** Tinglashni to'xtatadi va yakuniy natijani chiqaradi. */
+    /**
+     * Tinglashni to'xtatishni so'raydi va DARHOL qaytadi.
+     *
+     * Bu yerda hech narsa yopilmaydi va kutilmaydi: main oqimini bloklash
+     * (avvalgi 1.5 soniyalik `join`) UI'ni muzlatardi, mahalliy obyektlarni
+     * boshqa oqimdan yopish esa ilovani yiqitardi. Yakuniy natija tayyor
+     * bo'lganda [onSegment], so'ng [onFinished] chaqiriladi.
+     */
     fun stop() {
         if (!running) return
         running = false
-        runCatching { thread?.join(1500) }
-        thread = null
+    }
 
-        val rec = recognizer
-        runCatching {
-            record?.stop()
+    /**
+     * Resurslarni bo'shatadi. Yozuv ketayotgan bo'lsa modelni audio oqimining
+     * o'zi yopadi — model yopilgandan keyin `acceptWaveForm` chaqirilsa ilova
+     * yiqiladi.
+     */
+    fun release() {
+        stop()
+        synchronized(modelLock) {
+            if (!finished) {
+                // Oqim hali tirik — modelni o'zi yopadi.
+                closeModelWhenDone = true
+                return
+            }
+            model?.close()
+            model = null
         }
-        releaseAudio()
+    }
 
-        if (rec != null) {
+    /**
+     * Audio oqimining butun umri. `Recognizer` va `AudioRecord` shu yerda,
+     * boshqa hech qayerda ishlatilmaydi.
+     */
+    private fun audioThread(rec: Recognizer, ar: AudioRecord) {
+        try {
+            readLoop(rec, ar)
+            // Yakuniy natija — hali `rec` tirik, o'sha oqimda.
             runCatching {
                 val hypotheses = parseHypotheses(rec.finalResult)
                 if (hypotheses.isNotEmpty()) {
                     main.post { onSegment(hypotheses.first(), hypotheses) }
                 }
             }
-            rec.close()
+        } finally {
+            runCatching { ar.stop() }
+            releaseEffects()
+            runCatching { ar.release() }
+            // Model recognizer'dan KEYIN yopiladi: recognizer unga tayanadi.
+            runCatching { rec.close() }
+            running = false
+            synchronized(modelLock) {
+                if (closeModelWhenDone) {
+                    closeModelWhenDone = false
+                    runCatching { model?.close() }
+                    model = null
+                }
+                // Bayroq qulf ichida ko'tariladi — `release()` shundan keyin
+                // kelsa, modelni o'zi yopadi va u ikki marta yopilmaydi.
+                finished = true
+            }
+            // Xabar bayroqdan keyin: `onFinished` yetib kelganda yangi yozuvni
+            // boshlash mumkin bo'lishi kerak.
+            main.post {
+                onLevel(0f)
+                onFinished()
+            }
         }
-        recognizer = null
-        main.post { onLevel(0f) }
-    }
-
-    /** Resurslarni bo'shatadi. */
-    fun release() {
-        stop()
-        model?.close()
-        model = null
     }
 
     private fun readLoop(rec: Recognizer, ar: AudioRecord) {
@@ -182,6 +270,7 @@ class VoskRecognizer {
                 }
             }
         } catch (e: Exception) {
+            // To'xtatish so'ralgandan keyingi xato kutilgan hol — jim o'tkazamiz.
             if (running) {
                 Log.w(TAG, "Audio oqimida xato", e)
                 running = false
@@ -263,10 +352,8 @@ class VoskRecognizer {
         }
     }
 
-    private fun releaseAudio() {
+    private fun releaseEffects() {
         effects.forEach { runCatching { it.release() } }
         effects.clear()
-        runCatching { record?.release() }
-        record = null
     }
 }
