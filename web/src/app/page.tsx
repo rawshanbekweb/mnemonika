@@ -169,19 +169,20 @@ export default async function Landing() {
               cta="Mashqni boshlash"
               primary
             />
+            {/* Kirgan xodimga yana "Kirish" taklif qilinmaydi — to'g'ridan-to'g'ri panel. */}
             <Audience
               icon="chart"
               role="O'qituvchi"
               text="Sinf bo'yicha urinishlar, o'rtacha ball va har bir o'quvchining o'sishi bitta boshqaruv sahifasida."
-              href="/login"
-              cta="Kirish"
+              href={user ? "/teacher" : "/login?next=/teacher"}
+              cta={user ? "Progressni ochish" : "Kirish"}
             />
             <Audience
               icon="library"
               role="Admin"
               text="Modul, mashq va suhbatlarni tahrirlaysiz, media yuklaysiz va bir tugma bilan hammaga chiqarasiz."
-              href="/login"
-              cta="Kirish"
+              href={user?.role === "admin" ? "/admin" : "/login?next=/admin"}
+              cta={user?.role === "admin" ? "Kontentni ochish" : "Kirish"}
             />
           </div>
         </Section>

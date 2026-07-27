@@ -97,9 +97,14 @@ export default function StudentHome() {
             Suhbat mashqlari (Rolli o&apos;yin, Intervyu) va internetsiz ishlash — Android
             ilovasida.
           </p>
-          <Link href="/login" className="mt-2 inline-block underline hover:text-navy">
-            O&apos;qituvchi / admin kirishi
-          </Link>
+          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1">
+            <Link href="/" className="underline hover:text-navy">
+              Bosh sahifa
+            </Link>
+            <Link href="/login" className="underline hover:text-navy">
+              O&apos;qituvchi / admin kirishi
+            </Link>
+          </div>
         </footer>
       </div>
     </div>
@@ -119,12 +124,13 @@ function Masthead({
     <header className="hero-navy hero-photo-notebook text-white">
       <div className="mx-auto max-w-5xl px-4 py-6">
         <div className="flex items-start justify-between gap-4">
-          <div>
+          {/* Logotip — ochiq bosh sahifaga qaytish yo'li (butun saytda bir xil). */}
+          <Link href="/" className="min-w-0">
             <h1 className="text-2xl font-bold tracking-[0.12em]">SPEAKUP</h1>
             <p className="mt-1 text-sm text-white/75">
               Ingliz tili nutq ko&apos;nikmalari · 5–6 sinf
             </p>
-          </div>
+          </Link>
           <button
             onClick={onEdit}
             className="flex shrink-0 items-center gap-2.5 rounded border border-white/25 px-2.5 py-2 text-left transition hover:bg-white/10"
@@ -416,10 +422,12 @@ function ProfileForm({
     <div>
       <header className="hero-navy hero-photo-classroom px-4 py-8 text-white">
         <div className="mx-auto max-w-lg">
-          <h1 className="text-2xl font-bold tracking-[0.12em]">SPEAKUP</h1>
-          <p className="mt-1.5 text-sm text-white/75">
-            Ingliz tili nutq ko&apos;nikmalari platformasi
-          </p>
+          <Link href="/" className="inline-block">
+            <h1 className="text-2xl font-bold tracking-[0.12em]">SPEAKUP</h1>
+            <p className="mt-1.5 text-sm text-white/75">
+              Ingliz tili nutq ko&apos;nikmalari platformasi
+            </p>
+          </Link>
           <p className="mt-5 text-white/90">
             {firstTime
               ? "Boshlashdan oldin o'zingiz haqingizda qisqacha ma'lumot kiriting."

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/db";
+import { safeNext } from "@/lib/next-path";
 import {
   SESSION_COOKIE,
   createSessionToken,
@@ -11,7 +12,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  let body: { email?: string; password?: string };
+  let body: { email?: string; password?: string; next?: string };
   try {
     body = await req.json();
   } catch {
@@ -40,10 +41,12 @@ export async function POST(req: NextRequest) {
     name: user.name,
   });
 
+  // Middleware kirishni talab qilgan bo'lsa, foydalanuvchi so'ragan sahifaga
+  // qaytariladi; boshqa hollarda rolning o'z paneli.
   const res = NextResponse.json({
     ok: true,
     role: user.role,
-    redirect: user.role === "admin" ? "/admin" : "/teacher",
+    redirect: safeNext(body.next, user.role),
   });
   res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions);
   return res;

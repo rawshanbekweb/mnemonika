@@ -44,7 +44,9 @@ export default function Sidebar({ name, role }: { name: string; role: string }) 
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    // Chiqqandan keyin ochiq saytning kirish nuqtasiga — landing'ga qaytamiz,
+    // kirish formasiga emas: u yerdan yana "Kirish" tugmasi bor.
+    router.push("/");
     router.refresh();
   }
 
@@ -116,6 +118,15 @@ export default function Sidebar({ name, role }: { name: string; role: string }) 
               </Link>
             );
           })}
+
+          {/* Panel ochiq saytdan uzilib qolmasligi kerak — landing'ga qaytish yo'li. */}
+          <Link
+            href="/"
+            className="mt-2 flex items-center gap-3 border-l-2 border-transparent px-3 py-2.5 text-sm text-white/60 transition hover:bg-white/5 hover:text-white"
+          >
+            <Icon name="home" size={18} />
+            Bosh sahifa
+          </Link>
         </nav>
 
         <div className="border-t border-white/10 p-3">

@@ -19,9 +19,13 @@ export async function middleware(req: NextRequest) {
     if (isApi) {
       return NextResponse.json({ error: "Avtorizatsiya kerak" }, { status: 401 });
     }
+    // Kirishdan keyin aynan shu sahifaga qaytish uchun — so'rov parametrlari
+    // bilan birga (masalan /admin/exercise?id=12).
     const url = req.nextUrl.clone();
+    const next = pathname + req.nextUrl.search;
+    url.search = "";
     url.pathname = "/login";
-    url.searchParams.set("next", pathname);
+    url.searchParams.set("next", next);
     return NextResponse.redirect(url);
   }
 
