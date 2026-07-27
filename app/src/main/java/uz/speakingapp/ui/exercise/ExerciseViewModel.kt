@@ -17,6 +17,7 @@ import uz.speakingapp.analysis.ReadAloud
 import uz.speakingapp.analysis.ReadAloudResult
 import uz.speakingapp.analysis.SpeechAnalyzer
 import uz.speakingapp.analysis.SpeechResult
+import uz.speakingapp.analysis.TipBankEntry
 import uz.speakingapp.analysis.WordStatus
 import uz.speakingapp.data.ProgressRepository
 import uz.speakingapp.data.model.Exercise
@@ -272,6 +273,10 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
                 alternatives = altSegments.toList(),
                 // Murabbiy struktura bo'yicha maslahat bera olishi uchun.
                 mnemonicSteps = ex?.mnemonic?.steps?.map { it.en } ?: emptyList(),
+                // Mashqqa xos maslahat banki — bo'sh bo'lsa umumiy matnlar.
+                tipBank = ex?.structureTips
+                    ?.map { TipBankEntry(it.move, it.title, it.detail) }
+                    ?: emptyList(),
             )
             // Avval mahalliy natijani darhol ko'rsatamiz.
             _state.update {

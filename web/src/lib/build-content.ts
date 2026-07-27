@@ -1,7 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { audioKey, needsAudio } from "./audio-key";
-import type { ContentPack, SpeakingModule } from "./content-types";
+import type { ContentPack, SpeakingModule, StructureTip } from "./content-types";
 
 /**
  * Bazadan butun ContentPack'ni yig'adi — Android ilova kutgan shaklda.
@@ -46,6 +46,16 @@ export async function buildContentPack(): Promise<ContentPack> {
   const audioFor = (text: string): string =>
     needsAudio(text) ? (urlByHash.get(audioKey(text)) ?? "") : "";
 
+  // Mashqqa xos murabbiy maslahatlari. Bank to'liq bo'lmasa Coach umumiy
+  // matnlarni ishlatadi, shuning uchun bu yerda hech qanday to'ldirish yo'q.
+  const tipRows = await db.select().from(schema.exerciseTips).orderBy(asc(schema.exerciseTips.move));
+  const tipsByExercise = new Map<string, StructureTip[]>();
+  for (const t of tipRows) {
+    const list = tipsByExercise.get(t.exerciseId) ?? [];
+    list.push({ move: t.move, title: t.title, detail: t.detail });
+    tipsByExercise.set(t.exerciseId, list);
+  }
+
   const modules: SpeakingModule[] = mods.map((m) => ({
     id: m.id,
     type: m.type,
@@ -67,6 +77,7 @@ export async function buildContentPack(): Promise<ContentPack> {
         targetText: e.targetText,
         promptsAudio: e.prompts.map(audioFor),
         targetAudioUrl: audioFor(e.targetText),
+        structureTips: tipsByExercise.get(e.id) ?? [],
       })),
     dialogs: allDialogs
       .filter((d) => d.moduleId === m.id)

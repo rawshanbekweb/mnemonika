@@ -144,6 +144,8 @@ export default function ExercisePage() {
         speech.takeAlternatives(),
         // Murabbiy struktura bo'yicha maslahat bera olishi uchun.
         exercise?.mnemonic.steps.map((s) => s.en) ?? [],
+        // Mashqqa xos maslahat banki — bo'sh bo'lsa umumiy matnlar ishlatiladi.
+        exercise?.structureTips ?? [],
       );
       setResult(local);
 

@@ -28,9 +28,10 @@ android {
         // Har tarqatishdan oldin ko'tarilishi kerak: yuklab olish fayl nomi
         // versionName'dan tuziladi, shuning uchun o'quvchi qaysi build'ni
         // olganini shundan biladi. 0.1.1 — yozuvni to'xtatishda crash tuzatildi;
-        // 0.1.2 — yaratilgan ingliz talaffuzi audiosi (VoiceCue, offline kesh).
-        versionCode = 3
-        versionName = "0.1.2"
+        // 0.1.2 — yaratilgan ingliz talaffuzi audiosi (VoiceCue, offline kesh);
+        // 0.1.3 — mashqqa xos murabbiy maslahatlari (maslahat banki).
+        versionCode = 4
+        versionName = "0.1.3"
         vectorDrawables { useSupportLibrary = true }
 
         // ── Backend (Vercel) sozlamalari — local.properties'dan ────────

@@ -4,6 +4,12 @@
 export type MnemonicStep = { letter: string; en: string; uz: string };
 export type Mnemonic = { acronym: string; steps: MnemonicStep[] };
 
+/**
+ * Mashqqa xos murabbiy maslahati. `move` — Coach dagi harakat kaliti
+ * ("OPINION", "EXAMPLE", …). Yozuv bo'lmasa Coach umumiy matnni ishlatadi.
+ */
+export type StructureTip = { move: string; title: string; detail: string };
+
 export type Exercise = {
   id: string;
   topic: string;
@@ -30,6 +36,11 @@ export type Exercise = {
   promptsAudio: string[];
   /** "Takrorlang" matnining talaffuz audiosi; bo'sh bo'lsa qurilma TTS'i. */
   targetAudioUrl: string;
+  /**
+   * Shu mashqqa moslangan murabbiy maslahatlari. Bo'sh yoki to'liq bo'lmasa
+   * Coach umumiy matnlarni ishlatadi — hech narsa buzilmaydi.
+   */
+  structureTips: StructureTip[];
 };
 
 export type DialogTurn = {

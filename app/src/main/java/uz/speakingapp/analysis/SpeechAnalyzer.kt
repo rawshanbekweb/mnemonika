@@ -52,6 +52,8 @@ object SpeechAnalyzer {
         keywords: List<String>,
         alternatives: List<String> = emptyList(),
         mnemonicSteps: List<String> = emptyList(),
+        /** Mashqqa xos maslahat banki (bo'sh bo'lsa umumiy matnlar). */
+        tipBank: List<TipBankEntry> = emptyList(),
     ): SpeechResult {
         val words = transcript
             .lowercase()
@@ -85,6 +87,7 @@ object SpeechAnalyzer {
             matchedKeywords = matched,
             keywords = keywords,
             mnemonicSteps = mnemonicSteps,
+            tipBank = tipBank,
         )
 
         return SpeechResult(

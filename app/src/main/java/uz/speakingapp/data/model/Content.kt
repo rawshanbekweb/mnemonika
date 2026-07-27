@@ -69,6 +69,11 @@ data class Exercise(
     val promptsAudio: List<String> = emptyList(),
     /** "Takrorlang" matnining talaffuz audiosi; bo'sh bo'lsa [Speaker] TTS'i. */
     val targetAudioUrl: String = "",
+    /**
+     * Shu mashqqa moslangan murabbiy maslahatlari. Bo'sh yoki to'liq bo'lmasa
+     * `Coach` umumiy matnlarni ishlatadi — hech narsa buzilmaydi.
+     */
+    val structureTips: List<StructureTip> = emptyList(),
 ) {
     val isReadAloud: Boolean get() = targetText.isNotBlank()
 
@@ -88,6 +93,17 @@ data class MnemonicStep(
     val letter: String,
     val en: String,
     val uz: String,
+)
+
+/**
+ * Mashqqa xos murabbiy maslahati. [move] — `Coach` dagi harakat kaliti
+ * ("OPINION", "EXAMPLE", …). Yozuv bo'lmasa `Coach` umumiy matnni ishlatadi.
+ */
+@Serializable
+data class StructureTip(
+    val move: String,
+    val title: String = "",
+    val detail: String = "",
 )
 
 /** Butun kontent to'plami (JSON ildizi). */

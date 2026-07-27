@@ -20,6 +20,8 @@
     "upload:apk": "tsx scripts/upload-apk.ts",
     "gen:audio": "tsx scripts/generate-audio.ts",
     "db:audio": "tsx scripts/add-audio-table.ts",
+    "gen:tips": "tsx scripts/generate-tips.ts",
+    "db:tips": "tsx scripts/add-tips-table.ts",
     "seed": "tsx src/db/seed.ts",
     "create-admin": "tsx src/db/create-admin.ts"
   },

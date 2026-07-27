@@ -8,7 +8,13 @@
 // Bundan tashqari bu fayl Android'dagi `analysis/Coach.kt` bilan AYNAN bir xil
 // bo'lishi shart.
 
-import { coachTips, type CoachTip, type TipKind } from "../src/lib/coach";
+import {
+  checkableMoves,
+  coachTips,
+  type CoachTip,
+  type TipBankEntry,
+  type TipKind,
+} from "../src/lib/coach";
 
 /** Haqiqiy kontentdagi mnemonikalar (assets/content/modules.json). */
 const PETS = ["Position", "Example", "Thoughts of others", "Summary"];
@@ -30,6 +36,10 @@ type Case = {
   expectNoTitle?: string;
   /** Maqtov matnida shu bo'lak bo'lishi kerak. */
   expectPraiseHas?: string;
+  /** Mashqqa xos maslahat banki (bo'sh bo'lsa umumiy matnlar). */
+  bank?: TipBankEntry[];
+  /** Struktura maslahati matni AYNAN shunday bo'lishi kerak. */
+  expectDetail?: string;
 };
 
 function run(c: Case): CoachTip[] {
@@ -42,6 +52,7 @@ function run(c: Case): CoachTip[] {
     c.matched ?? [],
     c.keywords ?? [],
     c.steps ?? [],
+    c.bank ?? [],
   );
 }
 
@@ -143,6 +154,42 @@ const cases: Case[] = [
     steps: PETS,
     wpm: 10,
   },
+
+  // ── Maslahat banki (mashqqa xos matn) ──────────────────────────
+  // Bank faqat KO'RSATILADIGAN MATNni almashtiradi; qaysi bosqich
+  // yetishmaganini Coach o'zi aniqlaydi. Shuni tekshiramiz.
+  {
+    name: "bank — mavzuga xos matn umumiysini almashtiradi",
+    transcript: "dogs are nice animals for example my friend has a dog",
+    steps: PETS,
+    bank: [{ move: "OPINION", title: "Fikring", detail: 'Hayvon haqida "I think…" deb boshla.' }],
+    expectTitle: "Fikring",
+    expectDetail: 'Hayvon haqida "I think…" deb boshla.',
+  },
+  {
+    name: "bank — boshqa harakat uchun yozuv ishlatilmaydi",
+    transcript: "dogs are nice animals for example my friend has a dog",
+    steps: PETS,
+    // Yetishmagani OPINION, bankda esa faqat REASON bor — umumiy matn qolishi kerak.
+    bank: [{ move: "REASON", title: "Sabab", detail: "Bu ishlatilmasligi kerak." }],
+    expectTitle: "Fikringni ayt",
+    expectNoTitle: "Sabab",
+  },
+  {
+    name: "bank — bo'sh matn umumiysiga qaytadi",
+    transcript: "dogs are nice animals for example my friend has a dog",
+    steps: PETS,
+    bank: [{ move: "OPINION", title: "Fikring", detail: "   " }],
+    expectTitle: "Fikringni ayt",
+  },
+  {
+    name: "bank — sarlavha bo'sh bo'lsa umumiy sarlavha olinadi",
+    transcript: "dogs are nice animals for example my friend has a dog",
+    steps: PETS,
+    bank: [{ move: "OPINION", title: "", detail: "Sevimli hayvoningni ayt." }],
+    expectTitle: "Fikringni ayt",
+    expectDetail: "Sevimli hayvoningni ayt.",
+  },
 ];
 
 let failed = 0;
@@ -166,6 +213,14 @@ for (const c of cases) {
   if (c.expectPraiseHas && !tips[0].detail.includes(c.expectPraiseHas)) {
     problems.push(`maqtovda "${c.expectPraiseHas}" kutilgan edi, kelgani: "${tips[0].detail}"`);
   }
+  if (c.expectDetail) {
+    const structure = tips.find((t) => t.kind === "STRUCTURE");
+    if (!structure) {
+      problems.push("struktura maslahati kutilgan edi, kelmadi");
+    } else if (structure.detail !== c.expectDetail) {
+      problems.push(`matn "${c.expectDetail}" kutilgan edi, kelgani: "${structure.detail}"`);
+    }
+  }
 
   if (problems.length > 0) {
     failed++;
@@ -176,5 +231,29 @@ for (const c of cases) {
   }
 }
 
-console.log(`\n${cases.length - failed}/${cases.length} o'tdi`);
+// checkableMoves — generatsiya skripti shu ro'yxatga tayanadi, shuning uchun
+// aniqlab bo'lmaydigan bosqichlar unga tushmasligini alohida tekshiramiz.
+{
+  const pets = checkableMoves(PETS);
+  const quest = checkableMoves(QUEST);
+  const problems: string[] = [];
+  if (pets.join(",") !== "OPINION,EXAMPLE,OTHERS,SUMMARY") {
+    problems.push(`PETS: kutilgan OPINION,EXAMPLE,OTHERS,SUMMARY — kelgani ${pets.join(",")}`);
+  }
+  // "Eye contact", "Short & clear", "Thank the person" nutq matnidan
+  // aniqlanmaydi — ular ro'yxatga tushmasligi kerak.
+  if (quest.length !== 0) {
+    problems.push(`QUEST: aniqlanadigan bosqich bo'lmasligi kerak — kelgani ${quest.join(",")}`);
+  }
+  if (problems.length > 0) {
+    failed++;
+    console.error("✗ checkableMoves");
+    for (const p of problems) console.error(`    ${p}`);
+  } else {
+    console.log("✓ checkableMoves");
+  }
+}
+
+const total = cases.length + 1; // + checkableMoves
+console.log(`\n${total - failed}/${total} o'tdi`);
 if (failed > 0) process.exit(1);

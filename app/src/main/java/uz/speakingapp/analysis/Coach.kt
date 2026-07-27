@@ -20,6 +20,15 @@ enum class TipKind { PRAISE, STRUCTURE, KEYWORDS, LENGTH, FLUENCY, VOCABULARY, H
 /** Bitta maslahat. `title` — qisqa sarlavha, `detail` — bir gaplik tavsiya. */
 data class CoachTip(val kind: TipKind, val title: String, val detail: String)
 
+/**
+ * Mashqqa xos maslahat banki elementi: `move` → matn.
+ *
+ * Turi ataylab `data.model.StructureTip` dan alohida — bu fayl kontent
+ * modeliga bog'lanmasligi kerak (web'dagi `coach.ts` bilan aynan bir xil
+ * tuzilishda qolishi uchun).
+ */
+data class TipBankEntry(val move: String, val title: String, val detail: String)
+
 /** Transkriptdan aniqlab bo'ladigan "nutq harakatlari". */
 private enum class Move { OPINION, EXAMPLE, REASON, OTHERS, SUMMARY, SEQUENCE, EMOTION, PLACE, DESCRIBE }
 
@@ -38,6 +47,8 @@ object Coach {
         matchedKeywords: List<String>,
         keywords: List<String>,
         mnemonicSteps: List<String>,
+        /** Mashqqa xos maslahat banki. Bo'sh bo'lsa umumiy matnlar ishlatiladi. */
+        tipBank: List<TipBankEntry> = emptyList(),
     ): List<CoachTip> {
         val words = splitWords(transcript)
         // Iboralarni so'z chegarasi bilan qidirish uchun bo'shliq bilan o'raymiz.
@@ -50,7 +61,7 @@ object Coach {
 
         // 1) Struktura — eng muhimi. Faqat BITTA yetishmagan bosqich aytiladi,
         // aks holda bola bir vaqtda 4 ta narsani tuzatishga urinadi.
-        firstMissingMove(mnemonicSteps, hay)?.let { ranked.add(moveTip(it)) }
+        firstMissingMove(mnemonicSteps, hay)?.let { ranked.add(moveTip(it, tipBank)) }
 
         // 2) Kalit so'zlar
         val missing = keywords.filter { it !in matchedKeywords }
@@ -210,7 +221,28 @@ object Coach {
     private fun checkedMoves(steps: List<String>): List<Move> =
         steps.mapNotNull { moveOf(it) }.distinct()
 
-    private fun moveTip(move: Move): CoachTip = when (move) {
+    /**
+     * Shu mnemonikada TEKSHIRIB BO'LADIGAN harakatlar kalitlari.
+     * Web'dagi `checkableMoves()` bilan bir xil — maslahat generatori faqat
+     * shu bosqichlar uchun matn yaratadi.
+     */
+    fun checkableMoves(mnemonicSteps: List<String>): List<String> =
+        checkedMoves(mnemonicSteps).map { it.name }
+
+    private fun moveTip(move: Move, bank: List<TipBankEntry>): CoachTip {
+        // Bank birinchi: mavzuga xos matn umumiysidan ustun.
+        val custom = bank.firstOrNull { it.move == move.name }
+        if (custom != null && custom.detail.isNotBlank()) {
+            return CoachTip(
+                TipKind.STRUCTURE,
+                custom.title.ifBlank { genericMoveTip(move).title },
+                custom.detail,
+            )
+        }
+        return genericMoveTip(move)
+    }
+
+    private fun genericMoveTip(move: Move): CoachTip = when (move) {
         Move.OPINION -> CoachTip(TipKind.STRUCTURE, "Fikringni ayt", "Javobingni \"I think…\" yoki \"In my opinion…\" bilan boshla.")
         Move.EXAMPLE -> CoachTip(TipKind.STRUCTURE, "Misol keltir", "\"For example…\" deb bitta misol qo'sh — javobing ishonchli bo'ladi.")
         Move.REASON -> CoachTip(TipKind.STRUCTURE, "Sababini ayt", "\"because\" so'zini ishlat — nega shunday deb o'ylashingni tushuntir.")

@@ -118,7 +118,38 @@ function checkedMoves(steps: string[]): Move[] {
   return out;
 }
 
-function moveTip(move: Move): CoachTip {
+/**
+ * Mashqqa xos maslahat banki: `move` → matn. Bo'sh bo'lsa umumiy matn.
+ * (Tur `content-types.ts` dagi `StructureTip` bilan bir xil shakl — bu fayl
+ * kontent turlariga bog'lanmasligi uchun alohida yozilgan.)
+ */
+export type TipBankEntry = { move: string; title: string; detail: string };
+
+/**
+ * Shu mnemonikada TEKSHIRIB BO'LADIGAN harakatlar ro'yxati.
+ *
+ * Maslahat generatori shu funksiyadan foydalanadi — shunda faqat Coach
+ * haqiqatan aniqlay oladigan bosqichlar uchun matn yaratiladi va ikki joyda
+ * bir-biriga mos kelmaydigan ro'yxat paydo bo'lmaydi.
+ */
+export function checkableMoves(mnemonicSteps: string[]): string[] {
+  return checkedMoves(mnemonicSteps);
+}
+
+function moveTip(move: Move, bank: TipBankEntry[] = []): CoachTip {
+  // Bank birinchi: mavzuga xos matn umumiysidan ustun.
+  const custom = bank.find((t) => t.move === move);
+  if (custom && custom.detail.trim() !== "") {
+    return {
+      kind: "STRUCTURE",
+      title: custom.title.trim() !== "" ? custom.title : genericMoveTip(move).title,
+      detail: custom.detail,
+    };
+  }
+  return genericMoveTip(move);
+}
+
+function genericMoveTip(move: Move): CoachTip {
   switch (move) {
     case "OPINION":
       return { kind: "STRUCTURE", title: "Fikringni ayt", detail: 'Javobingni "I think…" yoki "In my opinion…" bilan boshla.' };
@@ -216,6 +247,8 @@ export function coachTips(
   matchedKeywords: string[],
   keywords: string[],
   mnemonicSteps: string[],
+  /** Mashqqa xos maslahat banki. Bo'sh bo'lsa umumiy matnlar ishlatiladi. */
+  tipBank: TipBankEntry[] = [],
 ): CoachTip[] {
   const words = splitWords(transcript);
   // Iboralarni so'z chegarasi bilan qidirish uchun bo'shliq bilan o'raymiz.
@@ -229,7 +262,7 @@ export function coachTips(
   // 1) Struktura — eng muhimi. Faqat BITTA yetishmagan bosqich aytiladi,
   // aks holda bola bir vaqtda 4 ta narsani tuzatishga urinadi.
   const missingMove = firstMissingMove(mnemonicSteps, hay);
-  if (missingMove !== null) ranked.push(moveTip(missingMove));
+  if (missingMove !== null) ranked.push(moveTip(missingMove, tipBank));
 
   // 2) Kalit so'zlar
   const missing = keywords.filter((k) => !matchedKeywords.includes(k));

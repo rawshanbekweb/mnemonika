@@ -6,7 +6,7 @@
 // raqamlarni taqqoslab bo'lmay qoladi.
 
 import { matchedKeywords } from "./keyword-matcher";
-import { coachTips, grammarTip, type CoachTip } from "./coach";
+import { coachTips, grammarTip, type CoachTip, type TipBankEntry } from "./coach";
 
 export type SpeechResult = {
   transcript: string;
@@ -80,6 +80,8 @@ export function analyze(
   keywords: string[],
   alternatives: string[] = [],
   mnemonicSteps: string[] = [],
+  /** Mashqqa xos maslahat banki (bo'sh bo'lsa umumiy matnlar). */
+  tipBank: TipBankEntry[] = [],
 ): SpeechResult {
   const words = splitWords(transcript);
 
@@ -112,6 +114,7 @@ export function analyze(
     matched,
     keywords,
     mnemonicSteps,
+    tipBank,
   );
 
   return {

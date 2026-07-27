@@ -8,6 +8,7 @@ import {
   jsonb,
   real,
   index,
+  unique,
 } from "drizzle-orm/pg-core";
 
 /** Mnemonik bosqich — Android'dagi MnemonicStep bilan bir xil. */
@@ -111,6 +112,39 @@ export const audioClips = pgTable("audio_clips", {
   url: text("url").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Mashqqa xos murabbiy maslahatlari ("maslahat banki").
+ *
+ * Murabbiyning umumiy matnlari mavzuga bog'lanmagan: "For example… deb misol
+ * qo'sh". Bu jadval o'sha o'rinni AYNAN shu mashq mavzusiga moslangan matn
+ * bilan almashtiradi ("hayvon haqidagi misol keltir…").
+ *
+ * MUHIM: qaror qabul qilish qoidalarda qoladi — qaysi bosqich yetishmaganini
+ * `Coach` o'zi aniqlaydi (offline, modelsiz), bu jadval faqat KO'RSATILADIGAN
+ * MATNni beradi. Ball formulasiga ta'siri yo'q.
+ *
+ * `move` — `Coach` dagi harakat kaliti ("OPINION", "EXAMPLE", "REASON", …).
+ * Yozuv yo'q bo'lsa umumiy matn ishlatiladi, ya'ni bank to'liq bo'lmasa ham
+ * hech narsa buzilmaydi.
+ */
+export const exerciseTips = pgTable(
+  "exercise_tips",
+  {
+    id: serial("id").primaryKey(),
+    exerciseId: text("exercise_id")
+      .notNull()
+      .references(() => exercises.id, { onDelete: "cascade" }),
+    move: text("move").notNull(),
+    title: text("title").notNull().default(""),
+    detail: text("detail").notNull().default(""),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("exercise_tips_exercise_idx").on(t.exerciseId),
+    unique("exercise_tips_exercise_move_unique").on(t.exerciseId, t.move),
+  ],
+);
 
 /** Bitta qatorli meta jadval: joriy kontent versiyasi. */
 export const appMeta = pgTable("app_meta", {
