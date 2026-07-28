@@ -1,6 +1,5 @@
 package uz.speakingapp.ui.theme
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateFloat
@@ -8,7 +7,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -50,8 +48,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -103,8 +99,9 @@ private fun Color.lighten(amount: Float): Color = Color(
 /**
  * Rangli sarlavha yuzasi: gradient + suzib yuruvchi pufakchalar.
  *
- * Parametrlar akademik versiyadagidek qoldirilgan ([HeroPhotoBackdrop]
- * `scrimAlpha` bilan chaqiradi), lekin endi to'r emas, pufakcha chiziladi.
+ * `scrimAlpha` akademik versiyadan qolgan (o'sha paytda ostiga fotosurat
+ * qo'yilardi) — hozir foydalanuvchisi yo'q, lekin gradientni yarim shaffof
+ * qilish kerak bo'lsa tayyor turadi.
  */
 fun Modifier.heroPattern(
     cell: Dp = 32.dp,
@@ -132,35 +129,6 @@ fun Modifier.heroPattern(
             center = Offset(size.width * 0.72f, size.height * 0.85f),
         )
     }
-
-/**
- * Fotosuratli sarlavha: rasm ustidan rangli parda tushadi.
- * Rasm APK ichida (`drawable-nodpi`) — internetsiz ham ko'rinadi.
- * Manba va litsenziya: `web/public/hero/CREDITS.md`.
- */
-@Composable
-fun HeroPhotoBackdrop(
-    @DrawableRes photo: Int,
-    modifier: Modifier = Modifier,
-    scrimAlpha: Float = 0.9f,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    Box(modifier.fillMaxWidth()) {
-        Image(
-            painter = painterResource(photo),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.matchParentSize(),
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heroPattern(scrimAlpha = scrimAlpha)
-                .padding(horizontal = 16.dp, vertical = 20.dp),
-            content = content,
-        )
-    }
-}
 
 /** Sahifa foni: iliq krem + juda yumshoq rangli dog'lar. */
 fun Modifier.pagePattern(cell: Dp = 32.dp): Modifier = this

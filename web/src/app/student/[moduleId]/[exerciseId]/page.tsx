@@ -12,6 +12,13 @@ import { analyzeReadAloud, type ReadAloudResult } from "@/lib/read-aloud";
 import { matchedKeywords } from "@/lib/keyword-matcher";
 import type { Exercise } from "@/lib/content-types";
 import { Icon } from "@/components/Icon";
+import {
+  Mascot,
+  MascotSays,
+  mascotFor,
+  moodForScore,
+  type MascotLook,
+} from "@/components/Mascot";
 import { Visual } from "@/components/Visual";
 
 type Phase = "ready" | "recording" | "done";
@@ -31,13 +38,16 @@ export default function ExercisePage() {
   const [checkingGrammar, setCheckingGrammar] = useState(false);
   const [speaking, setSpeaking] = useState(false);
 
-  const exercise: Exercise | undefined = useMemo(
-    () =>
-      pack?.modules
-        .find((m) => m.id === moduleId)
-        ?.exercises.find((e) => e.id === exerciseId),
-    [pack, moduleId, exerciseId],
+  const module = useMemo(
+    () => pack?.modules.find((m) => m.id === moduleId),
+    [pack, moduleId],
   );
+  const exercise: Exercise | undefined = useMemo(
+    () => module?.exercises.find((e) => e.id === exerciseId),
+    [module, exerciseId],
+  );
+  // Modul do'sti — Android'dagi bilan bir xil (Mascot.tsx = Mascot.kt porti).
+  const friend = useMemo(() => mascotFor(module?.type ?? ""), [module]);
 
   const limit = exercise?.timeLimitSec ?? 60;
 
@@ -328,6 +338,13 @@ export default function ExercisePage() {
 
         {phase === "ready" && (
           <div className="mt-7 text-center">
+            <MascotSays
+              look={friend}
+              text={friend.greeting}
+              mood={speaking ? "speaking" : "idle"}
+              className="mb-6 justify-center"
+              bubbleClassName="bg-surface-muted text-left"
+            />
             <MicRing
               recording={false}
               elapsed={0}
@@ -344,6 +361,11 @@ export default function ExercisePage() {
 
         {phase === "recording" && (
           <div className="mt-7">
+            {/* Do'st tinglayapti. Android'dan farqli o'laroq ovoz balandligiga
+                javob bermaydi — Web Speech API mikrofon darajasini bermaydi. */}
+            <div className="flex justify-center">
+              <Mascot look={friend} mood="listening" size={84} />
+            </div>
             <MicRing recording elapsed={elapsed} limit={limit} onClick={finish} />
 
             <div className="mt-4 flex items-center justify-center gap-2">
@@ -387,6 +409,7 @@ export default function ExercisePage() {
             keywords={isReadAloud ? [] : exercise.keywords}
             checkingGrammar={checkingGrammar}
             readResult={readResult}
+            friend={friend}
             onRetry={start}
           />
         )}
@@ -461,25 +484,31 @@ function Result({
   keywords,
   checkingGrammar,
   readResult,
+  friend,
   onRetry,
 }: {
   result: SpeechResult;
   keywords: string[];
   checkingGrammar: boolean;
   readResult: ReadAloudResult | null;
+  friend: MascotLook;
   onRetry: () => void;
 }) {
+  // Matn Android'dagi bilan bir xil — personaj bolaning tilida gapiradi.
   const message =
     result.overallScore >= 80
-      ? "A'lo natija"
+      ? "Zo'r! Juda yaxshi gapirding!"
       : result.overallScore >= 50
-        ? "Yaxshi natija"
-        : "Mashq qilishda davom eting";
+        ? "Yaxshi bo'ldi! Yana bir oz mashq qilamiz."
+        : "Boshlanish yaxshi — qani, yana bir marta!";
 
   if (result.wordCount === 0) {
     return (
       <div className="card mt-6 text-center">
-        <p className="font-semibold text-ink">Hech narsa eshitilmadi</p>
+        <div className="flex justify-center">
+          <Mascot look={friend} mood="thinking" size={80} />
+        </div>
+        <p className="mt-2 font-semibold text-ink">Hech narsa eshitilmadi</p>
         <p className="mt-1 text-sm text-ink-muted">
           Mikrofonga yaqinroq va balandroq gapirib qayta urinib ko&apos;ring.
         </p>
@@ -498,7 +527,13 @@ function Result({
         <div className="flex flex-col items-center gap-6 sm:flex-row">
           <div className="flex shrink-0 flex-col items-center sm:w-40">
             <ScoreRing score={result.overallScore} />
-            <p className="mt-3 text-center font-semibold text-navy">{message}</p>
+            <Mascot
+              look={friend}
+              mood={moodForScore(result.overallScore)}
+              size={72}
+              className="mt-2"
+            />
+            <p className="mt-1 text-center font-semibold text-navy">{message}</p>
           </div>
           <div className="grid w-full grid-cols-3 gap-x-4 gap-y-5 sm:border-l sm:border-line sm:pl-6">
             <Stat value={result.wordCount} label="So'zlar" />

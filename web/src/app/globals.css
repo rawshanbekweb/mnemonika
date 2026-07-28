@@ -140,3 +140,75 @@ body {
 .table-report tbody td {
   @apply py-2.5;
 }
+
+/* ── Personajlar (Mascot.tsx) ─────────────────────────────────
+   Animatsiyalar Mascot.kt dagi Compose animatsiyalariga mos:
+   nafas olish, ko'z qisish, tumshuq, qanot, o'ylash nuqtalari.
+   `prefers-reduced-motion` da hammasi to'xtaydi — harakat sezgir
+   foydalanuvchilar uchun majburiy emas. */
+.mascot__all {
+  transform-origin: 50% 95%;
+  animation: mascot-breathe 2.2s ease-in-out infinite;
+}
+.mascot--cheer .mascot__all {
+  animation: mascot-breathe 2.2s ease-in-out infinite, mascot-hop 0.62s ease-in-out infinite;
+}
+@keyframes mascot-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.018); }
+}
+@keyframes mascot-hop {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -4px; }
+}
+
+/* Ko'z qisish: siklning oxirgi ~5% ida ko'z yumiladi (Kotlin'da ham shunday
+   — bitta chiziqli hisoblagich, alohida animatsiya emas). */
+.mascot__eye {
+  transform-origin: 50% 36%;
+  animation: mascot-blink 3.6s infinite;
+}
+@keyframes mascot-blink {
+  0%, 95%, 100% { transform: scaleY(1); }
+  97%           { transform: scaleY(0.1); }
+}
+
+/* Tumshuq: gapirganda ochilib-yopiladi */
+.mascot__jaw {
+  transform-origin: 50% 51%;
+  animation: mascot-talk 0.42s ease-in-out infinite;
+}
+.mascot--listening .mascot__jaw { animation-duration: 0.9s; }
+@keyframes mascot-talk {
+  0%, 100% { transform: scaleY(0.25); }
+  50%      { transform: scaleY(1); }
+}
+
+/* Qanot qoqish — faqat bayramda */
+.mascot--cheer .mascot__wing--l { transform-origin: 22% 62%; animation: mascot-flap-l 0.62s ease-in-out infinite; }
+.mascot--cheer .mascot__wing--r { transform-origin: 78% 62%; animation: mascot-flap-r 0.62s ease-in-out infinite; }
+@keyframes mascot-flap-l {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-26deg); }
+}
+@keyframes mascot-flap-r {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(26deg); }
+}
+
+/* O'ylash nuqtalari */
+.mascot__dot { animation: mascot-dot 1.2s ease-in-out infinite; }
+@keyframes mascot-dot {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot__all,
+  .mascot__eye,
+  .mascot__jaw,
+  .mascot__wing,
+  .mascot__dot {
+    animation: none !important;
+  }
+}

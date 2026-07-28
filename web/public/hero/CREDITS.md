@@ -16,5 +16,6 @@ Sahifada URL: `https://unsplash.com/photos/<ID>`
 Rasmlar to'q ko'k qatlam (≈88% shaffofsizlik) ostida ishlatiladi — ular mazmun
 emas, tekstura sifatida ko'rinadi va matn kontrasti buzilmaydi.
 
-`notebook.jpg` Android'da ham bor: `app/src/main/res/drawable-nodpi/hero_notebook.jpg`
-(offline ishlashi uchun APK ichida).
+Bu rasmlar faqat **web** tomonida ishlatiladi. Android'da ham nusxasi bor edi
+(`drawable-nodpi/hero_notebook.jpg`), lekin 0.1.5 dagi bolalar dizaynida
+fotosurat o'rniga gradient va personaj qo'yildi — nusxa o'chirildi.

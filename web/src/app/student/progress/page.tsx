@@ -11,6 +11,7 @@ import {
 } from "@/lib/attempts-store";
 import { computeGameStats, type Badge, type GameStats } from "@/lib/gamification";
 import { badgeIcon, Icon } from "@/components/Icon";
+import { Bulbul, Mascot } from "@/components/Mascot";
 
 export default function ProgressPage() {
   const { pack } = useContent();
@@ -50,11 +51,15 @@ export default function ProgressPage() {
       <div className="mx-auto max-w-2xl px-4 py-5">
         {!attempts && <p className="py-8 text-center text-sm text-ink-muted">Yuklanmoqda…</p>}
 
+        {/* Bo'sh ekran bo'm-bo'sh ko'rinmasin — Android'dagi kabi Bulbul kutadi. */}
         {attempts && attempts.length === 0 && (
           <div className="py-12 text-center">
-            <p className="font-semibold text-ink">Hali natijalar yo&apos;q</p>
+            <div className="flex justify-center">
+              <Mascot look={Bulbul} mood="idle" size={110} />
+            </div>
+            <p className="mt-4 font-semibold text-ink">Hali natijalar yo&apos;q</p>
             <p className="mt-1 text-sm text-ink-muted">
-              Birinchi mashqni bajaring va natijangiz shu yerda paydo bo&apos;ladi.
+              Birinchi mashqni bajar — natijang shu yerda paydo bo&apos;ladi.
             </p>
             <Link href="/student" className="btn-primary mt-5 inline-flex">
               Mashqni boshlash

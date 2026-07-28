@@ -14,6 +14,7 @@ import {
 } from "@/lib/attempts-store";
 import { computeGameStats, type GameStats } from "@/lib/gamification";
 import { Icon, type IconName } from "@/components/Icon";
+import { Bulbul, Mascot, mascotFor } from "@/components/Mascot";
 
 const CLASS_SUGGESTIONS = ["5-A", "5-B", "5-V", "6-A", "6-B", "6-V"];
 
@@ -152,7 +153,16 @@ function Masthead({
           </button>
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-white/15 pt-4">
+        {/* Bulbul o'quvchini ism bilan kutib oladi — Android bosh ekranidagidek. */}
+        <div className="mt-5 flex items-center gap-3 border-t border-white/15 pt-4">
+          <Mascot look={Bulbul} mood="happy" size={72} className="shrink-0" />
+          <div className="rounded-2xl bg-white/15 px-4 py-3">
+            <p className="font-semibold">Salom, {profile.name.split(" ")[0]}!</p>
+            <p className="mt-0.5 text-sm text-white/85">{Bulbul.greeting}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-4 pt-1">
           {game ? (
             <>
               <Metric icon="flame" value={game.streakDays} label="kunlik seriya" />
@@ -240,6 +250,9 @@ function ModuleRow({
 }) {
   const total = module.exercises.length;
   const done = module.exercises.filter((e) => stats.has(e.id)).length;
+  // Android bilan bir xil do'st: bola qaysi platformada bo'lsa ham
+  // modulni o'sha personaj orqali taniydi.
+  const friend = mascotFor(module.type);
 
   return (
     <div className="border-b border-line">
@@ -247,13 +260,13 @@ function ModuleRow({
         onClick={onToggle}
         className="flex w-full items-center gap-4 bg-white px-3 py-4 text-left transition hover:bg-surface-muted"
       >
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-navy text-sm font-bold tracking-wider text-white">
-          {String(index).padStart(2, "0")}
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface-muted">
+          <Mascot look={friend} mood="idle" size={42} />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block font-semibold text-ink">{module.titleUz}</span>
           <span className="mt-0.5 block text-sm text-ink-muted">
-            {module.titleEn} · {total} ta mashq
+            {friend.name} bilan · {total} ta mashq
           </span>
           <span className="mt-2 flex items-center gap-2">
             <span className="block h-1 w-24 overflow-hidden rounded-sm bg-surface-muted">
