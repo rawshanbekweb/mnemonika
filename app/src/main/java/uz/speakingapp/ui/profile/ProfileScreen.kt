@@ -42,10 +42,16 @@ import uz.speakingapp.ui.theme.InkMuted
 import uz.speakingapp.ui.theme.Navy
 import uz.speakingapp.ui.theme.NavyContainer
 import uz.speakingapp.ui.theme.OnNavyContainer
+import androidx.compose.foundation.shape.RoundedCornerShape
+import uz.speakingapp.ui.theme.Bulbul
+import uz.speakingapp.ui.theme.Mascot
+import uz.speakingapp.ui.theme.MascotMood
 import uz.speakingapp.ui.theme.OutlineSoft
 import uz.speakingapp.ui.theme.OverlineLabel
 import uz.speakingapp.ui.theme.SectionTitle
 import uz.speakingapp.ui.theme.SoftCard
+import uz.speakingapp.ui.theme.heroPattern
+import uz.speakingapp.ui.theme.pagePattern
 
 private val CLASS_SUGGESTIONS = listOf("5-A", "5-B", "5-V", "6-A", "6-B", "6-V")
 
@@ -149,30 +155,37 @@ fun ProfileScreen(
 
 @Composable
 private fun WelcomeHeader() {
+    // Bolaning ilovada ko'radigan birinchi ekrani — shu yerda Bulbul bilan
+    // tanishadi. Keyin u butun ilova bo'ylab hamroh bo'ladi.
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Navy)
-            .padding(horizontal = 16.dp, vertical = 28.dp),
+            .clip(RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp))
+            .heroPattern()
+            .padding(horizontal = 20.dp, vertical = 28.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             "SPEAKUP",
             color = Color.White,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.ExtraBold,
             fontSize = 26.sp,
             letterSpacing = 2.sp,
         )
+        Spacer(Modifier.size(16.dp))
+        Mascot(look = Bulbul, mood = MascotMood.Cheer, size = 120.dp)
+        Spacer(Modifier.size(14.dp))
+        Text(
+            "Salom! Men Bulbulman.",
+            color = Color.White,
+            style = MaterialTheme.typography.titleLarge,
+        )
         Spacer(Modifier.size(6.dp))
         Text(
-            "Ingliz tili nutq ko'nikmalari platformasi",
-            color = Color.White.copy(alpha = 0.75f),
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        Spacer(Modifier.size(20.dp))
-        Text(
-            "Boshlashdan oldin o'zingiz haqingizda qisqacha ma'lumot kiriting.",
+            "Birga ingliz tilida gapirishni mashq qilamiz. Avval ismingni ayt!",
             color = Color.White.copy(alpha = 0.9f),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
         )
     }
 }

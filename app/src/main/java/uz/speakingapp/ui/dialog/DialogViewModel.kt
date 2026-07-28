@@ -30,6 +30,8 @@ data class DialogUiState(
     val messages: List<ChatMessage> = emptyList(),
     val currentHint: String = "",
     val liveText: String = "",
+    /** Mikrofon signal darajasi 0f..1f — suhbatdosh personaji shunga jonlanadi. */
+    val micLevel: Float = 0f,
     val elapsedSec: Int = 0,
     val turnIndex: Int = 0,
     val totalTurns: Int = 0,
@@ -81,6 +83,7 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
             altSegments.addAll(alternatives.drop(1))
             _state.update { it.copy(liveText = "") }
         }
+        recognizer.onLevel = { level -> _state.update { it.copy(micLevel = level) } }
         recognizer.onErrorMsg = { msg -> _state.update { it.copy(error = msg) } }
         recognizer.onFinished = { finishSignal?.complete(Unit) }
     }

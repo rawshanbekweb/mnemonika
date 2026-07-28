@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
@@ -47,9 +48,16 @@ import uz.speakingapp.data.db.AttemptEntity
 import uz.speakingapp.data.model.SpeakingModule
 import uz.speakingapp.ui.theme.BrandProgressBar
 import uz.speakingapp.ui.theme.BrandTopBar
+import uz.speakingapp.ui.theme.Bulbul
 import uz.speakingapp.ui.theme.Gold
 import uz.speakingapp.ui.theme.HairLine
 import uz.speakingapp.ui.theme.InkMuted
+import uz.speakingapp.ui.theme.Mascot
+import uz.speakingapp.ui.theme.MascotMood
+import uz.speakingapp.ui.theme.SunnyContainer
+import uz.speakingapp.ui.theme.SunnyDeep
+import uz.speakingapp.ui.theme.pagePattern
+import uz.speakingapp.ui.theme.wiggle
 import uz.speakingapp.ui.theme.InkStrong
 import uz.speakingapp.ui.theme.Navy
 import uz.speakingapp.ui.theme.OutlineSoft
@@ -88,20 +96,22 @@ fun ProgressScreen(
     val titleByModule = modules.associate { it.id to it.titleUz }
     val typeByModule = modules.associate { it.id to it.type }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().pagePattern()) {
         BrandTopBar(title = "Natijalarim", onBack = onBack)
-        HairLine()
 
         if (total == 0) {
+            // Bo'sh ekran ham bo'm-bo'sh ko'rinmasin: Bulbul kutib turadi.
             Column(
                 modifier = Modifier.fillMaxSize().padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(Modifier.size(56.dp))
+                Spacer(Modifier.size(40.dp))
+                Mascot(look = Bulbul, mood = MascotMood.Idle, size = 120.dp)
+                Spacer(Modifier.size(16.dp))
                 Text("Hali natijalar yo'q", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.size(8.dp))
                 Text(
-                    "Birinchi mashqni bajaring va natijangiz shu yerda paydo bo'ladi.",
+                    "Birinchi mashqni bajar — natijang shu yerda paydo bo'ladi.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = InkMuted,
                     textAlign = TextAlign.Center,
@@ -162,6 +172,13 @@ fun ProgressScreen(
 private fun LevelCard(game: GameStats) {
     SoftCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            // Bulbul darajaga qarab quvonadi — daraja shunchaki raqam emas.
+            Mascot(
+                look = Bulbul,
+                mood = if (game.level > 1) MascotMood.Happy else MascotMood.Idle,
+                size = 56.dp,
+            )
+            Spacer(Modifier.size(12.dp))
             Column(Modifier.weight(1f)) {
                 Text("DARAJA ${game.level}", style = OverlineLabel, color = InkMuted)
                 Spacer(Modifier.size(4.dp))
@@ -279,19 +296,20 @@ private fun BadgesCard(badges: List<Badge>) {
 @Composable
 private fun BadgeTile(badge: Badge, modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        // Ochilgan nishon goho chayqalib diqqatni tortadi; ochilmagani tinch turadi.
         Box(
             modifier = Modifier
-                .size(46.dp)
-                .clip(MaterialTheme.shapes.extraSmall)
-                .background(if (badge.unlocked) SurfaceMuted else androidx.compose.ui.graphics.Color.Transparent)
-                .border(1.dp, if (badge.unlocked) Gold else OutlineSoft, MaterialTheme.shapes.extraSmall),
+                .size(56.dp)
+                .wiggle(active = badge.unlocked)
+                .clip(CircleShape)
+                .background(if (badge.unlocked) SunnyContainer else SurfaceMuted),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 badgeIcon(badge.id),
                 contentDescription = null,
-                tint = if (badge.unlocked) Gold else OutlineSoft,
-                modifier = Modifier.size(22.dp),
+                tint = if (badge.unlocked) SunnyDeep else OutlineSoft,
+                modifier = Modifier.size(28.dp),
             )
         }
         Spacer(Modifier.size(8.dp))

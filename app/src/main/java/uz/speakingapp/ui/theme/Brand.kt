@@ -2,12 +2,13 @@ package uz.speakingapp.ui.theme
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.foundation.Image
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,13 +24,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -57,80 +57,85 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// ── Yuzalar ─────────────────────────────────────────────────────
-// Gradientlar ataylab olib tashlandi: akademik uslub tekis ranglarda ishlaydi.
-// Nomlar saqlangan (ekranlar `Brush` kutadi), lekin ular endi bir tusli.
-val HeroGradient: Brush = SolidColor(Navy)
-val PrimaryGradient: Brush = SolidColor(Navy)
-val CoralGradient: Brush = SolidColor(GoldDeep)
-val SuccessGradient: Brush = SolidColor(Success)
+// ════════════════════════════════════════════════════════════════════
+//  Umumiy komponentlar — bolalar uslubi
+//
+//  Komponent NOMLARI va IMZOLARI ataylab o'zgarmadi: ekranlar shularni
+//  chaqiradi, shuning uchun butun ilova ko'rinishi shu fayl orqali
+//  almashadi. Yangi imkoniyatlar (masalan mikrofon darajasi) standart
+//  qiymatli parametr sifatida qo'shilgan — eski chaqiruvlar buzilmaydi.
+// ════════════════════════════════════════════════════════════════════
 
-/** Modul turiga mos urg'u rangi. */
+// ── Gradientlar ─────────────────────────────────────────────────
+// Akademik versiyada bular `SolidColor` edi. Endi haqiqiy gradient.
+val HeroGradient: Brush = Brush.linearGradient(listOf(Sky, GrapeDeep))
+val PrimaryGradient: Brush = Brush.linearGradient(listOf(Sky, SkyDeep))
+val CoralGradient: Brush = Brush.linearGradient(listOf(Coral, CoralDeep))
+val SuccessGradient: Brush = Brush.linearGradient(listOf(Mint, MintDeep))
+val SunnyGradient: Brush = Brush.linearGradient(listOf(Sunny, SunnyDeep))
+
+/** Modul turiga mos urg'u rangi (mascot rangi bilan bir xil). */
 fun accentColorFor(type: String): Color = when (type) {
     "discussion" -> ModuleDiscussion
     "roleplay" -> ModuleRoleplay
     "storytelling" -> ModuleStorytelling
     "interview" -> ModuleInterview
     "picture_narrating" -> ModulePicture
-    else -> Navy
+    else -> Sky
 }
 
-fun accentGradientFor(type: String): Brush = SolidColor(accentColorFor(type))
+fun accentGradientFor(type: String): Brush {
+    val c = accentColorFor(type)
+    return Brush.linearGradient(listOf(c.lighten(0.22f), c))
+}
+
+/** Rangni oqartirish — gradientning yorug' uchini olish uchun. */
+private fun Color.lighten(amount: Float): Color = Color(
+    red = red + (1f - red) * amount,
+    green = green + (1f - green) * amount,
+    blue = blue + (1f - blue) * amount,
+    alpha = alpha,
+)
 
 // ── Naqshlar ────────────────────────────────────────────────────
-// Rasm fayli qo'shilmadi: naqsh Canvas'da chiziladi. Shunda APK hajmi
-// oshmaydi, ekran zichligidan qat'i nazar aniq chiqadi va offline ishlaydi.
-// Web'dagi `.hero-navy` / `.pattern-page` bilan bir xil o'lchamlar (32dp to'r).
+// Rasm fayli yo'q, hammasi Canvas'da — APK hajmi oshmaydi va offline ishlaydi.
 
 /**
- * Ko'k yuzalar uchun: chizmachilik to'ri + burchakdagi muhr halqalari.
+ * Rangli sarlavha yuzasi: gradient + suzib yuruvchi pufakchalar.
  *
- * [scrimAlpha] 1f dan kichik bo'lsa ko'k yuza yarim shaffof bo'ladi — ostiga
- * fotosurat qo'yish uchun (qarang: [HeroPhotoBackdrop]).
+ * Parametrlar akademik versiyadagidek qoldirilgan ([HeroPhotoBackdrop]
+ * `scrimAlpha` bilan chaqiradi), lekin endi to'r emas, pufakcha chiziladi.
  */
 fun Modifier.heroPattern(
     cell: Dp = 32.dp,
-    lineAlpha: Float = 0.06f,
-    sealAlpha: Float = 0.07f,
+    lineAlpha: Float = 0.10f,
+    sealAlpha: Float = 0.12f,
     scrimAlpha: Float = 1f,
+    brush: Brush = HeroGradient,
 ): Modifier = this
-    .background(Navy.copy(alpha = scrimAlpha))
     .drawBehind {
-        val step = cell.toPx()
-        val stroke = 1.dp.toPx()
-        var x = step
-        while (x < size.width) {
-            drawLine(
-                color = Color.White.copy(alpha = lineAlpha),
-                start = Offset(x, 0f), end = Offset(x, size.height),
-                strokeWidth = stroke,
-            )
-            x += step
-        }
-        var y = step
-        while (y < size.height) {
-            drawLine(
-                color = Color.White.copy(alpha = lineAlpha),
-                start = Offset(0f, y), end = Offset(size.width, y),
-                strokeWidth = stroke,
-            )
-            y += step
-        }
-        // Muhr halqalari — o'ng yuqori burchakdan chiqib turadi.
-        val center = Offset(size.width + 40.dp.toPx(), -50.dp.toPx())
-        listOf(150.dp, 116.dp, 82.dp).forEach { r ->
-            drawCircle(
-                color = Color.White.copy(alpha = sealAlpha),
-                radius = r.toPx(),
-                center = center,
-                style = Stroke(width = stroke),
-            )
-        }
+        drawRect(brush = brush, alpha = scrimAlpha)
+        // Katta yumshoq doiralar — bolalar ilovalaridagi klassik fon.
+        drawCircle(
+            color = Color.White.copy(alpha = sealAlpha),
+            radius = size.minDimension * 0.55f,
+            center = Offset(size.width * 0.92f, -size.height * 0.15f),
+        )
+        drawCircle(
+            color = Color.White.copy(alpha = lineAlpha),
+            radius = size.minDimension * 0.34f,
+            center = Offset(size.width * 0.08f, size.height * 1.05f),
+        )
+        drawCircle(
+            color = Color.White.copy(alpha = lineAlpha * 0.8f),
+            radius = size.minDimension * 0.16f,
+            center = Offset(size.width * 0.72f, size.height * 0.85f),
+        )
     }
 
 /**
- * Fotosuratli hero yuzasi: rasm to'liq to'ldiriladi, ustidan ko'k parda va naqsh
- * tushadi. Rasm APK ichida (`drawable-nodpi`) — internetsiz ham ko'rinadi.
+ * Fotosuratli sarlavha: rasm ustidan rangli parda tushadi.
+ * Rasm APK ichida (`drawable-nodpi`) — internetsiz ham ko'rinadi.
  * Manba va litsenziya: `web/public/hero/CREDITS.md`.
  */
 @Composable
@@ -157,44 +162,53 @@ fun HeroPhotoBackdrop(
     }
 }
 
-/** Ochiq sahifa foni uchun: juda past kontrastli to'r. */
+/** Sahifa foni: iliq krem + juda yumshoq rangli dog'lar. */
 fun Modifier.pagePattern(cell: Dp = 32.dp): Modifier = this
     .background(AppBackground)
     .drawBehind {
-        val step = cell.toPx()
-        val stroke = 1.dp.toPx()
-        val color = Navy.copy(alpha = 0.045f)
-        var x = step
-        while (x < size.width) {
-            drawLine(color, Offset(x, 0f), Offset(x, size.height), stroke)
-            x += step
-        }
-        var y = step
-        while (y < size.height) {
-            drawLine(color, Offset(0f, y), Offset(size.width, y), stroke)
-            y += step
-        }
+        drawCircle(
+            color = SkyContainer.copy(alpha = 0.55f),
+            radius = size.width * 0.42f,
+            center = Offset(size.width * 1.05f, size.height * 0.08f),
+        )
+        drawCircle(
+            color = SunnyContainer.copy(alpha = 0.5f),
+            radius = size.width * 0.30f,
+            center = Offset(-size.width * 0.12f, size.height * 0.42f),
+        )
     }
 
-// ── Ingichka ajratgich ──────────────────────────────────────────
+// ── Ajratgich ───────────────────────────────────────────────────
 @Composable
 fun HairLine(modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxWidth().height(1.dp).background(OutlineSoft))
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(2.dp)
+            .clip(CircleShape)
+            .background(OutlineSoft),
+    )
 }
 
 // ── Yuqori panel ────────────────────────────────────────────────
+/**
+ * Sarlavha paneli. Pastki burchaklari yumaloq — panel ekranga
+ * "qo'yilgan" kartadek ko'rinadi, tekis chiziq bilan kesilgandek emas.
+ */
 @Composable
 fun BrandTopBar(
     title: String,
     onBack: (() -> Unit)? = null,
     subtitle: String? = null,
     trailing: @Composable (() -> Unit)? = null,
+    brush: Brush = HeroGradient,
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .heroPattern()
-            .padding(horizontal = 12.dp, vertical = 14.dp),
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+            .heroPattern(brush = brush)
+            .padding(horizontal = 12.dp, vertical = 16.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             if (onBack != null) {
@@ -211,7 +225,7 @@ fun BrandTopBar(
                     Text(
                         subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.75f),
+                        color = Color.White.copy(alpha = 0.85f),
                     )
                 }
             }
@@ -220,10 +234,6 @@ fun BrandTopBar(
     }
 }
 
-/**
- * Yumaloq ikonka tugmasi. Matn glifi emas, haqiqiy vektor ikonka —
- * shunda belgi markazda aniq turadi va RTL tillarda avtomatik aylanadi.
- */
 @Composable
 fun CircleIconButton(
     icon: ImageVector,
@@ -232,10 +242,10 @@ fun CircleIconButton(
 ) {
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(42.dp)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.14f))
-            .clickable(onClick = onClick),
+            .background(Color.White.copy(alpha = 0.22f))
+            .bouncyClick(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
@@ -247,23 +257,25 @@ fun CircleIconButton(
     }
 }
 
-// ── Karta: soya yo'q, ingichka chegara ──────────────────────────
+// ── Karta ───────────────────────────────────────────────────────
+/** Yumaloq, yumshoq soyali oq karta. Chegara o'rniga soya — yengilroq ko'rinadi. */
 @Composable
 fun SoftCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val shape = MaterialTheme.shapes.medium
     val base = modifier
         .fillMaxWidth()
-        .clip(MaterialTheme.shapes.small)
+        .shadow(elevation = 6.dp, shape = shape, spotColor = SkyDeep.copy(alpha = 0.35f))
+        .clip(shape)
         .background(SurfaceWhite)
-        .border(1.dp, OutlineSoft, MaterialTheme.shapes.small)
-    val clickable = if (onClick != null) base.clickable(onClick = onClick) else base
-    Column(modifier = clickable.padding(16.dp), content = content)
+    val interactive = if (onClick != null) base.bouncyClick(onClick = onClick) else base
+    Column(modifier = interactive.padding(16.dp), content = content)
 }
 
-// ── Asosiy tugma ────────────────────────────────────────────────
+// ── Tugmalar ────────────────────────────────────────────────────
 @Composable
 fun GradientButton(
     text: String,
@@ -273,13 +285,18 @@ fun GradientButton(
     gradient: Brush = PrimaryGradient,
     leadingIcon: ImageVector? = null,
 ) {
+    val shape = CircleShape // To'liq yumaloq uchli tugma — bolalar uslubining asosiy belgisi.
     Box(
         modifier = modifier
-            .height(48.dp)
-            .clip(MaterialTheme.shapes.small)
+            .height(54.dp)
+            .then(
+                if (enabled) Modifier.shadow(8.dp, shape, spotColor = SkyDeep.copy(alpha = 0.5f))
+                else Modifier,
+            )
+            .clip(shape)
             .background(if (enabled) gradient else SolidColor(OutlineSoft))
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 20.dp),
+            .bouncyClick(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 24.dp),
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
@@ -288,33 +305,33 @@ fun GradientButton(
                     leadingIcon,
                     contentDescription = null,
                     tint = if (enabled) Color.White else InkMuted,
-                    modifier = Modifier.size(18.dp),
+                    modifier = Modifier.size(20.dp),
                 )
                 Spacer(Modifier.size(8.dp))
             }
             Text(
                 text,
                 color = if (enabled) Color.White else InkMuted,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
             )
         }
     }
 }
 
-/** Ikkilamchi (chiziqli) tugma. */
 @Composable
 fun SoftButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .height(48.dp)
-            .clip(MaterialTheme.shapes.small)
-            .border(1.dp, Navy, MaterialTheme.shapes.small)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 20.dp),
+            .height(54.dp)
+            .clip(CircleShape)
+            .background(SkyContainer)
+            .border(2.dp, Sky.copy(alpha = 0.45f), CircleShape)
+            .bouncyClick(onClick = onClick)
+            .padding(horizontal = 24.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text, color = Navy, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+        Text(text, color = SkyDark, fontWeight = FontWeight.Bold, fontSize = 16.sp)
     }
 }
 
@@ -323,74 +340,82 @@ fun SoftButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
 fun Pill(text: String, container: Color, content: Color) {
     Box(
         modifier = Modifier
-            .clip(MaterialTheme.shapes.extraSmall)
+            .clip(CircleShape)
             .background(container)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = 12.dp, vertical = 6.dp),
     ) {
         Text(text, color = content, style = OverlineLabel)
     }
 }
 
-// ── Mnemonika harf belgisi: kvadrat, hujjat uslubida ────────────
+// ── Mnemonika harfi ─────────────────────────────────────────────
+/** Mnemonika bosqichi harfi — yumaloq, rangli belgi. */
 @Composable
-fun MnemonicBadge(letter: String, gradient: Brush = PrimaryGradient, size: Dp = 30.dp) {
+fun MnemonicBadge(letter: String, gradient: Brush = PrimaryGradient, size: Dp = 36.dp) {
     Box(
         modifier = Modifier
             .size(size)
-            .clip(MaterialTheme.shapes.extraSmall)
+            .shadow(4.dp, CircleShape, spotColor = SkyDeep.copy(alpha = 0.4f))
+            .clip(CircleShape)
             .background(gradient),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             letter.uppercase(),
             color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = (size.value * 0.44f).sp,
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = (size.value * 0.46f).sp,
         )
     }
 }
 
-/** Modul tartib raqami (01, 02 …) — emoji o'rniga. */
+/** Modul tartib raqami. Modul kartasida mascot bilan yonma-yon turadi. */
 @Composable
 fun NumberBadge(index: Int, accent: Color, size: Dp = 44.dp) {
     Box(
         modifier = Modifier
             .size(size)
-            .clip(MaterialTheme.shapes.extraSmall)
-            .background(accent),
+            .clip(MaterialTheme.shapes.small)
+            .background(accent.copy(alpha = 0.15f)),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            index.toString().padStart(2, '0'),
-            style = ModuleNumber,
-            color = Color.White,
-        )
+        Text(index.toString().padStart(2, '0'), style = ModuleNumber, color = accent)
     }
 }
 
-// ── Bo'lim sarlavhasi: katta harfli yorliq + chiziq ─────────────
+// ── Bo'lim sarlavhasi ───────────────────────────────────────────
+/** Chiziq o'rniga rangli nuqta — yumshoqroq va bolalarcha. */
 @Composable
-fun SectionTitle(text: String, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth()) {
+fun SectionTitle(text: String, modifier: Modifier = Modifier, accent: Color = Sky) {
+    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(8.dp).clip(CircleShape).background(accent))
+        Spacer(Modifier.size(8.dp))
         Text(text.uppercase(), style = OverlineLabel, color = InkMuted)
-        Spacer(Modifier.size(6.dp))
-        HairLine()
     }
 }
 
 // ── Ball halqasi ────────────────────────────────────────────────
+/**
+ * Natija halqasi. Ball nolga emas, joriy qiymatgacha "yig'iladi" va
+ * halqa shu bilan birga to'ladi — natijani kutish zavqli bo'lsin.
+ */
 @Composable
 fun ScoreRing(
     score: Int,
     modifier: Modifier = Modifier,
-    ringSize: Dp = 120.dp,
-    stroke: Dp = 8.dp,
+    ringSize: Dp = 140.dp,
+    stroke: Dp = 14.dp,
 ) {
-    val pct = (score.coerceIn(0, 100)) / 100f
-    val ringColor = when {
-        score >= 80 -> Success
-        score >= 50 -> Navy
-        else -> Warning
+    val shown = animatedNumber(score.coerceIn(0, 100))
+    val sweep by animateFloatAsState(
+        targetValue = score.coerceIn(0, 100) / 100f,
+        animationSpec = tween(900),
+        label = "sweep",
+    )
+    val ringBrush = when {
+        score >= 80 -> SuccessGradient
+        score >= 50 -> PrimaryGradient
+        else -> SunnyGradient
     }
     Box(modifier = modifier.size(ringSize), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
@@ -399,70 +424,91 @@ fun ScoreRing(
             val arcSize = Size(size.width - s, size.height - s)
             val topLeft = Offset(inset, inset)
             drawArc(
-                color = OutlineSoft,
+                color = SurfaceMuted,
                 startAngle = -90f, sweepAngle = 360f, useCenter = false,
                 topLeft = topLeft, size = arcSize,
-                style = Stroke(width = s, cap = StrokeCap.Butt),
+                style = Stroke(width = s, cap = StrokeCap.Round),
             )
             drawArc(
-                color = ringColor,
-                startAngle = -90f, sweepAngle = 360f * pct, useCenter = false,
+                brush = ringBrush,
+                startAngle = -90f, sweepAngle = 360f * sweep, useCenter = false,
                 topLeft = topLeft, size = arcSize,
-                style = Stroke(width = s, cap = StrokeCap.Butt),
+                style = Stroke(width = s, cap = StrokeCap.Round),
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("$score", style = DisplayScore, color = InkStrong)
+            Text("$shown", style = DisplayScore, color = InkStrong)
             Text("100 DAN", style = OverlineLabel, color = InkMuted)
         }
     }
 }
 
-// ── Mikrofon tugmasi ────────────────────────────────────────────
+// ── Mikrofon ────────────────────────────────────────────────────
+/**
+ * Mikrofon tugmasi.
+ *
+ * [level] 0f..1f — bola qanchalik baland gapirayotgani. Tugma atrofidagi
+ * halqalar shunga qarab kengayadi, ya'ni bola ilova uni "eshitayotganini"
+ * ko'rib turadi. Bu jim gapiradigan bolani ovozini ko'tarishga undaydi.
+ */
 @Composable
 fun BrandMicButton(
     recording: Boolean,
     onClick: () -> Unit,
     micIcon: ImageVector,
     stopIcon: ImageVector,
-    size: Dp = 80.dp,
+    size: Dp = 88.dp,
+    level: Float = 0f,
 ) {
     val transition = rememberInfiniteTransition(label = "mic")
     val pulse by transition.animateFloat(
         initialValue = 1f,
-        targetValue = if (recording) 1.06f else 1f,
-        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
+        targetValue = if (recording) 1.07f else 1f,
+        animationSpec = infiniteRepeatable(tween(820), RepeatMode.Reverse),
         label = "pulse",
     )
-    Surface(
-        shape = CircleShape,
-        onClick = onClick,
-        color = Color.Transparent,
-        modifier = Modifier
-            .size(size)
-            .graphicsLayer { if (recording) { scaleX = pulse; scaleY = pulse } },
-    ) {
+    val smoothLevel by animateFloatAsState(
+        targetValue = level.coerceIn(0f, 1f),
+        animationSpec = tween(120),
+        label = "micLevel",
+    )
+
+    Box(contentAlignment = Alignment.Center) {
+        // Ovoz to'lqinlari — faqat yozuv paytida chiziladi. Bitta Canvas,
+        // uchta doira: yozuv paytida Vosk protsessorni band qilgani uchun
+        // bu yerda hisob-kitob minimal bo'lishi kerak.
+        if (recording) {
+            Canvas(Modifier.size(size * 1.75f)) {
+                val base = this.size.minDimension / 2
+                listOf(0.62f to 0.30f, 0.78f to 0.18f, 0.94f to 0.10f).forEach { (f, alpha) ->
+                    drawCircle(
+                        color = Danger.copy(alpha = alpha * (0.45f + smoothLevel)),
+                        radius = base * (f + smoothLevel * 0.06f),
+                    )
+                }
+            }
+        }
         Box(
             Modifier
-                .fillMaxSize()
+                .size(size)
+                .graphicsLayer { if (recording) { scaleX = pulse; scaleY = pulse } }
+                .shadow(10.dp, CircleShape, spotColor = (if (recording) Danger else SkyDeep).copy(alpha = 0.6f))
                 .clip(CircleShape)
-                .background(if (recording) Danger else Navy),
+                .background(if (recording) CoralGradient else PrimaryGradient)
+                .bouncyClick(onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = if (recording) stopIcon else micIcon,
                 contentDescription = if (recording) "To'xtatish" else "Gapirish",
                 tint = Color.White,
-                modifier = Modifier.size(size.value.times(0.36f).dp),
+                modifier = Modifier.size(size.value.times(0.40f).dp),
             )
         }
     }
 }
 
-/**
- * Mikrofon tugmasi taymer halqasi ichida. Yozish vaqti halqa bo'ylab to'ladi —
- * alohida chiziqli progressdan ko'ra diqqatni bir joyga to'playdi.
- */
+/** Mikrofon tugmasi taymer halqasi ichida. */
 @Composable
 fun MicRing(
     recording: Boolean,
@@ -471,8 +517,9 @@ fun MicRing(
     onClick: () -> Unit,
     micIcon: ImageVector,
     stopIcon: ImageVector,
-    ringSize: Dp = 132.dp,
-    stroke: Dp = 5.dp,
+    ringSize: Dp = 150.dp,
+    stroke: Dp = 7.dp,
+    level: Float = 0f,
 ) {
     val pct = if (limit <= 0) 0f else (elapsed.toFloat() / limit).coerceIn(0f, 1f)
     Box(modifier = Modifier.size(ringSize), contentAlignment = Alignment.Center) {
@@ -482,17 +529,17 @@ fun MicRing(
             val arcSize = Size(size.width - s, size.height - s)
             val topLeft = Offset(inset, inset)
             drawArc(
-                color = OutlineSoft,
+                color = SurfaceMuted,
                 startAngle = -90f, sweepAngle = 360f, useCenter = false,
                 topLeft = topLeft, size = arcSize,
-                style = Stroke(width = s, cap = StrokeCap.Butt),
+                style = Stroke(width = s, cap = StrokeCap.Round),
             )
             if (recording) {
                 drawArc(
                     color = Danger,
                     startAngle = -90f, sweepAngle = 360f * pct, useCenter = false,
                     topLeft = topLeft, size = arcSize,
-                    style = Stroke(width = s, cap = StrokeCap.Butt),
+                    style = Stroke(width = s, cap = StrokeCap.Round),
                 )
             }
         }
@@ -501,58 +548,56 @@ fun MicRing(
             onClick = onClick,
             micIcon = micIcon,
             stopIcon = stopIcon,
-            size = ringSize - 32.dp,
+            size = ringSize - 44.dp,
+            level = level,
         )
     }
 }
 
-/**
- * Mashqning eng yaxshi bali. [score] null bo'lsa — hali bajarilmagan,
- * bo'sh ramka ko'rsatiladi.
- */
+// ── Ball belgisi ────────────────────────────────────────────────
+/** Mashqning eng yaxshi bali. Null bo'lsa — hali bajarilmagan. */
 @Composable
-fun ScoreBadge(score: Int?, modifier: Modifier = Modifier, size: Dp = 38.dp) {
+fun ScoreBadge(score: Int?, modifier: Modifier = Modifier, size: Dp = 42.dp) {
     if (score == null) {
         Box(
             modifier = modifier
                 .size(size)
-                .clip(MaterialTheme.shapes.extraSmall)
-                .border(1.dp, OutlineSoft, MaterialTheme.shapes.extraSmall),
+                .clip(CircleShape)
+                .background(SurfaceMuted),
             contentAlignment = Alignment.Center,
         ) {
-            Text("—", color = OutlineSoft, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Text("?", color = InkMuted, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
         }
         return
     }
     val container = when {
-        score >= 80 -> SuccessContainer
-        score >= 50 -> NavyContainer
-        else -> GoldContainer
+        score >= 80 -> MintContainer
+        score >= 50 -> SkyContainer
+        else -> SunnyContainer
     }
     val content = when {
-        score >= 80 -> Success
-        score >= 50 -> Navy
-        else -> OnGoldContainer
+        score >= 80 -> OnMintContainer
+        score >= 50 -> OnSkyContainer
+        else -> OnSunnyContainer
     }
     Box(
         modifier = modifier
             .size(size)
-            .clip(MaterialTheme.shapes.extraSmall)
+            .clip(CircleShape)
             .background(container),
         contentAlignment = Alignment.Center,
     ) {
-        Text("$score", color = content, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+        Text("$score", color = content, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
     }
 }
 
-/** Statistik plitka: raqam ustunlik qiladi, yorliq kichik va katta harfda. */
+// ── Ko'rsatkichlar ──────────────────────────────────────────────
 @Composable
-fun StatTile(value: String, label: String, modifier: Modifier = Modifier, accent: Color = InkStrong) {
+fun StatTile(value: String, label: String, modifier: Modifier = Modifier, accent: Color = Sky) {
     Column(
         modifier = modifier
             .clip(MaterialTheme.shapes.small)
-            .background(SurfaceWhite)
-            .border(1.dp, OutlineSoft, MaterialTheme.shapes.small)
+            .background(accent.copy(alpha = 0.12f))
             .padding(14.dp),
     ) {
         Text(value, style = MaterialTheme.typography.headlineSmall, color = accent)
@@ -561,7 +606,6 @@ fun StatTile(value: String, label: String, modifier: Modifier = Modifier, accent
     }
 }
 
-/** Ramkasiz ko'rsatkich — karta ichida guruh bo'lib turadi ([StatTile] ning yengil varianti). */
 @Composable
 fun StatCell(value: String, label: String, modifier: Modifier = Modifier, accent: Color = InkStrong) {
     Column(modifier) {
@@ -571,7 +615,7 @@ fun StatCell(value: String, label: String, modifier: Modifier = Modifier, accent
     }
 }
 
-/** Yig'iladigan karta — transkript kabi ikkilamchi ma'lumot uchun. */
+// ── Yig'iladigan karta ──────────────────────────────────────────
 @Composable
 fun CollapsibleCard(title: String, content: @Composable ColumnScope.() -> Unit) {
     var open by remember { mutableStateOf(false) }
@@ -583,8 +627,8 @@ fun CollapsibleCard(title: String, content: @Composable ColumnScope.() -> Unit) 
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = InkMuted,
-                modifier = Modifier.size(18.dp).rotate(if (open) 90f else 0f),
+                tint = Sky,
+                modifier = Modifier.size(20.dp).rotate(if (open) 90f else 0f),
             )
             Spacer(Modifier.size(8.dp))
             Text(title.uppercase(), style = OverlineLabel, color = InkMuted)
@@ -596,21 +640,27 @@ fun CollapsibleCard(title: String, content: @Composable ColumnScope.() -> Unit) 
     }
 }
 
-/** Progress chizig'i — past va tekis. */
+// ── Progress ────────────────────────────────────────────────────
+/** Qalinroq va yumaloq progress — bolalarga ko'rinarli bo'lsin. */
 @Composable
 fun BrandProgressBar(progress: Float, modifier: Modifier = Modifier, brush: Brush = PrimaryGradient) {
+    val animated by animateFloatAsState(
+        targetValue = progress.coerceIn(0f, 1f),
+        animationSpec = tween(700),
+        label = "progress",
+    )
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(6.dp)
-            .clip(MaterialTheme.shapes.extraSmall)
+            .height(12.dp)
+            .clip(CircleShape)
             .background(SurfaceMuted),
     ) {
         Box(
             Modifier
-                .fillMaxWidth(progress.coerceIn(0f, 1f))
-                .height(6.dp)
-                .clip(MaterialTheme.shapes.extraSmall)
+                .fillMaxWidth(animated)
+                .height(12.dp)
+                .clip(CircleShape)
                 .background(brush),
         )
     }

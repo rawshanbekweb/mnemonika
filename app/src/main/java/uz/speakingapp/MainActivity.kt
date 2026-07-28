@@ -109,12 +109,14 @@ class MainActivity : ComponentActivity() {
                         composable("exercise/{moduleId}/{exerciseId}") { backStackEntry ->
                             val moduleId = backStackEntry.arguments?.getString("moduleId").orEmpty()
                             val exerciseId = backStackEntry.arguments?.getString("exerciseId").orEmpty()
-                            val exercise = repository.moduleById(moduleId)
-                                ?.exercises?.firstOrNull { it.id == exerciseId }
+                            val module = repository.moduleById(moduleId)
+                            val exercise = module?.exercises?.firstOrNull { it.id == exerciseId }
                             uz.speakingapp.ui.exercise.ExerciseScreen(
                                 exercise = exercise,
                                 moduleId = moduleId,
                                 onBack = { navController.popBackStack() },
+                                // Modul do'stini (mascot) tanlash uchun.
+                                moduleType = module?.type.orEmpty(),
                             )
                         }
                         composable("dialog/{moduleId}/{dialogId}") { backStackEntry ->
@@ -127,6 +129,7 @@ class MainActivity : ComponentActivity() {
                                 moduleId = moduleId,
                                 isInterview = module?.type == "interview",
                                 onBack = { navController.popBackStack() },
+                                moduleType = module?.type.orEmpty(),
                             )
                         }
                     }

@@ -68,7 +68,18 @@ import uz.speakingapp.speech.ModelManager
 import uz.speakingapp.ui.theme.BrandProgressBar
 import uz.speakingapp.ui.theme.CollapsibleCard
 import uz.speakingapp.ui.theme.BrandTopBar
+import uz.speakingapp.ui.theme.Confetti
 import uz.speakingapp.ui.theme.Danger
+import uz.speakingapp.ui.theme.Mascot
+import uz.speakingapp.ui.theme.MascotLook
+import uz.speakingapp.ui.theme.MascotMood
+import uz.speakingapp.ui.theme.MascotSays
+import uz.speakingapp.ui.theme.PopIn
+import uz.speakingapp.ui.theme.Sky
+import uz.speakingapp.ui.theme.accentGradientFor
+import uz.speakingapp.ui.theme.mascotFor
+import uz.speakingapp.ui.theme.moodForScore
+import uz.speakingapp.ui.theme.pagePattern
 import uz.speakingapp.ui.theme.GoldContainer
 import uz.speakingapp.ui.theme.GradientButton
 import uz.speakingapp.ui.theme.HairLine
@@ -98,11 +109,18 @@ fun ExerciseScreen(
     exercise: Exercise?,
     moduleId: String,
     onBack: () -> Unit,
+    // Modul do'stini tanlash uchun. Bo'sh bo'lsa Bulbulning o'zi chiqadi —
+    // shuning uchun chaqiruvchi turni bilmasa ham ekran to'liq ishlaydi.
+    moduleType: String = "",
 ) {
     if (exercise == null) {
         Text("Mashq topilmadi", modifier = Modifier.padding(16.dp))
         return
     }
+
+    // Butun ekran davomida bitta personaj hamroh bo'ladi: savolni u o'qiydi,
+    // gapirganda u tinglaydi, natijada u quvonadi yoki dalda beradi.
+    val friend = remember(moduleType) { mascotFor(moduleType) }
 
     val vm: ExerciseViewModel = viewModel()
     val state by vm.state.collectAsStateWithLifecycle()
@@ -129,56 +147,75 @@ fun ExerciseScreen(
         ActivityResultContracts.RequestPermission()
     ) { granted -> hasMicPermission = granted }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        BrandTopBar(title = exercise.title, subtitle = exercise.topic, onBack = onBack)
-        HairLine()
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            if (exercise.visuals.isNotEmpty()) VisualStrip(exercise.visuals)
-            PromptCard(
-                exercise = exercise,
-                speaking = state.speaking,
-                onListen = { vm.speakPrompts() },
+    // Yuqori ball olinganda konfetti tushadi. `Box` ichida — konfetti butun
+    // ekran ustidan yog'adi, lekin bosishlarni to'smaydi (Canvas'da hech qanday
+    // bosish ushlagichi yo'q).
+    val celebrate = state.phase == Phase.Done && (state.result?.overallScore ?: 0) >= 80
+
+    Box(Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().pagePattern()) {
+            BrandTopBar(
+                title = exercise.title,
+                subtitle = exercise.topic,
+                onBack = onBack,
+                brush = accentGradientFor(moduleType),
             )
-
-            state.error?.let { err -> ErrorNote(err) }
-
-            when (state.phase) {
-                Phase.NeedModel -> ModelPrepareSection(onPrepare = { vm.prepareModel() })
-                Phase.PreparingModel -> DownloadSection(progress = state.downloadProgress)
-                Phase.Ready -> RecordSection(
-                    hasPermission = hasMicPermission,
-                    timeLimitSec = state.timeLimitSec,
-                    onRequestPermission = { permissionLauncher.launch(Manifest.permission.RECORD_AUDIO) },
-                    onStart = { vm.startRecording() },
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                if (exercise.visuals.isNotEmpty()) VisualStrip(exercise.visuals)
+                PromptCard(
+                    exercise = exercise,
+                    speaking = state.speaking,
+                    friend = friend,
+                    onListen = { vm.speakPrompts() },
                 )
-                Phase.Recording -> RecordingSection(
-                    elapsed = state.elapsedSec,
-                    limit = state.timeLimitSec,
-                    transcript = state.transcript,
-                    live = state.liveText,
-                    keywords = exercise.keywords,
-                    mnemonic = exercise.mnemonic,
-                    micLevel = state.micLevel,
-                    onStop = { vm.stopRecording() },
-                )
-                Phase.Done -> state.result?.let { result ->
-                    ResultSection(
-                        result = result,
-                        keywords = if (exercise.isReadAloud) emptyList() else exercise.keywords,
-                        checkingGrammar = state.checkingGrammar,
-                        readResult = state.readResult,
-                        onRetry = { vm.startRecording() },
+
+                state.error?.let { err -> ErrorNote(err) }
+
+                when (state.phase) {
+                    Phase.NeedModel -> ModelPrepareSection(onPrepare = { vm.prepareModel() })
+                    Phase.PreparingModel -> DownloadSection(
+                        progress = state.downloadProgress,
+                        friend = friend,
                     )
+                    Phase.Ready -> RecordSection(
+                        hasPermission = hasMicPermission,
+                        timeLimitSec = state.timeLimitSec,
+                        friend = friend,
+                        onRequestPermission = { permissionLauncher.launch(Manifest.permission.RECORD_AUDIO) },
+                        onStart = { vm.startRecording() },
+                    )
+                    Phase.Recording -> RecordingSection(
+                        elapsed = state.elapsedSec,
+                        limit = state.timeLimitSec,
+                        transcript = state.transcript,
+                        live = state.liveText,
+                        keywords = exercise.keywords,
+                        mnemonic = exercise.mnemonic,
+                        micLevel = state.micLevel,
+                        friend = friend,
+                        onStop = { vm.stopRecording() },
+                    )
+                    Phase.Done -> state.result?.let { result ->
+                        ResultSection(
+                            result = result,
+                            keywords = if (exercise.isReadAloud) emptyList() else exercise.keywords,
+                            checkingGrammar = state.checkingGrammar,
+                            readResult = state.readResult,
+                            friend = friend,
+                            onRetry = { vm.startRecording() },
+                        )
+                    }
                 }
+                Spacer(Modifier.size(8.dp))
             }
-            Spacer(Modifier.size(8.dp))
         }
+        Confetti(active = celebrate)
     }
 }
 
@@ -210,9 +247,22 @@ private fun VisualStrip(visuals: List<String>) {
 }
 
 @Composable
-private fun PromptCard(exercise: Exercise, speaking: Boolean, onListen: () -> Unit) {
+private fun PromptCard(
+    exercise: Exercise,
+    speaking: Boolean,
+    friend: MascotLook,
+    onListen: () -> Unit,
+) {
     SoftCard {
+        // Savolni personaj o'qib berayotgandek ko'rinadi: audio yoki TTS
+        // ijro etilayotganda tumshug'i qimirlaydi.
         Row(verticalAlignment = Alignment.CenterVertically) {
+            Mascot(
+                look = friend,
+                mood = if (speaking) MascotMood.Speaking else MascotMood.Idle,
+                size = 52.dp,
+            )
+            Spacer(Modifier.size(10.dp))
             Box(Modifier.weight(1f)) { Pill(exercise.topic, NavyContainer, OnNavyContainer) }
             if (exercise.isReadAloud || exercise.prompts.isNotEmpty()) {
                 ListenButton(speaking = speaking, onClick = onListen)
@@ -350,8 +400,9 @@ private fun MicLevelBar(level: Float) {
                 val active = level * 16 > i
                 Box(
                     Modifier
-                        .size(width = 4.dp, height = 16.dp)
-                        .background(if (active) Navy else OutlineSoft)
+                        .size(width = 5.dp, height = if (active) 20.dp else 12.dp)
+                        .clip(MaterialTheme.shapes.extraSmall)
+                        .background(if (active) Sky else OutlineSoft)
                 )
             }
         }
@@ -380,10 +431,16 @@ private fun ModelPrepareSection(onPrepare: () -> Unit) {
 }
 
 @Composable
-private fun DownloadSection(progress: Float) {
+private fun DownloadSection(progress: Float, friend: MascotLook) {
     SoftCard {
-        Text("Model yuklanmoqda", style = MaterialTheme.typography.titleSmall)
-        Spacer(Modifier.size(10.dp))
+        // Yuklanish uzoq davom etadi (125MB) — personaj kutayotganini
+        // ko'rsatib turadi, bola ilova qotib qolgan deb o'ylamaydi.
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Mascot(look = friend, mood = MascotMood.Thinking, size = 48.dp)
+            Spacer(Modifier.size(10.dp))
+            Text("Model yuklanmoqda…", style = MaterialTheme.typography.titleSmall)
+        }
+        Spacer(Modifier.size(12.dp))
         BrandProgressBar(progress = progress)
         Spacer(Modifier.size(8.dp))
         Text("${(progress * 100).toInt()}%", style = OverlineLabel, color = InkMuted)
@@ -394,18 +451,23 @@ private fun DownloadSection(progress: Float) {
 private fun RecordSection(
     hasPermission: Boolean,
     timeLimitSec: Int,
+    friend: MascotLook,
     onRequestPermission: () -> Unit,
     onStart: () -> Unit,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Text(
-            "Tayyor bo'lsangiz mikrofonni bosing va gapiring",
-            style = MaterialTheme.typography.bodyLarge,
+        MascotSays(
+            look = friend,
+            text = if (hasPermission) friend.greeting else "Gapirganingni eshitishim uchun mikrofonga ruxsat kerak.",
+            mood = MascotMood.Idle,
+            bubbleColor = SurfaceMuted,
         )
-        Spacer(Modifier.size(4.dp))
-        Text("Maksimal $timeLimitSec soniya", style = OverlineLabel, color = InkMuted)
-        Spacer(Modifier.size(20.dp))
+        Spacer(Modifier.size(18.dp))
         if (hasPermission) {
+            Text("Mikrofonni bos va gapir", style = MaterialTheme.typography.bodyLarge)
+            Spacer(Modifier.size(4.dp))
+            Text("Eng ko'pi $timeLimitSec soniya", style = OverlineLabel, color = InkMuted)
+            Spacer(Modifier.size(18.dp))
             MicRing(
                 recording = false,
                 elapsed = 0,
@@ -429,12 +491,23 @@ private fun RecordingSection(
     keywords: List<String>,
     mnemonic: Mnemonic,
     micLevel: Float,
+    friend: MascotLook,
     onStop: () -> Unit,
 ) {
     val shown = listOf(transcript, live).filter { it.isNotBlank() }.joinToString(" ")
     val spoken = remember(shown, keywords) { spokenKeywords(shown, keywords) }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        // Personaj ovoz balandligiga qarab jonlanadi — bola ilova uni
+        // eshitayotganini ko'rib turadi. Jim gapiradigan bolani ovozini
+        // ko'tarishga undaydigan eng kuchli signal shu.
+        Mascot(
+            look = friend,
+            mood = MascotMood.Listening,
+            size = 84.dp,
+            level = micLevel,
+        )
+        Spacer(Modifier.size(10.dp))
         MicRing(
             recording = true,
             elapsed = elapsed,
@@ -442,6 +515,7 @@ private fun RecordingSection(
             onClick = onStop,
             micIcon = Icons.Default.Mic,
             stopIcon = Icons.Default.Stop,
+            level = micLevel,
         )
         Spacer(Modifier.size(14.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -499,20 +573,28 @@ private fun ResultSection(
     keywords: List<String>,
     checkingGrammar: Boolean,
     readResult: ReadAloudResult?,
+    friend: MascotLook,
     onRetry: () -> Unit,
 ) {
+    // Personaj bolaning tilida gapiradi — quruq "A'lo natija" emas.
     val message = when {
-        result.overallScore >= 80 -> "A'lo natija"
-        result.overallScore >= 50 -> "Yaxshi natija"
-        else -> "Mashq qilishda davom eting"
+        result.overallScore >= 80 -> "Zo'r! Juda yaxshi gapirding!"
+        result.overallScore >= 50 -> "Yaxshi bo'ldi! Yana bir oz mashq qilamiz."
+        else -> "Boshlanish yaxshi — qani, yana bir marta!"
     }
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Ball va ko'rsatkichlar — bitta blokda.
         SoftCard {
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 ScoreRing(result.overallScore)
-                Spacer(Modifier.size(12.dp))
-                Text(message, style = MaterialTheme.typography.titleMedium, color = Navy)
+                Spacer(Modifier.size(14.dp))
+                MascotSays(
+                    look = friend,
+                    text = message,
+                    mood = moodForScore(result.overallScore),
+                    mascotSize = 76.dp,
+                    bubbleColor = SurfaceMuted,
+                )
             }
             Spacer(Modifier.size(18.dp))
             HairLine()

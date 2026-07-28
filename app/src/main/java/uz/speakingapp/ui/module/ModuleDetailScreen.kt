@@ -10,7 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.remember
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.PlayArrow
@@ -35,9 +36,16 @@ import uz.speakingapp.ui.progress.ProgressViewModel
 import uz.speakingapp.ui.theme.BrandTopBar
 import uz.speakingapp.ui.theme.GoldContainer
 import uz.speakingapp.ui.theme.GradientButton
-import uz.speakingapp.ui.theme.HairLine
 import uz.speakingapp.ui.theme.InkMuted
+import uz.speakingapp.ui.theme.Mascot
+import uz.speakingapp.ui.theme.MascotLook
+import uz.speakingapp.ui.theme.MascotMood
+import uz.speakingapp.ui.theme.MascotSays
 import uz.speakingapp.ui.theme.MnemonicBadge
+import uz.speakingapp.ui.theme.PopIn
+import uz.speakingapp.ui.theme.accentGradientFor
+import uz.speakingapp.ui.theme.mascotFor
+import uz.speakingapp.ui.theme.pagePattern
 import uz.speakingapp.ui.theme.NavyContainer
 import uz.speakingapp.ui.theme.OnGoldContainer
 import uz.speakingapp.ui.theme.OnNavyContainer
@@ -58,32 +66,48 @@ fun ModuleDetailScreen(
     val vm: ProgressViewModel = viewModel()
     val exerciseStats by vm.exerciseStats.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().pagePattern()) {
         BrandTopBar(
             title = module?.titleUz ?: "Modul",
             subtitle = module?.descriptionUz,
             onBack = onBack,
+            brush = accentGradientFor(module?.type.orEmpty()),
         )
         if (module == null) {
             Text("Modul topilmadi", modifier = Modifier.padding(16.dp))
             return@Column
         }
-        HairLine()
         val accent = accentColorFor(module.type)
+        val friend = remember(module.type) { mascotFor(module.type) }
         LazyColumn(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(module.exercises, key = { it.id }) { exercise ->
-                ExerciseCard(
-                    exercise = exercise,
-                    accent = accent,
-                    stat = exerciseStats[exercise.id],
-                    onStart = { onExerciseClick(exercise.id) },
+            // Modul do'sti o'zini tanishtiradi — bola qaysi modulga
+            // kirganini personaj orqali eslab qoladi.
+            item {
+                MascotSays(
+                    look = friend,
+                    text = friend.greeting,
+                    mood = MascotMood.Happy,
+                    mascotSize = 80.dp,
+                    bubbleColor = accent.copy(alpha = 0.12f),
                 )
             }
-            items(module.dialogs, key = { it.id }) { dialog ->
-                DialogCard(dialog, accent, onStart = { onDialogClick(dialog.id) })
+            itemsIndexed(module.exercises, key = { _, e -> e.id }) { i, exercise ->
+                PopIn(index = i) {
+                    ExerciseCard(
+                        exercise = exercise,
+                        accent = accent,
+                        stat = exerciseStats[exercise.id],
+                        onStart = { onExerciseClick(exercise.id) },
+                    )
+                }
+            }
+            itemsIndexed(module.dialogs, key = { _, d -> d.id }) { i, dialog ->
+                PopIn(index = module.exercises.size + i) {
+                    DialogCard(dialog, accent, friend, onStart = { onDialogClick(dialog.id) })
+                }
             }
         }
     }
@@ -152,11 +176,21 @@ private fun ExerciseCard(
 }
 
 @Composable
-private fun DialogCard(dialog: DialogScenario, accent: Color, onStart: () -> Unit) {
+private fun DialogCard(
+    dialog: DialogScenario,
+    accent: Color,
+    friend: MascotLook,
+    onStart: () -> Unit,
+) {
     SoftCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            // Suhbatdoshning tasviri kontentdan kelsa o'shani, aks holda
+            // modul do'stini ko'rsatamiz — karta hech qachon bo'sh turmaydi.
             if (dialog.characterEmoji.isNotBlank()) {
                 VisualThumb(dialog.characterEmoji, size = 46.dp)
+                Spacer(Modifier.size(12.dp))
+            } else {
+                Mascot(look = friend, mood = MascotMood.Idle, size = 46.dp)
                 Spacer(Modifier.size(12.dp))
             }
             Column(Modifier.weight(1f)) {

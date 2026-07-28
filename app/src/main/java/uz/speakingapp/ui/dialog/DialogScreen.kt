@@ -52,10 +52,16 @@ import uz.speakingapp.ui.theme.BrandProgressBar
 import uz.speakingapp.ui.theme.BrandTopBar
 import uz.speakingapp.ui.theme.Danger
 import uz.speakingapp.ui.theme.GradientButton
+import androidx.compose.foundation.shape.CircleShape
 import uz.speakingapp.ui.theme.HairLine
 import uz.speakingapp.ui.theme.InkMuted
 import uz.speakingapp.ui.theme.InkStrong
+import uz.speakingapp.ui.theme.Mascot
+import uz.speakingapp.ui.theme.MascotMood
 import uz.speakingapp.ui.theme.Navy
+import uz.speakingapp.ui.theme.PrimaryGradient
+import uz.speakingapp.ui.theme.mascotFor
+import uz.speakingapp.ui.theme.pagePattern
 import uz.speakingapp.ui.theme.OutlineSoft
 import uz.speakingapp.ui.theme.OverlineLabel
 import uz.speakingapp.ui.theme.ScoreRing
@@ -69,11 +75,15 @@ fun DialogScreen(
     moduleId: String,
     isInterview: Boolean,
     onBack: () -> Unit,
+    moduleType: String = "",
 ) {
     if (scenario == null) {
         Text("Senariy topilmadi", modifier = Modifier.padding(16.dp))
         return
     }
+    // Suhbatdosh — shu modulning do'sti. Bola kim bilan gaplashayotganini
+    // ismidan tashqari ko'rinishidan ham biladi.
+    val friend = remember(moduleType) { mascotFor(moduleType) }
     val vm: DialogViewModel = viewModel()
     val state by vm.state.collectAsStateWithLifecycle()
     LaunchedEffect(scenario.id) { vm.bind(scenario, moduleId, isInterview) }
@@ -171,12 +181,9 @@ fun DialogScreen(
                     }
 
                     DialogPhase.CharacterSpeaking -> Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.VolumeUp,
-                            contentDescription = null,
-                            tint = Navy,
-                            modifier = Modifier.size(18.dp),
-                        )
+                        // Suhbatdosh gapirayotganda tumshug'i qimirlaydi —
+                        // bola navbat kimdaligini darrov tushunadi.
+                        Mascot(look = friend, mood = MascotMood.Speaking, size = 56.dp)
                         Spacer(Modifier.size(10.dp))
                         Text(
                             "${scenario.characterName} gapirmoqda",
@@ -208,13 +215,25 @@ fun DialogScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
+                        // Bola gapirayotganda suhbatdosh tinglaydi va ovoz
+                        // balandligiga qarab jonlanadi.
+                        Mascot(
+                            look = friend,
+                            mood = MascotMood.Listening,
+                            size = 64.dp,
+                            level = state.micLevel,
+                        )
+                        Spacer(Modifier.size(10.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(Modifier.size(8.dp).clip(MaterialTheme.shapes.extraSmall).background(Danger))
+                            Box(Modifier.size(8.dp).clip(CircleShape).background(Danger))
                             Spacer(Modifier.size(8.dp))
                             Text("YOZILMOQDA · ${state.elapsedSec}s", style = OverlineLabel, color = Danger)
                         }
-                        Spacer(Modifier.size(16.dp))
-                        BrandMicButton(true, { vm.stopRecording() }, Icons.Default.Mic, Icons.Default.Stop, size = 68.dp)
+                        Spacer(Modifier.size(14.dp))
+                        BrandMicButton(
+                            true, { vm.stopRecording() }, Icons.Default.Mic, Icons.Default.Stop,
+                            size = 68.dp, level = state.micLevel,
+                        )
                     }
 
                     DialogPhase.Done -> DonePanel(
@@ -246,18 +265,22 @@ private fun MessageBubble(
             color = InkMuted,
         )
         Spacer(Modifier.size(4.dp))
+        // Chat pufagi: suhbatdoshniki chapdan, bolanikini o'ngdan — burchagi
+        // ham o'sha tomonda o'tkir qoladi, xuddi haqiqiy chat ilovalaridagidek.
+        val bubbleShape = if (fromCharacter) {
+            RoundedCornerShape(topStart = 6.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
+        } else {
+            RoundedCornerShape(topStart = 20.dp, topEnd = 6.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
+        }
         Box(
             modifier = Modifier
                 .widthIn(max = 300.dp)
-                .clip(RoundedCornerShape(4.dp))
+                .clip(bubbleShape)
                 .then(
-                    if (fromCharacter) {
-                        Modifier.background(SurfaceMuted).border(1.dp, OutlineSoft, RoundedCornerShape(4.dp))
-                    } else {
-                        Modifier.background(Navy)
-                    }
+                    if (fromCharacter) Modifier.background(SurfaceMuted)
+                    else Modifier.background(PrimaryGradient)
                 )
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = 14.dp, vertical = 11.dp),
         ) {
             Text(
                 text,

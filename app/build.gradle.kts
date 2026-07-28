@@ -41,8 +41,10 @@ android {
         // 0.1.4 — birinchi imzolangan release build (R8 + shrinkResources, 27.8MB).
         //         DIQQAT: 0.1.3 gacha tarqatilgan APK'lar debug kaliti bilan imzolangan
         //         edi, shuning uchun ular ustiga o'rnatilmaydi — avval o'chirish kerak.
-        versionCode = 5
-        versionName = "0.1.4"
+        // 0.1.5 — bolalar uchun yangi dizayn: "SpeakUp do'stlari" personajlari
+        //         (Canvas'da chiziladi, APK hajmi oshmaydi) va animatsiyalar.
+        versionCode = 6
+        versionName = "0.1.5"
         vectorDrawables { useSupportLibrary = true }
 
         // ── Backend (Vercel) sozlamalari — local.properties'dan ────────
