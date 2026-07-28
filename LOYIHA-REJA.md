@@ -159,12 +159,26 @@ Loyiha odamlar test qilishi va foydalanishi uchun chiqarilishi kerak. Offline-fi
 > **Hozircha:** pul yo'qligi sabab **1–2 bosqich (APK + Firebase)** bilan boshlaymiz — butunlay bepul. Google Play $25 bir martalik to'lov, keyinroq.
 
 ### Release uchun texnik talablar
-- [ ] App signing (keystore yaratish, bir marta)
+- [x] App signing (keystore yaratish, bir marta) — `keystore/speakup-release.jks` (git-ignored),
+      parollar `local.properties` da, sxemalar **v2+v3**. Namuna: `local.properties.example`.
 - [ ] Mikrofon ruxsati + tushunarli izoh
 - [ ] Vosk modeli: GIBRID — APK kichik (~10-15MB), model birinchi ochilishda online yuklab olinadi, keyin abadiy offline. Kontent (JSON) ham online yangilanadi + bundled zaxira.
 - [ ] `minSdk` / `targetSdk` to'g'ri sozlash (eski telefonlar ham ishlashi uchun)
 - [ ] Turli qurilmalarda test (ekran, Android versiyasi, mikrofon)
-- [ ] ProGuard/R8 (hajmni kichraytirish)
+- [x] ProGuard/R8 (hajmni kichraytirish) — 43.6MB → **27.8MB**; Vosk/JNA uchun keep
+      qoidalari `app/proguard-rules.pro` da (refleksiya, busiz release'da crash).
+
+#### Release APK chiqarish
+```
+.\gradlew.bat assembleRelease          # loyiha ildizida (JAVA_HOME o'rnatilgan bo'lsin)
+cd web && npm run upload:apk           # release APK'ni Blob'ga yuklaydi
+```
+> **Kalitni zaxiralang.** `keystore/speakup-release.jks` + `local.properties` dagi parollar
+> yo'qolsa, o'rnatilgan ilovaga boshqa hech qachon yangilanish chiqara olmaysiz —
+> foydalanuvchilar eskisini o'chirib, qaytadan o'rnatishga majbur bo'ladi.
+>
+> **0.1.4 ga o'tishda ham shu holat:** undan oldingi APK'lar debug kaliti bilan
+> imzolangan edi, shuning uchun ular ustiga o'rnatilmaydi — avval o'chirish kerak.
 - [ ] Maxfiylik: ovoz telefonda qoladi, hech qayerga yuborilmaydi (offline ustunligi — ota-onalar uchun muhim)
 - [ ] Play uchun: ikonка, skrinshotlar, tavsif, maxfiylik siyosati
 

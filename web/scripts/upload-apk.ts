@@ -12,7 +12,11 @@ import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
-const APK_PATH = path.resolve("../app/build/outputs/apk/debug/app-debug.apk");
+// FAQAT release APK tarqatiladi. Debug build `debuggable=true` bo'ladi (istalgan
+// kishi ichidagi ATTEMPTS_TOKEN ni ajratib oladi), R8 o'chiq bo'lgani uchun ~16MB
+// kattaroq va debug kaliti bilan imzolanadi — u kalit mashinaga bog'liq, ya'ni
+// keyingi build'ni foydalanuvchi ustiga o'rnata olmaydi.
+const APK_PATH = path.resolve("../app/build/outputs/apk/release/app-release.apk");
 const GRADLE_PATH = path.resolve("../app/build.gradle.kts");
 
 /** Eng yangi shuncha APK saqlanadi, qolgani o'chiriladi. */
@@ -39,8 +43,9 @@ async function main() {
     process.exit(1);
   }
   if (!existsSync(APK_PATH)) {
-    console.error(`APK topilmadi: ${APK_PATH}`);
-    console.error("Avval loyiha ildizida yig'ing:  .\\gradlew.bat assembleDebug");
+    console.error(`Release APK topilmadi: ${APK_PATH}`);
+    console.error("Avval loyiha ildizida yig'ing:  .\\gradlew.bat assembleRelease");
+    console.error("(imzo kaliti local.properties'dan olinadi — local.properties.example ga qarang)");
     process.exit(1);
   }
 

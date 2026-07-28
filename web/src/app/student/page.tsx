@@ -370,6 +370,33 @@ function AndroidDownload() {
         {apk.version && `Versiya ${apk.version} · `}
         Noma&apos;lum manbalarga ruxsat so&apos;raladi
       </p>
+      {/*
+        0.1.4 dan boshlab APK release kaliti bilan imzolanadi. Android boshqa
+        kalit bilan imzolangan ilovani eskisining ustiga o'rnatmaydi — "ilova
+        o'rnatilmadi" deb yozadi, sababini tushuntirmaydi.
+
+        O'chirish oqibatlari ataylab to'liq sanab o'tilgan: ProfileStore
+        (SharedPreferences) va Room bazasi ham, Vosk modeli ham (filesDir) ilova
+        bilan birga o'chadi — ya'ni daraja/seriya noldan boshlanadi va 125MB
+        qaytadan yuklanadi. Matn shartli ("avval o'rnatilgan bo'lsa"), shuning
+        uchun yangi foydalanuvchiga ham to'g'ri. Hamma 0.1.4+ ga o'tgach olib
+        tashlansa bo'ladi.
+      */}
+      <div className="mt-3 flex items-start gap-2 border-t border-line pt-3">
+        <Icon name="warning" size={16} className="mt-0.5 shrink-0 text-gold-deep" />
+        <div className="text-sm text-ink-muted">
+          <p>
+            Ilova avval o&apos;rnatilgan bo&apos;lsa, yangisidan oldin{" "}
+            <strong className="text-ink">eskisini o&apos;chiring</strong> — aks holda
+            &laquo;ilova o&apos;rnatilmadi&raquo; deb chiqadi.
+          </p>
+          <p className="mt-1">
+            O&apos;chirilgach ismingizni qayta kiritasiz, daraja va kunlik seriya
+            noldan boshlanadi, nutq modeli ham qaytadan yuklanadi. Oldin ishlagan
+            mashqlaringiz o&apos;qituvchida saqlanib qoladi.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

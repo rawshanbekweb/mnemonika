@@ -5,3 +5,12 @@ sdk.dir=C\:\\Users\\<foydalanuvchi>\\AppData\\Local\\Android\\Sdk
 API_BASE_URL=https://mnemonika.vercel.app
 # ATTEMPTS_TOKEN web/.env dagi ATTEMPTS_INGEST_TOKEN bilan bir xil bo'lishi kerak.
 ATTEMPTS_TOKEN=
+
+# Release imzosi — bularsiz `assembleRelease` imzosiz (o'rnatib bo'lmaydigan) APK beradi.
+# Keystore yaratish (bir marta, keyin ZAXIRALANG — yo'qolsa yangilanish chiqara olmaysiz):
+#   keytool -genkeypair -v -keystore keystore/speakup-release.jks -storetype PKCS12 \
+#           -alias speakup -keyalg RSA -keysize 2048 -validity 10000
+RELEASE_STORE_FILE=keystore/speakup-release.jks
+RELEASE_STORE_PASSWORD=
+RELEASE_KEY_ALIAS=speakup
+RELEASE_KEY_PASSWORD=

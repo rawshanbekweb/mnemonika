@@ -17,6 +17,14 @@ val localProps = Properties().apply {
 val apiBaseUrl: String = localProps.getProperty("API_BASE_URL", "")
 val attemptsToken: String = localProps.getProperty("ATTEMPTS_TOKEN", "")
 
+// Release imzo kaliti ham local.properties'dan. Kalit topilmasa release build
+// imzosiz chiqadi (o'rnatib bo'lmaydi), shuning uchun buni jimgina o'tkazib
+// yubormay, ogohlantirish chiqaramiz — namuna local.properties.example da.
+val releaseStoreFile: File? = localProps.getProperty("RELEASE_STORE_FILE")
+    ?.takeIf { it.isNotBlank() }
+    ?.let { rootProject.file(it) }
+    ?.takeIf { it.exists() }
+
 android {
     namespace = "uz.speakingapp"
     compileSdk = 36
@@ -29,9 +37,12 @@ android {
         // versionName'dan tuziladi, shuning uchun o'quvchi qaysi build'ni
         // olganini shundan biladi. 0.1.1 — yozuvni to'xtatishda crash tuzatildi;
         // 0.1.2 — yaratilgan ingliz talaffuzi audiosi (VoiceCue, offline kesh);
-        // 0.1.3 — mashqqa xos murabbiy maslahatlari (maslahat banki).
-        versionCode = 4
-        versionName = "0.1.3"
+        // 0.1.3 — mashqqa xos murabbiy maslahatlari (maslahat banki);
+        // 0.1.4 — birinchi imzolangan release build (R8 + shrinkResources, 27.8MB).
+        //         DIQQAT: 0.1.3 gacha tarqatilgan APK'lar debug kaliti bilan imzolangan
+        //         edi, shuning uchun ular ustiga o'rnatilmaydi — avval o'chirish kerak.
+        versionCode = 5
+        versionName = "0.1.4"
         vectorDrawables { useSupportLibrary = true }
 
         // ── Backend (Vercel) sozlamalari — local.properties'dan ────────
@@ -49,13 +60,40 @@ android {
         }
     }
 
+    signingConfigs {
+        if (releaseStoreFile != null) {
+            create("release") {
+                storeFile = releaseStoreFile
+                storePassword = localProps.getProperty("RELEASE_STORE_PASSWORD")
+                keyAlias = localProps.getProperty("RELEASE_KEY_ALIAS")
+                keyPassword = localProps.getProperty("RELEASE_KEY_PASSWORD")
+                // minSdk 24 — v1 (JAR) imzosi faqat API 24 dan past qurilmalarga kerak,
+                // shuning uchun o'chirilgan (o'rnatish tezroq). v3 kelajakda kalitni
+                // almashtirish (key rotation) imkonini beradi.
+                enableV1Signing = false
+                enableV2Signing = true
+                enableV3Signing = true
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
+            // Kod qisqargandan keyin ishlatilmagan resurslar ham olib tashlanadi.
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (releaseStoreFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            } else {
+                logger.warn(
+                    "OGOHLANTIRISH: RELEASE_STORE_FILE topilmadi — release APK IMZOSIZ chiqadi " +
+                        "va telefonga o'rnatilmaydi. local.properties.example ga qarang."
+                )
+            }
         }
     }
     compileOptions {

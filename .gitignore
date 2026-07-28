@@ -10,3 +10,9 @@
 local.properties
 /app/build/
 /.kotlin/
+
+# Release imzo kaliti — HECH QACHON git'ga tushmasin. Yo'qolsa yoki oshkor bo'lsa
+# ilovani boshqa kalit bilan yangilab bo'lmaydi (foydalanuvchi qayta o'rnatishga majbur).
+/keystore/
+*.jks
+*.keystore
