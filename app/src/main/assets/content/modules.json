@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 5,
   "modules": [
     {
       "id": "discussion",
@@ -13,14 +13,29 @@
           "id": "discussion_family_pets_dream",
           "topic": "Family and Pets",
           "title": "My Dream Pet",
-          "visuals": ["🐶", "🐱", "🐰", "🦜", "🐹", "🐢"],
           "mnemonic": {
             "acronym": "PETS",
             "steps": [
-              { "letter": "P", "en": "Position", "uz": "Nuqtai nazaringizni bildiring" },
-              { "letter": "E", "en": "Example", "uz": "Misollar keltiring" },
-              { "letter": "T", "en": "Thoughts of others", "uz": "Boshqalarning fikri" },
-              { "letter": "S", "en": "Summary", "uz": "Xulosa" }
+              {
+                "en": "Position",
+                "uz": "Nuqtai nazaringizni bildiring",
+                "letter": "P"
+              },
+              {
+                "en": "Example",
+                "uz": "Misollar keltiring",
+                "letter": "E"
+              },
+              {
+                "en": "Thoughts of others",
+                "uz": "Boshqalarning fikri",
+                "letter": "T"
+              },
+              {
+                "en": "Summary",
+                "uz": "Xulosa",
+                "letter": "S"
+              }
             ]
           },
           "prompts": [
@@ -28,43 +43,542 @@
             "How would you take care of your pet?",
             "Why do some people prefer cats over dogs?"
           ],
-          "keywords": ["care", "feed", "responsible", "companion", "loyal"],
-          "timeLimitSec": 60
+          "keywords": [
+            "care",
+            "feed",
+            "responsible",
+            "companion",
+            "loyal"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "🐶",
+            "🐱",
+            "🐰",
+            "🦜",
+            "🐹",
+            "🐢"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/2853e894db28e15ef93db9f89c8165ba11e6eaae5924077b054fcb961241371d.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/ccc2c6d1bc6c1cd1188a50c84491ab06df56c10975d3bc40da8fddf63756f749.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/49ec39f8cbec282168aaa354cfd8fe67f142cb2579e88d746d343e2a2698b363.wav"
+          ],
+          "targetAudioUrl": "",
+          "structureTips": [
+            {
+              "move": "EXAMPLE",
+              "title": "Misol keltir",
+              "detail": "Uy hayvonini parvarishlashni \"For example...\" deb misol bilan tushuntir."
+            },
+            {
+              "move": "OPINION",
+              "title": "Fikr bildir",
+              "detail": "Javobingni \"I think...\" deb orzuingdagi uy hayvoni haqida boshla."
+            },
+            {
+              "move": "OTHERS",
+              "title": "Boshqalar fikri",
+              "detail": "Odamlar nega mushuklarni tanlashini \"Some people think...\" deb ayt."
+            },
+            {
+              "move": "SUMMARY",
+              "title": "Xulosa qil",
+              "detail": "Oxirida \"Overall...\" deb sodiq do'sting haqida qisqa xulosa qil."
+            }
+          ]
         },
         {
           "id": "discussion_nature_environment",
           "topic": "The Natural World",
           "title": "Environmental Problems",
-          "visuals": ["🌍", "♻️", "🗑️", "🌳", "🏭", "💧"],
           "mnemonic": {
             "acronym": "GREEN",
             "steps": [
-              { "letter": "G", "en": "Give reasons", "uz": "Sabablarni ayting" },
-              { "letter": "R", "en": "Reasons", "uz": "Dalillar" },
-              { "letter": "E", "en": "Examples", "uz": "Misollar" },
-              { "letter": "E", "en": "Effects", "uz": "Ta'sirlar" },
-              { "letter": "N", "en": "Next steps", "uz": "Keyingi qadamlar" }
+              {
+                "en": "Give reasons",
+                "uz": "Sabablarni ayting",
+                "letter": "G"
+              },
+              {
+                "en": "Reasons",
+                "uz": "Dalillar",
+                "letter": "R"
+              },
+              {
+                "en": "Examples",
+                "uz": "Misollar",
+                "letter": "E"
+              },
+              {
+                "en": "Effects",
+                "uz": "Ta'sirlar",
+                "letter": "E"
+              },
+              {
+                "en": "Next steps",
+                "uz": "Keyingi qadamlar",
+                "letter": "N"
+              }
             ]
           },
           "prompts": [
             "What environmental problems can you see in the picture?",
             "How can we protect nature?"
           ],
-          "keywords": ["pollution", "recycle", "plastic", "forest", "protect"],
-          "timeLimitSec": 60
+          "keywords": [
+            "pollution",
+            "recycle",
+            "plastic",
+            "forest",
+            "protect"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "🌍",
+            "♻️",
+            "🗑️",
+            "🌳",
+            "🏭",
+            "💧"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/93020a933ed77ac6c614e365d7e23329328d287a56494fc15da13cd786676f13.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/a01c9cd2902c3ac8428e6e278422c3b504d36b469e285706b0aea193348431a8.wav"
+          ],
+          "targetAudioUrl": "",
+          "structureTips": [
+            {
+              "move": "EXAMPLE",
+              "title": "Misol keltir",
+              "detail": "Ifloslanishga \"For example\" deb plastik shishalarni misol qil."
+            },
+            {
+              "move": "REASON",
+              "title": "Sababini tushuntir",
+              "detail": "Plastik zararli ekanini \"because\" so'zi orqali tushuntir."
+            },
+            {
+              "move": "SUMMARY",
+              "title": "Xulosa qil",
+              "detail": "Tabiatni asrash bo'yicha oxirida \"Overall\" deb xulosa ayt."
+            }
+          ]
         },
         {
           "id": "discussion_read_aloud_pets",
           "topic": "Talaffuz mashqi",
           "title": "Takrorlang: My Pet",
-          "visuals": ["🔊", "🗣️"],
-          "mnemonic": { "acronym": "", "steps": [] },
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
           "prompts": [],
           "keywords": [],
           "timeLimitSec": 40,
-          "targetText": "My dog is very friendly and he likes to play in the garden every morning."
+          "visuals": [
+            "🔊",
+            "🗣️"
+          ],
+          "targetText": "My dog is very friendly and he likes to play in the garden every morning.",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_school_life",
+          "topic": "School Life",
+          "title": "My Favorite School Subject",
+          "mnemonic": {
+            "acronym": "IDEA",
+            "steps": [
+              {
+                "en": "Idea and opinion",
+                "uz": "Fikringni ayt",
+                "letter": "I"
+              },
+              {
+                "en": "Detailed example",
+                "uz": "Aniq misol keltir",
+                "letter": "D"
+              },
+              {
+                "en": "Explain the reason",
+                "uz": "Sababini tushuntir",
+                "letter": "E"
+              },
+              {
+                "en": "And a summary",
+                "uz": "Qisqa xulosa qil",
+                "letter": "A"
+              }
+            ]
+          },
+          "prompts": [
+            "Which school subject do you think is the most useful?",
+            "Can you give an example of what you learn in this class?",
+            "Why is this subject important for all students?"
+          ],
+          "keywords": [
+            "subject",
+            "useful",
+            "lesson",
+            "science",
+            "future"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "🏫",
+            "📚",
+            "📐",
+            "🔬",
+            "✏️"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_healthy_food",
+          "topic": "Healthy Food",
+          "title": "Healthy Food Choice",
+          "mnemonic": {
+            "acronym": "TOPIC",
+            "steps": [
+              {
+                "en": "Take a position",
+                "uz": "Nuqtai nazaringni bildir",
+                "letter": "T"
+              },
+              {
+                "en": "Offer an example",
+                "uz": "Misol keltir",
+                "letter": "O"
+              },
+              {
+                "en": "Prove with a reason",
+                "uz": "Sabab bilan asosla",
+                "letter": "P"
+              },
+              {
+                "en": "Include thoughts of others",
+                "uz": "Boshqalarning fikri",
+                "letter": "I"
+              },
+              {
+                "en": "Conclusion",
+                "uz": "Xulosa",
+                "letter": "C"
+              }
+            ]
+          },
+          "prompts": [
+            "Do you prefer eating healthy food or fast food?",
+            "Can you give an example of healthy food and explain why it is good for your body?",
+            "What do your parents or friends say about healthy food?"
+          ],
+          "keywords": [
+            "health",
+            "apples",
+            "energy",
+            "strong",
+            "burger"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "🍎",
+            "🥗",
+            "🍔",
+            "🥦",
+            "🍌",
+            "💪"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_hobbies",
+          "topic": "Free Time and Hobbies",
+          "title": "My Favorite Hobby",
+          "mnemonic": {
+            "acronym": "VIEWS",
+            "steps": [
+              {
+                "en": "Voice your opinion",
+                "uz": "Fikringni ayt",
+                "letter": "V"
+              },
+              {
+                "en": "Illustrate with an example",
+                "uz": "Misol bilan ko'rsat",
+                "letter": "I"
+              },
+              {
+                "en": "Explain the reason",
+                "uz": "Sababini ayt",
+                "letter": "E"
+              },
+              {
+                "en": "Weigh the thoughts of others",
+                "uz": "Boshqalarning fikrini o'yla",
+                "letter": "W"
+              },
+              {
+                "en": "Sum up in a summary",
+                "uz": "Xulosa qil",
+                "letter": "S"
+              }
+            ]
+          },
+          "prompts": [
+            "Which activity do you like best: reading books, playing sports, or drawing pictures?",
+            "Why do you like it, and what do your friends prefer to do in their free time?",
+            "Why is having a good hobby important for everyone?"
+          ],
+          "keywords": [
+            "reading",
+            "drawing",
+            "sports",
+            "creative",
+            "healthy"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "📚",
+            "🎨",
+            "⚽",
+            "🚴",
+            "🎸"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_books",
+          "topic": "Books and Reading",
+          "title": "Books Or Phones",
+          "mnemonic": {
+            "acronym": "FACTS",
+            "steps": [
+              {
+                "en": "First, your opinion",
+                "uz": "Avval fikring",
+                "letter": "F"
+              },
+              {
+                "en": "Add an example",
+                "uz": "Misol qo'sh",
+                "letter": "A"
+              },
+              {
+                "en": "Cause and reason",
+                "uz": "Sabab",
+                "letter": "C"
+              },
+              {
+                "en": "Thoughts of others",
+                "uz": "Boshqalarning fikri",
+                "letter": "T"
+              },
+              {
+                "en": "Short summary",
+                "uz": "Qisqa xulosa",
+                "letter": "S"
+              }
+            ]
+          },
+          "prompts": [
+            "Do you prefer reading paper books or reading on a phone?",
+            "Can you give an example of a good book and explain why reading helps us?",
+            "What do your friends or family think about reading?"
+          ],
+          "keywords": [
+            "paper",
+            "story",
+            "screen",
+            "useful",
+            "library"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "📚",
+            "📖",
+            "📱",
+            "🧠",
+            "💡"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_internet_safety",
+          "topic": "Internet and Safety",
+          "title": "Safe Internet Use",
+          "mnemonic": {
+            "acronym": "IDEA",
+            "steps": [
+              {
+                "en": "Idea and opinion",
+                "uz": "Fikringni ayt",
+                "letter": "I"
+              },
+              {
+                "en": "Detailed example",
+                "uz": "Aniq misol keltir",
+                "letter": "D"
+              },
+              {
+                "en": "Explain the reason",
+                "uz": "Sababini tushuntir",
+                "letter": "E"
+              },
+              {
+                "en": "And a summary",
+                "uz": "Qisqa xulosa qil",
+                "letter": "A"
+              }
+            ]
+          },
+          "prompts": [
+            "Do you think the internet is helpful or dangerous for young students?",
+            "What is a good example of using the internet safely?",
+            "Why should students limit their screen time every day?"
+          ],
+          "keywords": [
+            "online",
+            "safety",
+            "screen",
+            "useful",
+            "danger"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "💻",
+            "📱",
+            "🔒",
+            "⏱️",
+            "🌐",
+            "⚠️"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_sports_health",
+          "topic": "Sports and Health",
+          "title": "Sports And Healthy Life",
+          "mnemonic": {
+            "acronym": "TOPIC",
+            "steps": [
+              {
+                "en": "Take a position",
+                "uz": "Nuqtai nazaringni bildir",
+                "letter": "T"
+              },
+              {
+                "en": "Offer an example",
+                "uz": "Misol keltir",
+                "letter": "O"
+              },
+              {
+                "en": "Prove with a reason",
+                "uz": "Sabab bilan asosla",
+                "letter": "P"
+              },
+              {
+                "en": "Include thoughts of others",
+                "uz": "Boshqalarning fikri",
+                "letter": "I"
+              },
+              {
+                "en": "Conclusion",
+                "uz": "Xulosa",
+                "letter": "C"
+              }
+            ]
+          },
+          "prompts": [
+            "Do you prefer team sports or individual sports?",
+            "What is your favorite sport and why is it good for your health?",
+            "What do your friends or family think about playing sports?"
+          ],
+          "keywords": [
+            "health",
+            "football",
+            "running",
+            "strong",
+            "active"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "⚽",
+            "🏃",
+            "💪",
+            "🏆",
+            "❤️"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_read_school",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: Our School",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🏫",
+            "📚"
+          ],
+          "targetText": "Every morning the children go to their big school with their good friends.",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
         }
-      ]
+      ],
+      "dialogs": []
     },
     {
       "id": "storytelling",
@@ -78,47 +592,481 @@
           "id": "storytelling_ocean_adventure",
           "topic": "Under the Ocean",
           "title": "Adventure Under the Sea",
-          "visuals": ["🌊", "🐠", "🐙", "🦈", "🐬", "🐚"],
           "mnemonic": {
             "acronym": "OCEAN",
             "steps": [
-              { "letter": "O", "en": "Opening", "uz": "Boshlanishi" },
-              { "letter": "C", "en": "Characters", "uz": "Personajlar" },
-              { "letter": "E", "en": "Events", "uz": "Voqealar" },
-              { "letter": "A", "en": "Amazing ending", "uz": "Ajoyib yakun" },
-              { "letter": "N", "en": "Natural flow", "uz": "Tabiiy oqim" }
+              {
+                "en": "Opening",
+                "uz": "Boshlanishi",
+                "letter": "O"
+              },
+              {
+                "en": "Characters",
+                "uz": "Personajlar",
+                "letter": "C"
+              },
+              {
+                "en": "Events",
+                "uz": "Voqealar",
+                "letter": "E"
+              },
+              {
+                "en": "Amazing ending",
+                "uz": "Ajoyib yakun",
+                "letter": "A"
+              },
+              {
+                "en": "Natural flow",
+                "uz": "Tabiiy oqim",
+                "letter": "N"
+              }
             ]
           },
           "prompts": [
             "Tell a story about an adventure under the sea.",
             "What did the diver discover?"
           ],
-          "keywords": ["dive", "explore", "coral", "treasure", "mysterious"],
-          "timeLimitSec": 90
+          "keywords": [
+            "dive",
+            "explore",
+            "coral",
+            "treasure",
+            "mysterious"
+          ],
+          "timeLimitSec": 90,
+          "visuals": [
+            "🌊",
+            "🐠",
+            "🐙",
+            "🦈",
+            "🐬",
+            "🐚"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/c30ac49964a51f40cf49d08da36fcfc240fd35b574b071db1b223c5e0d35f67b.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/fa1a01ade12561ea2dfec1d21da66a386d4db8e68ade26887e57b19430126853.wav"
+          ],
+          "targetAudioUrl": "",
+          "structureTips": [
+            {
+              "move": "SEQUENCE",
+              "title": "Ketma-ketlik",
+              "detail": "\"First...\", \"Then...\" va \"After that...\" so'zlari bilan g'avvos sarguzashtini tartib bilan ayt."
+            }
+          ]
         },
         {
           "id": "storytelling_feelings_day",
           "topic": "Feelings",
           "title": "The Day of Emotions",
-          "visuals": ["😀", "😲", "😟", "🤩", "😌"],
           "mnemonic": {
             "acronym": "FEELS",
             "steps": [
-              { "letter": "F", "en": "First emotion", "uz": "Birinchi his" },
-              { "letter": "E", "en": "Events that happened", "uz": "Sodir bo'lgan voqealar" },
-              { "letter": "E", "en": "Emotions changed", "uz": "His-tuyg'ular o'zgardi" },
-              { "letter": "L", "en": "Lessons learned", "uz": "Olingan saboqlar" },
-              { "letter": "S", "en": "Situation resolved", "uz": "Vaziyat hal bo'ldi" }
+              {
+                "en": "First emotion",
+                "uz": "Birinchi his",
+                "letter": "F"
+              },
+              {
+                "en": "Events that happened",
+                "uz": "Sodir bo'lgan voqealar",
+                "letter": "E"
+              },
+              {
+                "en": "Emotions changed",
+                "uz": "His-tuyg'ular o'zgardi",
+                "letter": "E"
+              },
+              {
+                "en": "Lessons learned",
+                "uz": "Olingan saboqlar",
+                "letter": "L"
+              },
+              {
+                "en": "Situation resolved",
+                "uz": "Vaziyat hal bo'ldi",
+                "letter": "S"
+              }
             ]
           },
           "prompts": [
             "Tell a story about a day full of different emotions.",
             "How did the person feel in the morning, afternoon and evening?"
           ],
-          "keywords": ["happy", "surprised", "worried", "excited", "proud"],
-          "timeLimitSec": 90
+          "keywords": [
+            "happy",
+            "surprised",
+            "worried",
+            "excited",
+            "proud"
+          ],
+          "timeLimitSec": 90,
+          "visuals": [
+            "😀",
+            "😲",
+            "😟",
+            "🤩",
+            "😌"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/b29ad6a044fdbadd01fc6730ab7921affb09e1a11dcbc38ad9493b201294568e.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/6fb70a05c2e0fff3e2edcedc1e6eb45966450e660a24e1f46b5fd6429d7ce80e.wav"
+          ],
+          "targetAudioUrl": "",
+          "structureTips": [
+            {
+              "move": "EMOTION",
+              "title": "His-tuyg'ular",
+              "detail": "Kunning har xil vaqtida o'zingni \"excited\" his qilganingni ayt."
+            },
+            {
+              "move": "SEQUENCE",
+              "title": "Voqealar tartibi",
+              "detail": "Voqealarni \"First\", \"Then\" va \"After that\" so'zlari bilan tartiblab ayt."
+            }
+          ]
+        },
+        {
+          "id": "storytelling_journey_train",
+          "topic": "A Journey",
+          "title": "An Exciting Train Journey",
+          "mnemonic": {
+            "acronym": "STORY",
+            "steps": [
+              {
+                "en": "Start with an opening",
+                "uz": "Boshlanishini ayt",
+                "letter": "S"
+              },
+              {
+                "en": "Tell the events in order",
+                "uz": "Voqealarni tartib bilan",
+                "letter": "T"
+              },
+              {
+                "en": "Observe the appearance of heroes",
+                "uz": "Qahramonlarni tasvirla",
+                "letter": "O"
+              },
+              {
+                "en": "Real feelings",
+                "uz": "His-tuyg'ular",
+                "letter": "R"
+              },
+              {
+                "en": "Your ending",
+                "uz": "Yakun",
+                "letter": "Y"
+              }
+            ]
+          },
+          "prompts": [
+            "Can you tell a story about a memorable train journey?",
+            "What unexpected thing happened on the train and who was there?",
+            "How did you feel during the trip and how did it end?"
+          ],
+          "keywords": [
+            "train",
+            "ticket",
+            "window",
+            "scared",
+            "friend"
+          ],
+          "timeLimitSec": 90,
+          "visuals": [
+            "🚂",
+            "🎟️",
+            "🧳",
+            "😮",
+            "😊"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "storytelling_lost_and_found",
+          "topic": "Lost and Found",
+          "title": "Finding A Lost Thing",
+          "mnemonic": {
+            "acronym": "MAGIC",
+            "steps": [
+              {
+                "en": "Mood at the start",
+                "uz": "Boshdagi kayfiyat",
+                "letter": "M"
+              },
+              {
+                "en": "Actions and events",
+                "uz": "Harakat va voqealar",
+                "letter": "A"
+              },
+              {
+                "en": "Give a description",
+                "uz": "Tasvirlab ber",
+                "letter": "G"
+              },
+              {
+                "en": "Interesting location",
+                "uz": "Qiziqarli joy",
+                "letter": "I"
+              },
+              {
+                "en": "Closing conclusion",
+                "uz": "Yakuniy xulosa",
+                "letter": "C"
+              }
+            ]
+          },
+          "prompts": [
+            "What important thing did you lose, and how did you feel at first?",
+            "Where did you look for it, and who helped you?",
+            "Where was it hidden, and how did the story end?"
+          ],
+          "keywords": [
+            "search",
+            "friend",
+            "pocket",
+            "scared",
+            "garden"
+          ],
+          "timeLimitSec": 90,
+          "visuals": [
+            "📱",
+            "🔑",
+            "🔍",
+            "🤝",
+            "🏡",
+            "😊"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "storytelling_rainy_day",
+          "topic": "A Rainy Day",
+          "title": "A Special Rainy Day",
+          "mnemonic": {
+            "acronym": "DREAM",
+            "steps": [
+              {
+                "en": "Describe the place",
+                "uz": "Joyni tasvirla",
+                "letter": "D"
+              },
+              {
+                "en": "Real events",
+                "uz": "Voqealar",
+                "letter": "R"
+              },
+              {
+                "en": "Emotions of the hero",
+                "uz": "Qahramon his-tuyg'ulari",
+                "letter": "E"
+              },
+              {
+                "en": "At the end, a conclusion",
+                "uz": "Oxirida xulosa",
+                "letter": "A"
+              },
+              {
+                "en": "Moral of the story",
+                "uz": "Hikoya saboqi",
+                "letter": "M"
+              }
+            ]
+          },
+          "prompts": [
+            "Where were you and what happened when it started raining?",
+            "What fun things did you do inside, and how did you feel?",
+            "How did the day end and what did you learn?"
+          ],
+          "keywords": [
+            "rainy",
+            "inside",
+            "puddle",
+            "played",
+            "happy"
+          ],
+          "timeLimitSec": 90,
+          "visuals": [
+            "🌧️",
+            "☔",
+            "🏠",
+            "🎲",
+            "😊",
+            "🌈"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "storytelling_helping_neighbour",
+          "topic": "Helping Others",
+          "title": "Helping A Kind Neighbor",
+          "mnemonic": {
+            "acronym": "STORY",
+            "steps": [
+              {
+                "en": "Start with an opening",
+                "uz": "Boshlanishini ayt",
+                "letter": "S"
+              },
+              {
+                "en": "Tell the events in order",
+                "uz": "Voqealarni tartib bilan",
+                "letter": "T"
+              },
+              {
+                "en": "Observe the appearance of heroes",
+                "uz": "Qahramonlarni tasvirla",
+                "letter": "O"
+              },
+              {
+                "en": "Real feelings",
+                "uz": "His-tuyg'ular",
+                "letter": "R"
+              },
+              {
+                "en": "Your ending",
+                "uz": "Yakun",
+                "letter": "Y"
+              }
+            ]
+          },
+          "prompts": [
+            "When did you help a neighbor or a stranger?",
+            "What did the person look like and how did you feel?",
+            "How did your story end and what lesson did you learn?"
+          ],
+          "keywords": [
+            "neighbor",
+            "street",
+            "heavy",
+            "happy",
+            "helped"
+          ],
+          "timeLimitSec": 90,
+          "visuals": [
+            "🏡",
+            "👵",
+            "🛍️",
+            "🤝",
+            "😊"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "storytelling_space_trip",
+          "topic": "Space and Stars",
+          "title": "My Space Adventure",
+          "mnemonic": {
+            "acronym": "MAGIC",
+            "steps": [
+              {
+                "en": "Mood at the start",
+                "uz": "Boshdagi kayfiyat",
+                "letter": "M"
+              },
+              {
+                "en": "Actions and events",
+                "uz": "Harakat va voqealar",
+                "letter": "A"
+              },
+              {
+                "en": "Give a description",
+                "uz": "Tasvirlab ber",
+                "letter": "G"
+              },
+              {
+                "en": "Interesting location",
+                "uz": "Qiziqarli joy",
+                "letter": "I"
+              },
+              {
+                "en": "Closing conclusion",
+                "uz": "Yakuniy xulosa",
+                "letter": "C"
+              }
+            ]
+          },
+          "prompts": [
+            "How did you feel when you started your journey into space in a rocket?",
+            "What did the new planet look like and what did you do there?",
+            "What interesting thing did you discover before coming home?"
+          ],
+          "keywords": [
+            "rocket",
+            "planet",
+            "galaxy",
+            "travel",
+            "aliens"
+          ],
+          "timeLimitSec": 90,
+          "visuals": [
+            "🚀",
+            "🪐",
+            "🌟",
+            "👨‍🚀",
+            "👽"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "storytelling_read_story",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: Forest Adventure",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🌲",
+            "🦊"
+          ],
+          "targetText": "Yesterday we went to a big green forest and saw a fast red fox.",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
         }
-      ]
+      ],
+      "dialogs": []
     },
     {
       "id": "picture_narrating",
@@ -132,47 +1080,429 @@
           "id": "picture_world_landmarks",
           "topic": "Around the World",
           "title": "Famous Landmarks",
-          "visuals": ["🗼", "🗿", "🏯", "🕌", "🎡", "🗽"],
           "mnemonic": {
             "acronym": "WORLD",
             "steps": [
-              { "letter": "W", "en": "What you see", "uz": "Nimani ko'ryapsiz" },
-              { "letter": "O", "en": "Objects and people", "uz": "Narsalar va odamlar" },
-              { "letter": "R", "en": "Relationships", "uz": "Elementlar aloqasi" },
-              { "letter": "L", "en": "Location details", "uz": "Joy tafsilotlari" },
-              { "letter": "D", "en": "Describe actions", "uz": "Harakatlarni tasvirlang" }
+              {
+                "en": "What you see",
+                "uz": "Nimani ko'ryapsiz",
+                "letter": "W"
+              },
+              {
+                "en": "Objects and people",
+                "uz": "Narsalar va odamlar",
+                "letter": "O"
+              },
+              {
+                "en": "Relationships",
+                "uz": "Elementlar aloqasi",
+                "letter": "R"
+              },
+              {
+                "en": "Location details",
+                "uz": "Joy tafsilotlari",
+                "letter": "L"
+              },
+              {
+                "en": "Describe actions",
+                "uz": "Harakatlarni tasvirlang",
+                "letter": "D"
+              }
             ]
           },
           "prompts": [
             "Describe this famous landmark.",
             "Why do people visit this place?"
           ],
-          "keywords": ["landmark", "built", "visit", "tourist", "history"],
-          "timeLimitSec": 60
+          "keywords": [
+            "landmark",
+            "built",
+            "visit",
+            "tourist",
+            "history"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "🗼",
+            "🗿",
+            "🏯",
+            "🕌",
+            "🎡",
+            "🗽"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/aa6b90392ba90ca92d4746ae18e612265b651ab8a328e9c315fef97594086586.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/fac460683a823ba609df7a79276e619fa694ce9164a5ff8820307c6e56239e6a.wav"
+          ],
+          "targetAudioUrl": "",
+          "structureTips": [
+            {
+              "move": "DESCRIBE",
+              "title": "Ko'rganingni tasvirla",
+              "detail": "Obidani tasvirlash uchun gapingni \"I can see a landmark\" deb boshla."
+            },
+            {
+              "move": "PLACE",
+              "title": "Joyini ko'rsat",
+              "detail": "Sayyohlar joylashuvini tasvirlash uchun \"in front of...\" iborasidan foydalan."
+            }
+          ]
         },
         {
           "id": "picture_family_album",
           "topic": "Family and Pets",
           "title": "Family Album",
-          "visuals": ["👨‍👩‍👧‍👦", "🎂", "🐕", "🍳", "🏖️"],
           "mnemonic": {
             "acronym": "ALBUM",
             "steps": [
-              { "letter": "A", "en": "Appearance of people", "uz": "Odamlar ko'rinishi" },
-              { "letter": "L", "en": "Location of the photo", "uz": "Suratning joyi" },
-              { "letter": "B", "en": "Background details", "uz": "Fon tafsilotlari" },
-              { "letter": "U", "en": "Unique features", "uz": "O'ziga xos jihatlar" },
-              { "letter": "M", "en": "Mood of the scene", "uz": "Sahna kayfiyati" }
+              {
+                "en": "Appearance of people",
+                "uz": "Odamlar ko'rinishi",
+                "letter": "A"
+              },
+              {
+                "en": "Location of the photo",
+                "uz": "Suratning joyi",
+                "letter": "L"
+              },
+              {
+                "en": "Background details",
+                "uz": "Fon tafsilotlari",
+                "letter": "B"
+              },
+              {
+                "en": "Unique features",
+                "uz": "O'ziga xos jihatlar",
+                "letter": "U"
+              },
+              {
+                "en": "Mood of the scene",
+                "uz": "Sahna kayfiyati",
+                "letter": "M"
+              }
             ]
           },
           "prompts": [
             "Describe this family photo.",
             "What are the people doing and how do they feel?"
           ],
-          "keywords": ["family", "celebrate", "together", "happy", "memory"],
-          "timeLimitSec": 60
+          "keywords": [
+            "family",
+            "celebrate",
+            "together",
+            "happy",
+            "memory"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "👨‍👩‍👧‍👦",
+            "🎂",
+            "🐕",
+            "🍳",
+            "🏖️"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/7b937d7403e50cd9a2649c200a7f3838c045fe150b1a608eeeddd564824f02a4.wav",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": [
+            {
+              "move": "DESCRIBE",
+              "title": "Rasmni tasvirlash",
+              "detail": "Suratda kimlar borligini \"I can see my family\" deb tasvirlab ber."
+            },
+            {
+              "move": "EMOTION",
+              "title": "Kayfiyatni aytish",
+              "detail": "Suratdagi insonlar o'zini qanday his qilayotganini \"they feel happy\" deb ayt."
+            },
+            {
+              "move": "PLACE",
+              "title": "Joyni ko'rsatish",
+              "detail": "Oila a'zolari qayerda turganini \"on the left\" iborasi bilan ko'rsat."
+            }
+          ]
+        },
+        {
+          "id": "picture_narrating_city_street",
+          "topic": "City Life",
+          "title": "Busy City Street",
+          "mnemonic": {
+            "acronym": "PHOTO",
+            "steps": [
+              {
+                "en": "People and their appearance",
+                "uz": "Odamlar ko'rinishi",
+                "letter": "P"
+              },
+              {
+                "en": "Here: the location",
+                "uz": "Qayerda bo'layapti",
+                "letter": "H"
+              },
+              {
+                "en": "Objects in the background",
+                "uz": "Fondagi narsalar",
+                "letter": "O"
+              },
+              {
+                "en": "Their mood",
+                "uz": "Kayfiyati",
+                "letter": "T"
+              },
+              {
+                "en": "Overall summary",
+                "uz": "Umumiy xulosa",
+                "letter": "O"
+              }
+            ]
+          },
+          "prompts": [
+            "What do you see in this busy city street?",
+            "Who are the people, what are they wearing, and how do they feel?",
+            "What shops, buildings, and transport can you see around them?"
+          ],
+          "keywords": [
+            "street",
+            "people",
+            "buildings",
+            "traffic",
+            "stores"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "🏙️",
+            "🚕",
+            "🏬",
+            "🚶‍♂️",
+            "🚦",
+            "🚌"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "picture_narrating_market",
+          "topic": "At the Market",
+          "title": "At The Busy Market",
+          "mnemonic": {
+            "acronym": "FRAME",
+            "steps": [
+              {
+                "en": "First, what you see",
+                "uz": "Avval ko'rganing",
+                "letter": "F"
+              },
+              {
+                "en": "Right and left location",
+                "uz": "O'ng va chap tomon",
+                "letter": "R"
+              },
+              {
+                "en": "Actions: describe them",
+                "uz": "Harakatlarni tasvirla",
+                "letter": "A"
+              },
+              {
+                "en": "Mood of the people",
+                "uz": "Odamlar kayfiyati",
+                "letter": "M"
+              },
+              {
+                "en": "End with a summary",
+                "uz": "Xulosa bilan yakunla",
+                "letter": "E"
+              }
+            ]
+          },
+          "prompts": [
+            "What do you see at this colorful market?",
+            "What are people doing on the left and right?",
+            "How do the buyers and sellers feel today?"
+          ],
+          "keywords": [
+            "market",
+            "seller",
+            "fruits",
+            "buying",
+            "happy"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "🛒",
+            "🍎",
+            "🍌",
+            "🍉",
+            "👨‍🌾",
+            "🛍️"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "picture_narrating_seasons",
+          "topic": "Seasons and Weather",
+          "title": "Autumn In The Park",
+          "mnemonic": {
+            "acronym": "SCENE",
+            "steps": [
+              {
+                "en": "Say what you see",
+                "uz": "Nimani ko'ryapsan",
+                "letter": "S"
+              },
+              {
+                "en": "Colours and appearance",
+                "uz": "Ranglar va ko'rinish",
+                "letter": "C"
+              },
+              {
+                "en": "Every location detail",
+                "uz": "Joy tafsilotlari",
+                "letter": "E"
+              },
+              {
+                "en": "Notice the background",
+                "uz": "Fonga e'tibor ber",
+                "letter": "N"
+              },
+              {
+                "en": "Emotions on faces",
+                "uz": "Yuzlardagi his-tuyg'u",
+                "letter": "E"
+              }
+            ]
+          },
+          "prompts": [
+            "What season do you see in this picture?",
+            "What colors are the clothes and background?",
+            "What are the people doing and how do they feel?"
+          ],
+          "keywords": [
+            "autumn",
+            "jacket",
+            "leaves",
+            "yellow",
+            "cloudy"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "🍂",
+            "🍁",
+            "☁️",
+            "🧥",
+            "😊"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "picture_narrating_classroom",
+          "topic": "In the Classroom",
+          "title": "Our Busy Classroom",
+          "mnemonic": {
+            "acronym": "PHOTO",
+            "steps": [
+              {
+                "en": "People and their appearance",
+                "uz": "Odamlar ko'rinishi",
+                "letter": "P"
+              },
+              {
+                "en": "Here: the location",
+                "uz": "Qayerda bo'layapti",
+                "letter": "H"
+              },
+              {
+                "en": "Objects in the background",
+                "uz": "Fondagi narsalar",
+                "letter": "O"
+              },
+              {
+                "en": "Their mood",
+                "uz": "Kayfiyati",
+                "letter": "T"
+              },
+              {
+                "en": "Overall summary",
+                "uz": "Umumiy xulosa",
+                "letter": "O"
+              }
+            ]
+          },
+          "prompts": [
+            "Who is in the classroom and what do they look like?",
+            "Where are the people and what objects can you see around them?",
+            "How do the students feel and why is this a nice classroom?"
+          ],
+          "keywords": [
+            "teacher",
+            "student",
+            "blackboard",
+            "notebook",
+            "happy"
+          ],
+          "timeLimitSec": 60,
+          "visuals": [
+            "🏫",
+            "👩‍🏫",
+            "🧑‍🎓",
+            "📚",
+            "✏️",
+            "📝"
+          ],
+          "targetText": "",
+          "promptsAudio": [
+            "",
+            "",
+            ""
+          ],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "picture_narrating_read_picture",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: Green park",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🌳",
+            "⚽"
+          ],
+          "targetText": "In the big green park, there are three happy children playing with a red ball.",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
         }
-      ]
+      ],
+      "dialogs": []
     },
     {
       "id": "roleplay",
@@ -181,46 +1511,92 @@
       "titleEn": "Role Play",
       "descriptionUz": "Vaziyatga mos muloqot qilish",
       "emoji": "🎭",
+      "exercises": [],
       "dialogs": [
         {
           "id": "roleplay_new_friend",
           "topic": "On the Playground",
           "title": "New Friend at School",
-          "visuals": ["🛝", "⚽", "🤾", "🏫"],
-          "characterName": "Alex (yangi o'quvchi)",
-          "characterEmoji": "🧑",
-          "intro": "Hi! I'm Alex. I'm new at this school. Nice to meet you!",
+          "visuals": [
+            "🛝",
+            "⚽",
+            "🤾",
+            "🏫"
+          ],
           "mnemonic": {
             "acronym": "ACTORS",
             "steps": [
-              { "letter": "A", "en": "Appropriate character", "uz": "Mos personaj" },
-              { "letter": "C", "en": "Talk naturally", "uz": "Tabiiy gapiring" },
-              { "letter": "T", "en": "Observe reactions", "uz": "Reaksiyalarni kuzating" },
-              { "letter": "O", "en": "React to others", "uz": "Javob bering" },
-              { "letter": "R", "en": "Respect roles", "uz": "Rollarni hurmat qiling" },
-              { "letter": "S", "en": "Speak clearly", "uz": "Aniq gapiring" }
+              {
+                "en": "Appropriate character",
+                "uz": "Mos personaj",
+                "letter": "A"
+              },
+              {
+                "en": "Talk naturally",
+                "uz": "Tabiiy gapiring",
+                "letter": "C"
+              },
+              {
+                "en": "Observe reactions",
+                "uz": "Reaksiyalarni kuzating",
+                "letter": "T"
+              },
+              {
+                "en": "React to others",
+                "uz": "Javob bering",
+                "letter": "O"
+              },
+              {
+                "en": "Respect roles",
+                "uz": "Rollarni hurmat qiling",
+                "letter": "R"
+              },
+              {
+                "en": "Speak clearly",
+                "uz": "Aniq gapiring",
+                "letter": "S"
+              }
             ]
           },
+          "characterName": "Alex (yangi o'quvchi)",
+          "characterEmoji": "🧑",
+          "intro": "Hi! I'm Alex. I'm new at this school. Nice to meet you!",
           "turns": [
             {
               "characterLine": "What games do you usually play on the playground?",
               "studentHint": "Alex'ga qanday o'yinlar o'ynashingizni ayting.",
-              "expectedKeywords": ["play", "football", "game"]
+              "expectedKeywords": [
+                "play",
+                "football",
+                "game"
+              ]
             },
             {
               "characterLine": "That sounds fun! Can you show me how to play hopscotch?",
               "studentHint": "Klass o'yinini qanday o'ynashni tushuntiring.",
-              "expectedKeywords": ["jump", "square", "hop"]
+              "expectedKeywords": [
+                "jump",
+                "square",
+                "hop"
+              ]
             },
             {
               "characterLine": "Great! Where can we find something to eat at break time?",
               "studentHint": "Maktab oshxonasi haqida ayting.",
-              "expectedKeywords": ["canteen", "food", "eat"]
+              "expectedKeywords": [
+                "canteen",
+                "food",
+                "eat"
+              ]
             },
             {
               "characterLine": "Thank you for helping me. Will you be my friend?",
               "studentHint": "Alex'ning savoliga xushmuomalalik bilan javob bering.",
-              "expectedKeywords": ["friend", "yes", "course"]
+              "expectedKeywords": [
+                "friend",
+                "yes",
+                "course"
+              ]
             }
           ]
         },
@@ -228,40 +1604,338 @@
           "id": "roleplay_electronics_store",
           "topic": "Gadgets",
           "title": "At the Electronics Store",
-          "visuals": ["📱", "💻", "🎮", "🛍️"],
-          "characterName": "Mr. Karimov (sotuvchi)",
-          "characterEmoji": "🧑‍💼",
-          "intro": "Welcome to our electronics store! How can I help you today?",
+          "visuals": [
+            "📱",
+            "💻",
+            "🎮",
+            "🛍️"
+          ],
           "mnemonic": {
             "acronym": "STYLE",
             "steps": [
-              { "letter": "S", "en": "Setting", "uz": "Muhit" },
-              { "letter": "T", "en": "Tone", "uz": "Ohang" },
-              { "letter": "Y", "en": "Your character", "uz": "Sizning personajingiz" },
-              { "letter": "L", "en": "Listen actively", "uz": "Faol tinglash" },
-              { "letter": "E", "en": "Expressions", "uz": "Iboralar" }
+              {
+                "en": "Setting",
+                "uz": "Muhit",
+                "letter": "S"
+              },
+              {
+                "en": "Tone",
+                "uz": "Ohang",
+                "letter": "T"
+              },
+              {
+                "en": "Your character",
+                "uz": "Sizning personajingiz",
+                "letter": "Y"
+              },
+              {
+                "en": "Listen actively",
+                "uz": "Faol tinglash",
+                "letter": "L"
+              },
+              {
+                "en": "Expressions",
+                "uz": "Iboralar",
+                "letter": "E"
+              }
             ]
           },
+          "characterName": "Mr. Karimov (sotuvchi)",
+          "characterEmoji": "🧑‍💼",
+          "intro": "Welcome to our electronics store! How can I help you today?",
           "turns": [
             {
               "characterLine": "We have many gadgets. What are you looking for?",
               "studentHint": "Qaysi gadjetni sotib olmoqchi ekaningizni ayting.",
-              "expectedKeywords": ["phone", "tablet", "buy", "looking"]
+              "expectedKeywords": [
+                "phone",
+                "tablet",
+                "buy",
+                "looking"
+              ]
             },
             {
               "characterLine": "Good choice! What features are important for you?",
               "studentHint": "Sizga muhim bo'lgan xususiyatlarni tasvirlang.",
-              "expectedKeywords": ["camera", "battery", "screen", "memory"]
+              "expectedKeywords": [
+                "camera",
+                "battery",
+                "screen",
+                "memory"
+              ]
             },
             {
               "characterLine": "This model costs 200 dollars. Would you like to buy it?",
               "studentHint": "Narx haqida savol bering yoki qaror qiling.",
-              "expectedKeywords": ["price", "cheaper", "expensive", "buy"]
+              "expectedKeywords": [
+                "price",
+                "cheaper",
+                "expensive",
+                "buy"
+              ]
             },
             {
               "characterLine": "Thank you for your purchase! Have a nice day!",
               "studentHint": "Sotuvchiga rahmat ayting va xayrlashing.",
-              "expectedKeywords": ["thank", "goodbye", "bye"]
+              "expectedKeywords": [
+                "thank",
+                "goodbye",
+                "bye"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "roleplay_doctor",
+          "topic": "At the Doctor",
+          "title": "At the Doctor's Office",
+          "visuals": [
+            "👨‍⚕️",
+            "🤒",
+            "💊",
+            "😊"
+          ],
+          "mnemonic": {
+            "acronym": "GREET",
+            "steps": [
+              {
+                "en": "Greet politely",
+                "uz": "Xushmuomala salomlash",
+                "letter": "G"
+              },
+              {
+                "en": "Respond naturally",
+                "uz": "Tabiiy javob ber",
+                "letter": "R"
+              },
+              {
+                "en": "Explain what you need",
+                "uz": "Nima kerakligini tushuntir",
+                "letter": "E"
+              },
+              {
+                "en": "Extra questions",
+                "uz": "Qo'shimcha savol ber",
+                "letter": "E"
+              },
+              {
+                "en": "Thank and finish",
+                "uz": "Rahmat aytib yakunla",
+                "letter": "T"
+              }
+            ]
+          },
+          "characterName": "Doctor Jasur (shifokor)",
+          "characterEmoji": "👨‍⚕️",
+          "intro": "Hello! I am Doctor Jasur. Please come in and sit down.",
+          "turns": [
+            {
+              "characterLine": "Hello! How are you feeling today?",
+              "studentHint": "Shifokorga salom bering va o'zingizni yomon his qilayotganingizni ayting.",
+              "expectedKeywords": [
+                "hello",
+                "doctor",
+                "feeling",
+                "sick"
+              ]
+            },
+            {
+              "characterLine": "Oh, I am sorry. What is the problem? What hurts?",
+              "studentHint": "Shamollaganingizni, boshingiz va tomog'ingiz og'riyotganini tushuntiring.",
+              "expectedKeywords": [
+                "cold",
+                "headache",
+                "cough",
+                "throat"
+              ]
+            },
+            {
+              "characterLine": "I see. You should rest. Do you have a fever?",
+              "studentHint": "Isitmangiz borligini ayting va dori olishingiz kerakligini so'rang.",
+              "expectedKeywords": [
+                "fever",
+                "medicine",
+                "water",
+                "drink"
+              ]
+            },
+            {
+              "characterLine": "Yes, take this medicine twice a day and drink warm tea. Get well soon!",
+              "studentHint": "Shifokorga maslahat uchun rahmat ayting va xayrlashing.",
+              "expectedKeywords": [
+                "thank",
+                "doctor",
+                "goodbye",
+                "great"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "roleplay_cafe",
+          "topic": "In a Cafe",
+          "title": "Ordering at a Cafe",
+          "visuals": [
+            "☕",
+            "📜",
+            "🍕",
+            "💵"
+          ],
+          "mnemonic": {
+            "acronym": "STYLE",
+            "steps": [
+              {
+                "en": "Setting",
+                "uz": "Muhit",
+                "letter": "S"
+              },
+              {
+                "en": "Tone",
+                "uz": "Ohang",
+                "letter": "T"
+              },
+              {
+                "en": "Your character",
+                "uz": "Sening roling",
+                "letter": "Y"
+              },
+              {
+                "en": "Listen actively",
+                "uz": "Faol tingla",
+                "letter": "L"
+              },
+              {
+                "en": "Expressions",
+                "uz": "Iboralar",
+                "letter": "E"
+              }
+            ]
+          },
+          "characterName": "Jasur (ofitsiant)",
+          "characterEmoji": "☕",
+          "intro": "Hello! Welcome to Smart Cafe. I am Jasur, your waiter.",
+          "turns": [
+            {
+              "characterLine": "Hello! Welcome to our cafe. Here is the menu. What would you like to drink?",
+              "studentHint": "Kafeda ichimlik (masalan, suv, choy yoki sharbat) so'rang va 'iltimos' deb ayting.",
+              "expectedKeywords": [
+                "drink",
+                "water",
+                "juice",
+                "please"
+              ]
+            },
+            {
+              "characterLine": "Great choice! And what food would you like to eat today?",
+              "studentHint": "O'zingiz xohlagan taomni (masalan, pitsa, burger yoki salat) buyurtma qiling.",
+              "expectedKeywords": [
+                "pizza",
+                "burger",
+                "salad",
+                "would"
+              ]
+            },
+            {
+              "characterLine": "Here is your delicious meal! Would you like anything else, or the bill?",
+              "studentHint": "Rahmat ayting va hisob/narxni so'rang.",
+              "expectedKeywords": [
+                "thanks",
+                "price",
+                "total",
+                "please"
+              ]
+            },
+            {
+              "characterLine": "The total is 50,000 sums. Thank you for coming! Have a nice day!",
+              "studentHint": "Pulni bering, rahmat ayting va xayrlashing.",
+              "expectedKeywords": [
+                "here",
+                "money",
+                "thank",
+                "goodbye"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "roleplay_directions",
+          "topic": "Asking for Directions",
+          "title": "Asking for Directions",
+          "visuals": [
+            "👋",
+            "🏛️",
+            "🗺️",
+            "😊"
+          ],
+          "mnemonic": {
+            "acronym": "GREET",
+            "steps": [
+              {
+                "en": "Greet politely",
+                "uz": "Xushmuomala salomlash",
+                "letter": "G"
+              },
+              {
+                "en": "Respond naturally",
+                "uz": "Tabiiy javob ber",
+                "letter": "R"
+              },
+              {
+                "en": "Explain what you need",
+                "uz": "Nima kerakligini tushuntir",
+                "letter": "E"
+              },
+              {
+                "en": "Extra questions",
+                "uz": "Qo'shimcha savol ber",
+                "letter": "E"
+              },
+              {
+                "en": "Thank and finish",
+                "uz": "Rahmat aytib yakunla",
+                "letter": "T"
+              }
+            ]
+          },
+          "characterName": "Jasur (o'tkinchi)",
+          "characterEmoji": "🚶",
+          "intro": "Hello! I am Jasur. I am walking in the city center today.",
+          "turns": [
+            {
+              "characterLine": "Hello! You look lost. Can I help you?",
+              "studentHint": "Salomlashing va uzr so'rab, sizga yordam kerakligini ayting (masalan: Hello, excuse me, please help).",
+              "expectedKeywords": [
+                "hello",
+                "excuse",
+                "please"
+              ]
+            },
+            {
+              "characterLine": "Of course! Where do you want to go?",
+              "studentHint": "Tarix muzeyi qayerdaligini so'rang (masalan: Where is the history museum?).",
+              "expectedKeywords": [
+                "where",
+                "museum",
+                "history"
+              ]
+            },
+            {
+              "characterLine": "Go straight and turn left. It is near the big park. Is there anything else?",
+              "studentHint": "Piyoda borishga qancha vaqt ketishini so'rang (masalan: How many minutes to walk?).",
+              "expectedKeywords": [
+                "minutes",
+                "walk",
+                "time"
+              ]
+            },
+            {
+              "characterLine": "It takes about five minutes. It is very close. Have a nice day!",
+              "studentHint": "Yordam uchun kattakon rahmat ayting va xayrlashing (masalan: Thank you very much, goodbye).",
+              "expectedKeywords": [
+                "thank",
+                "thanks",
+                "goodbye"
+              ]
             }
           ]
         }
@@ -274,45 +1948,87 @@
       "titleEn": "Interview",
       "descriptionUz": "Aniq va mantiqiy savollar berish",
       "emoji": "🎙️",
+      "exercises": [],
       "dialogs": [
         {
           "id": "interview_sports_star",
           "topic": "Outdoor Sports",
           "title": "Sports Star Interview",
-          "visuals": ["🎾", "🏆", "🏃‍♀️", "🥇"],
-          "characterName": "Sara (tennischi)",
-          "characterEmoji": "🏃‍♀️",
-          "intro": "Hello! I'm Sara, a professional tennis player. I'm ready for your questions!",
+          "visuals": [
+            "🎾",
+            "🏆",
+            "🏃‍♀️",
+            "🥇"
+          ],
           "mnemonic": {
             "acronym": "QUEST",
             "steps": [
-              { "letter": "Q", "en": "Questions prepared", "uz": "Savollar tayyor" },
-              { "letter": "U", "en": "Understanding check", "uz": "Tushunganini tekshiring" },
-              { "letter": "E", "en": "Eye contact", "uz": "Ko'z aloqasi" },
-              { "letter": "S", "en": "Short & clear", "uz": "Qisqa va aniq" },
-              { "letter": "T", "en": "Thank the person", "uz": "Rahmat ayting" }
+              {
+                "en": "Questions prepared",
+                "uz": "Savollar tayyor",
+                "letter": "Q"
+              },
+              {
+                "en": "Understanding check",
+                "uz": "Tushunganini tekshiring",
+                "letter": "U"
+              },
+              {
+                "en": "Eye contact",
+                "uz": "Ko'z aloqasi",
+                "letter": "E"
+              },
+              {
+                "en": "Short & clear",
+                "uz": "Qisqa va aniq",
+                "letter": "S"
+              },
+              {
+                "en": "Thank the person",
+                "uz": "Rahmat ayting",
+                "letter": "T"
+              }
             ]
           },
+          "characterName": "Sara (tennischi)",
+          "characterEmoji": "🏃‍♀️",
+          "intro": "Hello! I'm Sara, a professional tennis player. I'm ready for your questions!",
           "turns": [
             {
-              "studentHint": "U qachon tennis o'ynay boshlaganini so'rang.",
               "characterLine": "I started playing tennis when I was seven years old.",
-              "expectedKeywords": ["when", "start", "begin"]
+              "studentHint": "U qachon tennis o'ynay boshlaganini so'rang.",
+              "expectedKeywords": [
+                "when",
+                "start",
+                "begin"
+              ]
             },
             {
-              "studentHint": "Uning kunlik mashg'ulot tartibini so'rang.",
               "characterLine": "I train for four hours every day, in the morning and afternoon.",
-              "expectedKeywords": ["training", "practice", "routine"]
+              "studentHint": "Uning kunlik mashg'ulot tartibini so'rang.",
+              "expectedKeywords": [
+                "training",
+                "practice",
+                "routine"
+              ]
             },
             {
-              "studentHint": "Eng qiyin o'yini haqida so'rang.",
               "characterLine": "My most difficult match was the national final last year.",
-              "expectedKeywords": ["difficult", "match", "hardest"]
+              "studentHint": "Eng qiyin o'yini haqida so'rang.",
+              "expectedKeywords": [
+                "difficult",
+                "match",
+                "hardest"
+              ]
             },
             {
-              "studentHint": "Yosh o'yinchilarga qanday maslahat berishini so'rang.",
               "characterLine": "My advice is: practice every day and never give up.",
-              "expectedKeywords": ["advice", "young", "players"]
+              "studentHint": "Yosh o'yinchilarga qanday maslahat berishini so'rang.",
+              "expectedKeywords": [
+                "advice",
+                "young",
+                "players"
+              ]
             }
           ]
         },
@@ -320,40 +2036,81 @@
           "id": "interview_family_responsibilities",
           "topic": "Helping at Home",
           "title": "Family Responsibilities Interview",
-          "visuals": ["🧹", "🍽️", "🧺", "🏠"],
-          "characterName": "Dilnoza (opa)",
-          "characterEmoji": "👩",
-          "intro": "Hi! I'm your sister Dilnoza. Ask me about our home chores!",
+          "visuals": [
+            "🧹",
+            "🍽️",
+            "🧺",
+            "🏠"
+          ],
           "mnemonic": {
             "acronym": "SHARE",
             "steps": [
-              { "letter": "S", "en": "Start politely", "uz": "Xushmuomalalik bilan boshlang" },
-              { "letter": "H", "en": "Have follow-up questions", "uz": "Qo'shimcha savollar bering" },
-              { "letter": "A", "en": "Ask clearly", "uz": "Aniq so'rang" },
-              { "letter": "R", "en": "Record answers", "uz": "Javoblarni yozib oling" },
-              { "letter": "E", "en": "End with thanks", "uz": "Rahmat bilan yakunlang" }
+              {
+                "en": "Start politely",
+                "uz": "Xushmuomalalik bilan boshlang",
+                "letter": "S"
+              },
+              {
+                "en": "Have follow-up questions",
+                "uz": "Qo'shimcha savollar bering",
+                "letter": "H"
+              },
+              {
+                "en": "Ask clearly",
+                "uz": "Aniq so'rang",
+                "letter": "A"
+              },
+              {
+                "en": "Record answers",
+                "uz": "Javoblarni yozib oling",
+                "letter": "R"
+              },
+              {
+                "en": "End with thanks",
+                "uz": "Rahmat bilan yakunlang",
+                "letter": "E"
+              }
             ]
           },
+          "characterName": "Dilnoza (opa)",
+          "characterEmoji": "👩",
+          "intro": "Hi! I'm your sister Dilnoza. Ask me about our home chores!",
           "turns": [
             {
-              "studentHint": "Uydagi qanday ishlarni bajarishini so'rang.",
               "characterLine": "I usually wash the dishes and clean my room.",
-              "expectedKeywords": ["chores", "do", "home"]
+              "studentHint": "Uydagi qanday ishlarni bajarishini so'rang.",
+              "expectedKeywords": [
+                "chores",
+                "do",
+                "home"
+              ]
             },
             {
-              "studentHint": "Qaysi uy ishi eng qiyin ekanini so'rang.",
               "characterLine": "The most difficult task for me is cooking dinner.",
-              "expectedKeywords": ["difficult", "task", "hard"]
+              "studentHint": "Qaysi uy ishi eng qiyin ekanini so'rang.",
+              "expectedKeywords": [
+                "difficult",
+                "task",
+                "hard"
+              ]
             },
             {
-              "studentHint": "Oilada ishlar qanday taqsimlanishini so'rang.",
               "characterLine": "We share the work — everyone helps a little every day.",
-              "expectedKeywords": ["divide", "share", "responsibilities"]
+              "studentHint": "Oilada ishlar qanday taqsimlanishini so'rang.",
+              "expectedKeywords": [
+                "divide",
+                "share",
+                "responsibilities"
+              ]
             },
             {
-              "studentHint": "Nima uchun uyda yordam berish muhimligini so'rang.",
               "characterLine": "Helping at home teaches us to be responsible and kind.",
-              "expectedKeywords": ["important", "help", "why"]
+              "studentHint": "Nima uchun uyda yordam berish muhimligini so'rang.",
+              "expectedKeywords": [
+                "important",
+                "help",
+                "why"
+              ]
             }
           ]
         }
