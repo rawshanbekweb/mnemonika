@@ -104,6 +104,9 @@ class MainActivity : ComponentActivity() {
                                 onDialogClick = { dialogId ->
                                     navController.navigate("dialog/$id/$dialogId")
                                 },
+                                onConversationClick = { conversationId ->
+                                    navController.navigate("conversation/$id/$conversationId")
+                                },
                             )
                         }
                         composable("exercise/{moduleId}/{exerciseId}") { backStackEntry ->
@@ -128,6 +131,20 @@ class MainActivity : ComponentActivity() {
                                 scenario = scenario,
                                 moduleId = moduleId,
                                 isInterview = module?.type == "interview",
+                                onBack = { navController.popBackStack() },
+                                moduleType = module?.type.orEmpty(),
+                            )
+                        }
+                        composable("conversation/{moduleId}/{conversationId}") { backStackEntry ->
+                            val moduleId = backStackEntry.arguments?.getString("moduleId").orEmpty()
+                            val conversationId =
+                                backStackEntry.arguments?.getString("conversationId").orEmpty()
+                            val module = repository.moduleById(moduleId)
+                            val conversation =
+                                module?.conversations?.firstOrNull { it.id == conversationId }
+                            uz.speakingapp.ui.conversation.ConversationScreen(
+                                conversation = conversation,
+                                moduleId = moduleId,
                                 onBack = { navController.popBackStack() },
                                 moduleType = module?.type.orEmpty(),
                             )

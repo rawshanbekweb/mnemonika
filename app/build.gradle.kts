@@ -45,8 +45,10 @@ android {
         //         (Canvas'da chiziladi, APK hajmi oshmaydi) va animatsiyalar.
         // 0.1.6 — kontent 3 baravar: bundled zaxirada 25 mashq + 7 dialog
         //         (avval 7 + 4). Internetsiz o'rnatgan bola ham hammasini ko'radi.
-        versionCode = 7
-        versionName = "0.1.6"
+        // 0.1.7 — "Erkin suhbat" moduli: tarmoqlanuvchi suhbat daraxti bo'ylab
+        //         jonli audio suhbat (offline, modelsiz) + suhbat tahlili.
+        versionCode = 8
+        versionName = "0.1.7"
         vectorDrawables { useSupportLibrary = true }
 
         // ── Backend (Vercel) sozlamalari — local.properties'dan ────────
@@ -143,4 +145,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     debugImplementation(libs.androidx.ui.tooling)
+    // Sof mantiq testlari (suhbat dvigateli, tahlil) — qurilma kerak emas:
+    // `.\gradlew.bat testDebugUnitTest`
+    testImplementation("junit:junit:4.13.2")
 }

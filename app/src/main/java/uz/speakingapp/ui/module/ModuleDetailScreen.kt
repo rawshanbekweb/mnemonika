@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import uz.speakingapp.data.db.ExerciseStat
+import uz.speakingapp.data.model.Conversation
 import uz.speakingapp.data.model.DialogScenario
 import uz.speakingapp.data.model.Exercise
 import uz.speakingapp.data.model.SpeakingModule
@@ -62,6 +63,7 @@ fun ModuleDetailScreen(
     onBack: () -> Unit,
     onExerciseClick: (String) -> Unit,
     onDialogClick: (String) -> Unit,
+    onConversationClick: (String) -> Unit = {},
 ) {
     val vm: ProgressViewModel = viewModel()
     val exerciseStats by vm.exerciseStats.collectAsStateWithLifecycle()
@@ -107,6 +109,15 @@ fun ModuleDetailScreen(
             itemsIndexed(module.dialogs, key = { _, d -> d.id }) { i, dialog ->
                 PopIn(index = module.exercises.size + i) {
                     DialogCard(dialog, accent, friend, onStart = { onDialogClick(dialog.id) })
+                }
+            }
+            itemsIndexed(module.conversations, key = { _, c -> c.id }) { i, conversation ->
+                PopIn(index = module.exercises.size + module.dialogs.size + i) {
+                    ConversationCard(
+                        conversation = conversation,
+                        friend = friend,
+                        onStart = { onConversationClick(conversation.id) },
+                    )
                 }
             }
         }
@@ -171,6 +182,62 @@ private fun ExerciseCard(
             onClick = onStart,
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = if (stat == null) Icons.Default.PlayArrow else Icons.Default.Refresh,
+        )
+    }
+}
+
+/**
+ * Erkin suhbat kartasi.
+ *
+ * Dialog kartasidan farqi: bu yerda "N ta almashish" yozilmaydi — suhbat
+ * uzunligi bolaning javoblariga qarab o'zgaradi, faqat davomiylik ma'lum.
+ */
+@Composable
+private fun ConversationCard(
+    conversation: Conversation,
+    friend: MascotLook,
+    onStart: () -> Unit,
+) {
+    SoftCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (conversation.characterEmoji.isNotBlank()) {
+                VisualThumb(conversation.characterEmoji, size = 46.dp)
+            } else {
+                Mascot(look = friend, mood = MascotMood.Happy, size = 46.dp)
+            }
+            Spacer(Modifier.size(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(conversation.title, style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.size(2.dp))
+                Text(
+                    "${conversation.topic} · ${conversation.characterName}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = InkMuted,
+                )
+            }
+        }
+
+        Spacer(Modifier.size(14.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Pill("${conversation.targetMinutes} daqiqa", NavyContainer, OnNavyContainer)
+            Pill("Jonli suhbat", GoldContainer, OnGoldContainer)
+        }
+
+        if (conversation.goalUz.isNotBlank()) {
+            Spacer(Modifier.size(12.dp))
+            Text(
+                conversation.goalUz,
+                style = MaterialTheme.typography.bodySmall,
+                color = InkMuted,
+            )
+        }
+
+        Spacer(Modifier.size(16.dp))
+        GradientButton(
+            "Suhbatni boshlash",
+            onClick = onStart,
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = Icons.Default.Forum,
         )
     }
 }

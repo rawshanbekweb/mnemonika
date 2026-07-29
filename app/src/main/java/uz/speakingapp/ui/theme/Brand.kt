@@ -77,6 +77,7 @@ fun accentColorFor(type: String): Color = when (type) {
     "storytelling" -> ModuleStorytelling
     "interview" -> ModuleInterview
     "picture_narrating" -> ModulePicture
+    "free_talk" -> ModuleFreeTalk
     else -> Sky
 }
 

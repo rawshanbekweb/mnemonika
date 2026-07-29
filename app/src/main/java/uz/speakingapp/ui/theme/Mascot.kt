@@ -132,6 +132,12 @@ fun mascotFor(type: String): MascotLook = when (type) {
         "Savol", Coral, CoralDeep, MascotGear.Mic,
         "Savollarga to'liq javob ber!",
     )
+    // Erkin suhbat: bola tengdoshi bilan gaplashadi, shuning uchun do'st
+    // "o'qituvchi" emas, hamroh ohangida gapiradi.
+    "free_talk" -> MascotLook(
+        "Hamroh", Mint, MintDeep, MascotGear.Mic,
+        "Kel, ingliz tilida erkin gaplashamiz!",
+    )
     else -> Bulbul
 }
 

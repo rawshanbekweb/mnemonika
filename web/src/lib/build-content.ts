@@ -32,6 +32,23 @@ export async function buildContentPack(): Promise<ContentPack> {
     .from(schema.dialogTurns)
     .orderBy(asc(schema.dialogTurns.sortOrder));
 
+  const allConversations = await db
+    .select()
+    .from(schema.conversations)
+    .orderBy(asc(schema.conversations.sortOrder));
+
+  const allNodes = await db
+    .select()
+    .from(schema.conversationNodes)
+    .orderBy(asc(schema.conversationNodes.sortOrder));
+
+  const nodesByConversation = new Map<string, typeof allNodes>();
+  for (const n of allNodes) {
+    const list = nodesByConversation.get(n.conversationId) ?? [];
+    list.push(n);
+    nodesByConversation.set(n.conversationId, list);
+  }
+
   const turnsByDialog = new Map<string, typeof allTurns>();
   for (const t of allTurns) {
     const list = turnsByDialog.get(t.dialogId) ?? [];
@@ -94,6 +111,28 @@ export async function buildContentPack(): Promise<ContentPack> {
           characterLine: t.characterLine,
           studentHint: t.studentHint,
           expectedKeywords: t.expectedKeywords,
+        })),
+      })),
+    conversations: allConversations
+      .filter((c) => c.moduleId === m.id)
+      .map((c) => ({
+        id: c.id,
+        topic: c.topic,
+        title: c.title,
+        characterName: c.characterName,
+        characterEmoji: c.characterEmoji,
+        goalUz: c.goalUz,
+        visuals: c.visuals,
+        targetMinutes: c.targetMinutes,
+        startKey: c.startKey,
+        closingKey: c.closingKey,
+        nodes: (nodesByConversation.get(c.id) ?? []).map((n) => ({
+          nodeKey: n.nodeKey,
+          line: n.line,
+          hintUz: n.hintUz,
+          branches: n.branches,
+          fallbackKey: n.fallbackKey,
+          isEnd: n.isEnd,
         })),
       })),
   }));

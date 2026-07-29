@@ -76,6 +76,8 @@ val ModuleStorytelling = SunnyDeep
 val ModulePicture = MintDeep
 val ModuleRoleplay = GrapeDeep
 val ModuleInterview = CoralDeep
+/** Erkin suhbat — beshta modul rangi band, shuning uchun asosiy ko'kning to'qrog'i. */
+val ModuleFreeTalk = SkyDark
 
 // ════════════════════════════════════════════════════════════════
 //  Eski nomlar bilan moslik — ekranlar hali shularni ishlatadi.

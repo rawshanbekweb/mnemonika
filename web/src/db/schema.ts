@@ -86,6 +86,77 @@ export const dialogTurns = pgTable(
   (t) => [index("dialog_turns_dialog_idx").on(t.dialogId)],
 );
 
+/**
+ * Erkin suhbat senariysi — tarmoqlanuvchi daraxt ("offline suhbatdosh").
+ *
+ * Nima uchun `dialogs` dan alohida: `dialog_turns` — QAT'IY TARTIBDAGI ro'yxat,
+ * bola nima desa ham keyingi gap o'zgarmaydi. Bu yerda esa keyingi gap bolaning
+ * javobiga qarab tanlanadi, ya'ni tuzilma ro'yxat emas, GRAF. Mavjud rolli
+ * o'yin/intervyu senariylari o'z holicha ishlashda davom etadi.
+ *
+ * $0 SHARTI: suhbat davomida hech qanday model chaqirilmaydi — butun daraxt
+ * oldindan yaratilgan, telefon uni offline aylanib chiqadi.
+ */
+export const conversations = pgTable(
+  "conversations",
+  {
+    id: text("id").primaryKey(),
+    moduleId: text("module_id")
+      .notNull()
+      .references(() => modules.id, { onDelete: "cascade" }),
+    topic: text("topic").notNull().default(""),
+    title: text("title").notNull(),
+    characterName: text("character_name").notNull().default(""),
+    characterEmoji: text("character_emoji").notNull().default(""),
+    /** Bolaga o'zbekcha vazifa: suhbatda nimaga erishish kerak. */
+    goalUz: text("goal_uz").notNull().default(""),
+    visuals: jsonb("visuals").$type<string[]>().notNull().default([]),
+    /** Suhbatning mo'ljallangan davomiyligi — vaqt tugaganda yakunga o'tiladi. */
+    targetMinutes: integer("target_minutes").notNull().default(3),
+    /** Boshlanish tugunining kaliti. */
+    startKey: text("start_key").notNull().default("start"),
+    /** Vaqt tugaganda o'tiladigan yakuniy tugun. */
+    closingKey: text("closing_key").notNull().default(""),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("conversations_module_idx").on(t.moduleId)],
+);
+
+/**
+ * Suhbat daraxtining bitta tuguni.
+ *
+ * `branches` — bolaning javobiga qarab qayerga o'tish. Mos keladigan tarmoq
+ * topilmasa `fallback_key` ishlatiladi (odatda "tushunmadim, qaytar" tuguni),
+ * shuning uchun suhbat hech qachon boshi berk ko'chaga kirmaydi.
+ */
+export const conversationNodes = pgTable(
+  "conversation_nodes",
+  {
+    id: serial("id").primaryKey(),
+    conversationId: text("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    /** Daraxt ichidagi kalit ("start", "hobby_sport", …). */
+    nodeKey: text("node_key").notNull(),
+    /** Personajning gapi (ingliz tilida) — TTS shuni aytadi. */
+    line: text("line").notNull().default(""),
+    /** O'quvchiga o'zbekcha ko'rsatma. */
+    hintUz: text("hint_uz").notNull().default(""),
+    branches: jsonb("branches")
+      .$type<{ intent: string; keywords: string[]; nextKey: string }[]>()
+      .notNull()
+      .default([]),
+    fallbackKey: text("fallback_key").notNull().default(""),
+    /** Suhbat shu tugunda tugaydi. */
+    isEnd: boolean("is_end").notNull().default(false),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [
+    index("conversation_nodes_conversation_idx").on(t.conversationId),
+    unique("conversation_nodes_key_unique").on(t.conversationId, t.nodeKey),
+  ],
+);
+
 /** Media kutubxonasi — haqiqiy rasmlar (emoji o'rniga). */
 export const media = pgTable("media", {
   id: serial("id").primaryKey(),

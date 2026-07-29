@@ -61,6 +61,46 @@ export type DialogScenario = {
   turns: DialogTurn[];
 };
 
+/**
+ * Suhbat daraxtining bitta tarmog'i: bola shu kalit so'zlardan gapirsa,
+ * suhbat `nextKey` tuguniga o'tadi.
+ *
+ * `intent` — faqat tahlil va nosozlikni izlash uchun nom; mantiqqa ta'sir
+ * qilmaydi, tanlov kalit so'zlar bo'yicha boradi.
+ */
+export type ConversationBranch = { intent: string; keywords: string[]; nextKey: string };
+
+export type ConversationNode = {
+  nodeKey: string;
+  /** Personajning gapi (ingliz tilida). */
+  line: string;
+  /** O'quvchiga o'zbekcha ko'rsatma. */
+  hintUz: string;
+  branches: ConversationBranch[];
+  /** Hech bir tarmoq mos kelmasa — bu yerga o'tiladi (boshi berk ko'cha bo'lmasin). */
+  fallbackKey: string;
+  isEnd: boolean;
+};
+
+/**
+ * Erkin suhbat — tarmoqlanuvchi daraxt. Suhbat davomida MODEL CHAQIRILMAYDI:
+ * butun daraxt oldindan yaratilgan, telefon uni offline aylanib chiqadi.
+ */
+export type Conversation = {
+  id: string;
+  topic: string;
+  title: string;
+  characterName: string;
+  characterEmoji: string;
+  goalUz: string;
+  visuals: string[];
+  targetMinutes: number;
+  startKey: string;
+  /** Vaqt tugaganda o'tiladigan yakuniy tugun. */
+  closingKey: string;
+  nodes: ConversationNode[];
+};
+
 export type SpeakingModule = {
   id: string;
   type: string;
@@ -70,6 +110,8 @@ export type SpeakingModule = {
   emoji: string;
   exercises: Exercise[];
   dialogs: DialogScenario[];
+  /** Erkin suhbatlar. Bo'sh standart — bu maydonni bilmaydigan eski ilova ham parse qiladi. */
+  conversations: Conversation[];
 };
 
 export type ContentPack = {

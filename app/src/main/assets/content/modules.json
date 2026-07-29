@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "modules": [
     {
       "id": "discussion",
@@ -578,7 +578,8 @@
           "structureTips": []
         }
       ],
-      "dialogs": []
+      "dialogs": [],
+      "conversations": []
     },
     {
       "id": "storytelling",
@@ -1066,7 +1067,8 @@
           "structureTips": []
         }
       ],
-      "dialogs": []
+      "dialogs": [],
+      "conversations": []
     },
     {
       "id": "picture_narrating",
@@ -1502,7 +1504,8 @@
           "structureTips": []
         }
       ],
-      "dialogs": []
+      "dialogs": [],
+      "conversations": []
     },
     {
       "id": "roleplay",
@@ -1939,7 +1942,8 @@
             }
           ]
         }
-      ]
+      ],
+      "conversations": []
     },
     {
       "id": "interview",
@@ -2111,6 +2115,414 @@
                 "help",
                 "why"
               ]
+            }
+          ]
+        }
+      ],
+      "conversations": []
+    },
+    {
+      "id": "free_talk",
+      "type": "free_talk",
+      "titleUz": "Erkin suhbat",
+      "titleEn": "Free Talk",
+      "descriptionUz": "Suhbatdosh bilan jonli gaplashish",
+      "emoji": "🗣️",
+      "exercises": [],
+      "dialogs": [],
+      "conversations": [
+        {
+          "id": "free_talk_ben_london",
+          "topic": "Free Time and School",
+          "title": "Talking with Ben",
+          "characterName": "Ben (London'lik tengdoshing)",
+          "characterEmoji": "🧒",
+          "goalUz": "Ben bilan tanish, qiziqishlaring va maktabing haqida gapir, oxirida unga o'zing savol ber.",
+          "visuals": [
+            "🇬🇧",
+            "⚽",
+            "🎸",
+            "📚"
+          ],
+          "targetMinutes": 3,
+          "startKey": "start",
+          "closingKey": "closing",
+          "nodes": [
+            {
+              "nodeKey": "start",
+              "line": "Hi! My name is Ben. I am eleven years old and I live in London. What is your name?",
+              "hintUz": "Salomlash va ismingni ayt: \"Hello! My name is …\"",
+              "branches": [],
+              "fallbackKey": "ask_hobby",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "ask_hobby",
+              "line": "Nice to meet you! Tell me, what do you like doing in your free time?",
+              "hintUz": "Bo'sh vaqtingda nima qilishni yoqtirasan? \"I like …\" deb boshla.",
+              "branches": [
+                {
+                  "intent": "sport",
+                  "nextKey": "sport_1",
+                  "keywords": [
+                    "sport",
+                    "football",
+                    "basketball",
+                    "swimming",
+                    "tennis",
+                    "volleyball",
+                    "running"
+                  ]
+                },
+                {
+                  "intent": "music",
+                  "nextKey": "music_1",
+                  "keywords": [
+                    "music",
+                    "guitar",
+                    "piano",
+                    "singing",
+                    "dancing",
+                    "songs"
+                  ]
+                },
+                {
+                  "intent": "books",
+                  "nextKey": "book_1",
+                  "keywords": [
+                    "books",
+                    "reading",
+                    "story",
+                    "library"
+                  ]
+                },
+                {
+                  "intent": "games",
+                  "nextKey": "games_1",
+                  "keywords": [
+                    "computer",
+                    "games",
+                    "video",
+                    "phone",
+                    "internet",
+                    "tablet"
+                  ]
+                }
+              ],
+              "fallbackKey": "hobby_repeat",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hobby_repeat",
+              "line": "Sorry, I did not hear you well. Do you like sport, music, books or computer games?",
+              "hintUz": "Yana bir marta ayt — sport, musiqa, kitob yoki kompyuter o'yinlari.",
+              "branches": [
+                {
+                  "intent": "sport",
+                  "nextKey": "sport_1",
+                  "keywords": [
+                    "sport",
+                    "football",
+                    "basketball",
+                    "swimming"
+                  ]
+                },
+                {
+                  "intent": "music",
+                  "nextKey": "music_1",
+                  "keywords": [
+                    "music",
+                    "guitar",
+                    "piano",
+                    "singing"
+                  ]
+                },
+                {
+                  "intent": "books",
+                  "nextKey": "book_1",
+                  "keywords": [
+                    "books",
+                    "reading",
+                    "story"
+                  ]
+                },
+                {
+                  "intent": "games",
+                  "nextKey": "games_1",
+                  "keywords": [
+                    "computer",
+                    "games",
+                    "video",
+                    "phone"
+                  ]
+                }
+              ],
+              "fallbackKey": "hub_weekend",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "sport_1",
+              "line": "That is great! I play football every Saturday. How often do you do sport?",
+              "hintUz": "Qanchalik tez-tez? \"I play football every day\" kabi javob ber.",
+              "branches": [],
+              "fallbackKey": "sport_2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "sport_2",
+              "line": "Sport is really good for our health. Do you play with your friends or alone?",
+              "hintUz": "Do'stlaring bilanmi? Sababini ham qo'sh: \"because …\"",
+              "branches": [],
+              "fallbackKey": "hub_weekend",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "music_1",
+              "line": "Wonderful! I play the guitar a little. What is your favourite song?",
+              "hintUz": "Sevimli qo'shiging yoki qo'shiqchingni ayt.",
+              "branches": [],
+              "fallbackKey": "music_2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "music_2",
+              "line": "Nice choice! Do you listen to music when you do your homework?",
+              "hintUz": "Dars qilayotganda musiqa eshitasanmi? \"Yes, because …\"",
+              "branches": [],
+              "fallbackKey": "hub_weekend",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "book_1",
+              "line": "I love books too! What book are you reading now?",
+              "hintUz": "Hozir qanday kitob o'qiyapsan?",
+              "branches": [],
+              "fallbackKey": "book_2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "book_2",
+              "line": "That sounds interesting. Do you prefer paper books or reading on a phone?",
+              "hintUz": "Qog'oz kitobmi yoki telefonda? Sababini ayt.",
+              "branches": [],
+              "fallbackKey": "hub_weekend",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "games_1",
+              "line": "I see! What game do you play the most?",
+              "hintUz": "Ko'proq qaysi o'yinni o'ynaysan?",
+              "branches": [],
+              "fallbackKey": "games_2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "games_2",
+              "line": "Interesting. How much time do you spend on the computer every day?",
+              "hintUz": "Kuniga qancha vaqt? \"About one hour\" kabi ayt.",
+              "branches": [],
+              "fallbackKey": "hub_weekend",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_weekend",
+              "line": "Let me ask you about last weekend. What did you do on Sunday?",
+              "hintUz": "O'tgan zamonda ayt: \"I went …\", \"I played …\", \"I watched …\"",
+              "branches": [
+                {
+                  "intent": "family",
+                  "nextKey": "weekend_family",
+                  "keywords": [
+                    "family",
+                    "mother",
+                    "father",
+                    "parents",
+                    "grandmother",
+                    "brother",
+                    "sister"
+                  ]
+                },
+                {
+                  "intent": "outside",
+                  "nextKey": "weekend_outside",
+                  "keywords": [
+                    "park",
+                    "outside",
+                    "street",
+                    "walked",
+                    "village",
+                    "mountains",
+                    "garden"
+                  ]
+                },
+                {
+                  "intent": "home",
+                  "nextKey": "weekend_home",
+                  "keywords": [
+                    "watched",
+                    "television",
+                    "slept",
+                    "rested",
+                    "cartoon"
+                  ]
+                }
+              ],
+              "fallbackKey": "weekend_home",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "weekend_family",
+              "line": "Family time is the best. What did you eat together?",
+              "hintUz": "Qanday taom yedinglar?",
+              "branches": [],
+              "fallbackKey": "hub_school",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "weekend_outside",
+              "line": "That sounds fun! Was the weather good on that day?",
+              "hintUz": "Ob-havo qanday edi? \"It was sunny/rainy/cold\".",
+              "branches": [],
+              "fallbackKey": "hub_school",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "weekend_home",
+              "line": "A calm weekend is also nice. What did you watch or read at home?",
+              "hintUz": "Uyda nima qilding?",
+              "branches": [],
+              "fallbackKey": "hub_school",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_school",
+              "line": "Now tell me about your school. What is your favourite subject?",
+              "hintUz": "Sevimli faning qaysi? \"My favourite subject is …\"",
+              "branches": [
+                {
+                  "intent": "english",
+                  "nextKey": "subject_english",
+                  "keywords": [
+                    "english",
+                    "language",
+                    "foreign"
+                  ]
+                },
+                {
+                  "intent": "science",
+                  "nextKey": "subject_science",
+                  "keywords": [
+                    "maths",
+                    "mathematics",
+                    "science",
+                    "physics",
+                    "biology",
+                    "chemistry"
+                  ]
+                },
+                {
+                  "intent": "other",
+                  "nextKey": "subject_other",
+                  "keywords": [
+                    "history",
+                    "geography",
+                    "drawing",
+                    "literature",
+                    "informatics"
+                  ]
+                }
+              ],
+              "fallbackKey": "subject_other",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "subject_english",
+              "line": "English is my favourite lesson too! Why do you like it?",
+              "hintUz": "Nega yoqtirasan? \"because\" bilan tushuntir.",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "subject_science",
+              "line": "Wow, that is a difficult subject. Is it hard for you?",
+              "hintUz": "Qiyinmi yoki osonmi? Sababini ayt.",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "subject_other",
+              "line": "Good choice. What do you usually do in that lesson?",
+              "hintUz": "O'sha darsda nima qilasizlar?",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "ask_question",
+              "line": "Now it is your turn. Ask me a question about London or about me!",
+              "hintUz": "Endi SEN savol ber! Masalan: \"What is the weather like in London?\"",
+              "branches": [
+                {
+                  "intent": "asked_question",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "how",
+                    "why",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you"
+                  ]
+                }
+              ],
+              "fallbackKey": "answer_hint",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_hint",
+              "line": "You can ask me anything. For example: What is the weather like in London?",
+              "hintUz": "Savolni shunday boshla: \"What …?\" yoki \"Do you …?\"",
+              "branches": [
+                {
+                  "intent": "asked_question",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "how",
+                    "why",
+                    "do you",
+                    "are you",
+                    "can you"
+                  ]
+                }
+              ],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_question",
+              "line": "Good question! London is big and often rainy, but I love it. My favourite place is Hyde Park.",
+              "hintUz": "Ben javob berdi — fikringni ayt yoki yana bir savol ber.",
+              "branches": [],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "closing",
+              "line": "It was really nice talking to you today. Thank you and see you next time. Goodbye!",
+              "hintUz": "Xayrlash: \"Goodbye! It was nice to talk to you.\"",
+              "branches": [],
+              "fallbackKey": "",
+              "isEnd": true
             }
           ]
         }

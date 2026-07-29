@@ -33,8 +33,14 @@ async function main() {
 
   const exCount = pack.modules.reduce((n, m) => n + m.exercises.length, 0);
   const dlCount = pack.modules.reduce((n, m) => n + m.dialogs.length, 0);
+  const cvCount = pack.modules.reduce((n, m) => n + m.conversations.length, 0);
+  const nodeCount = pack.modules.reduce(
+    (n, m) => n + m.conversations.reduce((k, c) => k + c.nodes.length, 0),
+    0,
+  );
   console.log(
-    `Baza: ${pack.modules.length} modul, ${exCount} mashq, ${dlCount} dialog (versiya ${pack.version})`,
+    `Baza: ${pack.modules.length} modul, ${exCount} mashq, ${dlCount} dialog, ` +
+      `${cvCount} erkin suhbat (${nodeCount} tugun) — versiya ${pack.version}`,
   );
 
   const next = JSON.stringify(pack, null, 2) + "\n";
