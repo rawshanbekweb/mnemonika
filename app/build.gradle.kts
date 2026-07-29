@@ -43,8 +43,10 @@ android {
         //         edi, shuning uchun ular ustiga o'rnatilmaydi — avval o'chirish kerak.
         // 0.1.5 — bolalar uchun yangi dizayn: "SpeakUp do'stlari" personajlari
         //         (Canvas'da chiziladi, APK hajmi oshmaydi) va animatsiyalar.
-        versionCode = 6
-        versionName = "0.1.5"
+        // 0.1.6 — kontent 3 baravar: bundled zaxirada 25 mashq + 7 dialog
+        //         (avval 7 + 4). Internetsiz o'rnatgan bola ham hammasini ko'radi.
+        versionCode = 7
+        versionName = "0.1.6"
         vectorDrawables { useSupportLibrary = true }
 
         // ── Backend (Vercel) sozlamalari — local.properties'dan ────────
