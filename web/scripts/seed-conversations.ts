@@ -20,6 +20,7 @@
 import "../src/db/load-env";
 import { eq } from "drizzle-orm";
 import { db, schema } from "../src/db";
+import { validateTree } from "./conversation-tree";
 
 type Node = {
   nodeKey: string;
@@ -282,28 +283,23 @@ const FREE_TIME: Conversation = {
 
 const ALL: Conversation[] = [FREE_TIME];
 
-/** Daraxtdagi barcha havolalar mavjud tugunga borishini tekshiradi. */
+/**
+ * Tekshiruv generator bilan BIR XIL kod orqali boradi (`conversation-tree.ts`) —
+ * qo'lda yozilgan daraxtga qo'yiladigan talab yaratilganidan past bo'lmasin.
+ */
 function validate(c: Conversation): string[] {
-  const keys = new Set(c.nodes.map((n) => n.nodeKey));
-  const problems: string[] = [];
-
-  if (!keys.has(c.startKey)) problems.push(`startKey "${c.startKey}" tuguni yo'q`);
-  if (c.closingKey && !keys.has(c.closingKey)) problems.push(`closingKey "${c.closingKey}" tuguni yo'q`);
-
-  for (const n of c.nodes) {
-    for (const b of n.branches ?? []) {
-      if (!keys.has(b.nextKey)) problems.push(`${n.nodeKey}/${b.intent} → "${b.nextKey}" tuguni yo'q`);
-    }
-    if (n.fallbackKey && !keys.has(n.fallbackKey)) {
-      problems.push(`${n.nodeKey} fallback → "${n.fallbackKey}" tuguni yo'q`);
-    }
-    // Yakuniy bo'lmagan tugunda chiqish yo'li bo'lishi SHART, aks holda
-    // suhbat o'sha yerda qotib qoladi.
-    if (!n.isEnd && !n.fallbackKey && (n.branches ?? []).length === 0) {
-      problems.push(`${n.nodeKey}: chiqish yo'li yo'q (fallbackKey ham, branches ham bo'sh)`);
-    }
-  }
-  return problems;
+  return validateTree({
+    startKey: c.startKey,
+    closingKey: c.closingKey,
+    nodes: c.nodes.map((n) => ({
+      nodeKey: n.nodeKey,
+      line: n.line,
+      hintUz: n.hintUz,
+      branches: n.branches ?? [],
+      fallbackKey: n.fallbackKey ?? "",
+      isEnd: n.isEnd ?? false,
+    })),
+  });
 }
 
 async function main() {

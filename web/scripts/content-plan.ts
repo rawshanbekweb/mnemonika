@@ -261,6 +261,80 @@ export function itemId(item: PlanItem): string {
 }
 
 /**
+ * Erkin suhbat rejasi (`gen:conversation`).
+ *
+ * Mashqlardan farqi: bu yerda mnemonika yo'q — suhbat strukturasi
+ * `conversation-tree.ts` dagi SKELET bilan belgilanadi, model faqat matn
+ * yozadi. Shuning uchun reja elementi ancha sodda.
+ *
+ * `free_talk_ben_london` bu ro'yxatda YO'Q: u qo'lda yozilgan
+ * (`seed-conversations.ts`) va generator uchun uslub namunasi.
+ */
+export type ConversationPlanItem = {
+  id: string;
+  moduleId: string;
+  topic: string;
+  /** Modelga vaziyat izohi. */
+  brief: string;
+  /** Personaj kim bo'lishi. */
+  characterBrief: string;
+  targetMinutes: number;
+};
+
+export const CONVERSATION_PLAN: ConversationPlanItem[] = [
+  {
+    id: "free_talk_school_day",
+    moduleId: "free_talk",
+    topic: "My School Day",
+    brief:
+      "Maktab kuni haqida suhbat: darslar, sevimli fan, tanaffus, do'stlar. " +
+      "Birinchi savol — qaysi fanni yoqtirishi.",
+    characterBrief: "Emma — Manchesterdan 12 yoshli o'quvchi qiz, xushchaqchaq va qiziquvchan.",
+    targetMinutes: 3,
+  },
+  {
+    id: "free_talk_family_home",
+    moduleId: "free_talk",
+    topic: "Family and Home",
+    brief:
+      "Oila va uy haqida suhbat: oila a'zolari, uydagi yordam, sevimli xona. " +
+      "Birinchi savol — oilasida kimlar borligi.",
+    characterBrief: "Tom — Liverpuldan 11 yoshli bola, akasi va singlisi bor.",
+    targetMinutes: 3,
+  },
+  {
+    id: "free_talk_food_cooking",
+    moduleId: "free_talk",
+    topic: "Food and Cooking",
+    brief:
+      "Taom haqida suhbat: sevimli taom, milliy taomlar, ovqat tayyorlash. " +
+      "Birinchi savol — sevimli taomi nima ekani.",
+    characterBrief: "Sofia — Dublindan 12 yoshli qiz, buvisi bilan ovqat pishirishni yoqtiradi.",
+    targetMinutes: 3,
+  },
+  {
+    id: "free_talk_holidays_travel",
+    moduleId: "free_talk",
+    topic: "Holidays and Travel",
+    brief:
+      "Ta'til va sayohat haqida suhbat: yozgi ta'til, qayerga borgani, " +
+      "orzusidagi shahar. Birinchi savol — yozda nima qilgani.",
+    characterBrief: "Jack — Bristoldan 12 yoshli bola, oilasi bilan ko'p sayohat qiladi.",
+    targetMinutes: 5,
+  },
+  {
+    id: "free_talk_my_town",
+    moduleId: "free_talk",
+    topic: "My Town",
+    brief:
+      "Shahar haqida suhbat: qayerda yashaydi, shahridagi joylar, ob-havo. " +
+      "Birinchi savol — qayerda yashashi va shahri qanaqaligi.",
+    characterBrief: "Olivia — Yorkdan 11 yoshli qiz, shahrining tarixi bilan faxrlanadi.",
+    targetMinutes: 5,
+  },
+];
+
+/**
  * Har bir mnemonika `Coach` ga tushunarli ekanini tekshiradi.
  *
  * Nima uchun kerak: bosqich nomini "Amazing ending" deb yozsak ham hech narsa

@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "modules": [
     {
       "id": "discussion",
@@ -2520,6 +2520,331 @@
               "nodeKey": "closing",
               "line": "It was really nice talking to you today. Thank you and see you next time. Goodbye!",
               "hintUz": "Xayrlash: \"Goodbye! It was nice to talk to you.\"",
+              "branches": [],
+              "fallbackKey": "",
+              "isEnd": true
+            }
+          ]
+        },
+        {
+          "id": "free_talk_school_day",
+          "topic": "My School Day",
+          "title": "My School Day with Emma",
+          "characterName": "Emma (Manchester'lik tengdoshing)",
+          "characterEmoji": "👧",
+          "goalUz": "Ingliz tilida maktabing va darslaring haqida so'zlab ber va Emma bilan suhbatlash.",
+          "visuals": [
+            "🏫",
+            "📚",
+            "🎨",
+            "⚽"
+          ],
+          "targetMinutes": 3,
+          "startKey": "start",
+          "closingKey": "closing",
+          "nodes": [
+            {
+              "nodeKey": "start",
+              "line": "Hello! My name is Emma. I am 12 years old and I live in Manchester. What is your name?",
+              "hintUz": "Salomlash va o'z ismingni ayt: \"Hello! My name is …\"",
+              "branches": [],
+              "fallbackKey": "topic_ask",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "topic_ask",
+              "line": "Nice to meet you! Let us talk about school. What is your favorite subject?",
+              "hintUz": "Sevimli faning haqida ayt: \"My favorite subject is …\"",
+              "branches": [
+                {
+                  "intent": "maths_science",
+                  "nextKey": "a1",
+                  "keywords": [
+                    "maths",
+                    "mathematics",
+                    "science",
+                    "numbers"
+                  ]
+                },
+                {
+                  "intent": "english_history",
+                  "nextKey": "b1",
+                  "keywords": [
+                    "english",
+                    "history",
+                    "reading",
+                    "stories"
+                  ]
+                },
+                {
+                  "intent": "art_music_pe",
+                  "nextKey": "c1",
+                  "keywords": [
+                    "drawing",
+                    "painting",
+                    "singing",
+                    "sports"
+                  ]
+                }
+              ],
+              "fallbackKey": "topic_repeat",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "topic_repeat",
+              "line": "I did not hear you well. What subject do you like? Do you like Maths, English, or Art?",
+              "hintUz": "Qaytadan ayt: \"I like Maths\", \"I like English\" yoki \"I like Art\".",
+              "branches": [
+                {
+                  "intent": "maths_science",
+                  "nextKey": "a1",
+                  "keywords": [
+                    "maths",
+                    "mathematics",
+                    "science",
+                    "numbers"
+                  ]
+                },
+                {
+                  "intent": "english_history",
+                  "nextKey": "b1",
+                  "keywords": [
+                    "english",
+                    "history",
+                    "reading",
+                    "stories"
+                  ]
+                },
+                {
+                  "intent": "art_music_pe",
+                  "nextKey": "c1",
+                  "keywords": [
+                    "drawing",
+                    "painting",
+                    "singing",
+                    "sports"
+                  ]
+                }
+              ],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "a1",
+              "line": "Maths and Science are awesome! Do you like solving difficult problems in class?",
+              "hintUz": "Javob ber: \"Yes, I like solving problems\" yoki \"No, it is hard\".",
+              "branches": [],
+              "fallbackKey": "a2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "a2",
+              "line": "That is interesting! How many times a week do you have this lesson?",
+              "hintUz": "Haftada necha marta bu dars bo'lishini ayt: \"Three times a week\" yoki \"Every day\".",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "b1",
+              "line": "English is great! Do you like reading English storybooks?",
+              "hintUz": "Inglizcha kitob o'qishni yoqtirishingni ayt: \"Yes, I read books\" yoki \"No, I do not\".",
+              "branches": [],
+              "fallbackKey": "b2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "b2",
+              "line": "That is nice! Who is your favorite teacher at school?",
+              "hintUz": "Sevimli o'qituvching haqida ayt: \"My favorite teacher is …\"",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "c1",
+              "line": "Art and Music are so fun! Do you like drawing pictures or singing songs?",
+              "hintUz": "Rasm chizish yoki qo'shiq kuylashingni ayt: \"I like drawing pictures\".",
+              "branches": [],
+              "fallbackKey": "c2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "c2",
+              "line": "Cool! Do you draw pictures with your friends in class?",
+              "hintUz": "Do'stlaring bilan chizishingni ayt: \"Yes, with my friends\" yoki \"No, alone\".",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_two",
+              "line": "School days are full of fun! What do you usually do during the break time?",
+              "hintUz": "Tanaffusda nima qilishingni ayt: \"I eat a snack\", \"I play games\" yoki \"I talk with friends\".",
+              "branches": [
+                {
+                  "intent": "eating",
+                  "nextKey": "d1",
+                  "keywords": [
+                    "eating",
+                    "canteen",
+                    "snack",
+                    "apples",
+                    "sandwich"
+                  ]
+                },
+                {
+                  "intent": "playing",
+                  "nextKey": "e1",
+                  "keywords": [
+                    "playing",
+                    "running",
+                    "football",
+                    "games"
+                  ]
+                },
+                {
+                  "intent": "talking",
+                  "nextKey": "f1",
+                  "keywords": [
+                    "talking",
+                    "friends",
+                    "chatting",
+                    "sitting"
+                  ]
+                }
+              ],
+              "fallbackKey": "f1",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "d1",
+              "line": "Eating snacks gives you energy! What food do you like to eat at school?",
+              "hintUz": "Maktabda nima yeyishingni ayt: \"I eat an apple\" yoki \"I eat bread\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "e1",
+              "line": "Playing games is so exciting! Do you play football with your classmates?",
+              "hintUz": "Futbol o'ynashingni ayt: \"Yes, I play football\" yoki \"No, I play tag\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "f1",
+              "line": "Talking with friends is wonderful! Do you have many close friends in your class?",
+              "hintUz": "Do'stlaring ko'pligini ayt: \"Yes, I have many friends\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_three",
+              "line": "Friends make every day happier! How do you usually go to school in the morning?",
+              "hintUz": "Maktabga qanday borishingni ayt: \"I walk to school\" yoki \"I do homework at home\".",
+              "branches": [
+                {
+                  "intent": "transport",
+                  "nextKey": "g1",
+                  "keywords": [
+                    "walking",
+                    "bicycle",
+                    "riding"
+                  ]
+                },
+                {
+                  "intent": "general",
+                  "nextKey": "h1",
+                  "keywords": [
+                    "homework",
+                    "learning",
+                    "family",
+                    "house"
+                  ]
+                }
+              ],
+              "fallbackKey": "h1",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "g1",
+              "line": "Walking or going by bicycle is nice! Do you go to school with your friends or parents?",
+              "hintUz": "Kim bilan borishingni ayt: \"I go with my friends\" yoki \"With my father\".",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "h1",
+              "line": "Doing homework and learning new things is super important! Do you study every evening?",
+              "hintUz": "Kechqurun dars qilishingni ayt: \"Yes, I study every evening\".",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "ask_question",
+              "line": "Now it is your turn! Do you have a question for me about my school in Manchester?",
+              "hintUz": "Emmaga o'zing savol ber: \"What is your favorite subject?\" deb so'ra.",
+              "branches": [
+                {
+                  "intent": "branch_1",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you",
+                    "did you"
+                  ]
+                }
+              ],
+              "fallbackKey": "answer_hint",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_hint",
+              "line": "You can ask me anything! For example, ask me: 'What do you like to do at school?'",
+              "hintUz": "Savol berishga harakat qil: \"What do you like at school?\"",
+              "branches": [
+                {
+                  "intent": "branch_1",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you",
+                    "did you"
+                  ]
+                }
+              ],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_question",
+              "line": "My school in Manchester is very big and pretty! I love reading books and drawing pictures with my friends.",
+              "hintUz": "Munosabat bildir: \"That is great!\" yoki \"Very nice!\" deb ayt.",
+              "branches": [],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "closing",
+              "line": "It was really nice talking to you today! Thank you and see you next time. Goodbye!",
+              "hintUz": "Xayrlash: \"Goodbye! See you next time.\"",
               "branches": [],
               "fallbackKey": "",
               "isEnd": true
