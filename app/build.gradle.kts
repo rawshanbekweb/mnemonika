@@ -47,8 +47,11 @@ android {
         //         (avval 7 + 4). Internetsiz o'rnatgan bola ham hammasini ko'radi.
         // 0.1.7 — "Erkin suhbat" moduli: tarmoqlanuvchi suhbat daraxti bo'ylab
         //         jonli audio suhbat (offline, modelsiz) + suhbat tahlili.
-        versionCode = 8
-        versionName = "0.1.7"
+        // 0.1.8 — kontent to'ldi (13 dialog, 6 erkin suhbat, 23 audio klip);
+        //         zaxira o'chirildi (transkript Google Drive'ga tushmaydi) va
+        //         profil ekranida maxfiylik siyosati havolasi paydo bo'ldi.
+        versionCode = 9
+        versionName = "0.1.8"
         vectorDrawables { useSupportLibrary = true }
 
         // ── Backend (Vercel) sozlamalari — local.properties'dan ────────

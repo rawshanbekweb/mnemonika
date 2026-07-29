@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (API 31) uchun zaxira qoidalari.
+
+  `allowBackup="false"` bulutli zaxirani hamma versiyada o'chiradi, lekin
+  Android 12 dan boshlab QURILMADAN QURILMAGA KO'CHIRISH (device transfer)
+  alohida boshqariladi — u shu fayl orqali o'chiriladi. Sababi manifestdagi
+  izohda: ilova ma'lumotlarida bolaning nutq transkripti va ismi bor.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="file" />
+        <exclude domain="external" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="file" />
+        <exclude domain="external" />
+    </device-transfer>
+</data-extraction-rules>

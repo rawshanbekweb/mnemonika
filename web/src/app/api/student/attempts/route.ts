@@ -1,7 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db, schema } from "@/db";
+import { rateLimit, clientKey, tooManyRequests } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Bitta bola bir mashqni ~1 daqiqada bajaradi, ya'ni soatiga 30 urinish ham
+ * juda saxiy. Sinfda 30 bola bitta maktab Wi-Fi'sidan (bir IP) kirishi mumkin,
+ * shuning uchun chegara IP bo'yicha keng: 120/soat.
+ */
+const RULE = { limit: 120, windowMs: 60 * 60 * 1000 };
 
 /**
  * Web o'quvchi ilovasidan natija qabul qiladi.
@@ -12,6 +20,11 @@ export const dynamic = "force-dynamic";
  * token ham ajratib olinishi mumkin), lekin sirni oshkor qilmaydi.
  */
 export async function POST(req: NextRequest) {
+  // Tekshiruv bazaga tegishdan OLDIN — cheklovning maqsadi aynan Neon'ni
+  // himoya qilish.
+  const limit = rateLimit(`student-attempts:${clientKey(req)}`, RULE);
+  if (!limit.ok) return tooManyRequests(limit, "Juda ko'p urinish yuborildi");
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();

@@ -169,7 +169,10 @@ export default function ExercisePage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: transcript, wordCount: local.wordCount }),
         });
-        const report = (await res.json()) as GrammarReport | null;
+        // `res.ok` tekshiruvi SHART: 429 (tezlik cheklovi) yoki xato holatida
+        // tana `{error: "..."}` bo'ladi, uni hisobotdek qabul qilsak ball NaN
+        // bo'lib ketardi. Grammatikasiz baholash allaqachon to'g'ri ishlaydi.
+        const report = res.ok ? ((await res.json()) as GrammarReport | null) : null;
         if (report) finalResult = withGrammar(local, report);
       } catch {
         // grammatikasiz davom etamiz

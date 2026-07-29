@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { safeNext } from "@/lib/next-path";
+import { rateLimit, clientKey, clearRateLimit, tooManyRequests } from "@/lib/rate-limit";
 import {
   SESSION_COOKIE,
   createSessionToken,
@@ -11,7 +12,21 @@ import {
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Parol tanlash (brute-force) himoyasi. Ikki qatlam:
+ *  - IP bo'yicha — bitta mashinadan kelayotgan urinishlar soni;
+ *  - email bo'yicha — hujum tarqoq IP'lardan kelsa ham aniq bir hisob (masalan
+ *    admin emaili) himoyalanadi.
+ * Chegaralar odamga xalaqit qilmaydi: parolni unutgan o'qituvchi 10 marta
+ * urinib ko'rishga ulguradi.
+ */
+const IP_RULE = { limit: 10, windowMs: 10 * 60 * 1000 };
+const EMAIL_RULE = { limit: 10, windowMs: 30 * 60 * 1000 };
+
 export async function POST(req: NextRequest) {
+  const ipLimit = rateLimit(`login-ip:${clientKey(req)}`, IP_RULE);
+  if (!ipLimit.ok) return tooManyRequests(ipLimit, "Juda ko'p urinish. Birozdan keyin qayta urinib ko'ring");
+
   let body: { email?: string; password?: string; next?: string };
   try {
     body = await req.json();
@@ -24,6 +39,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Email va parol kerak" }, { status: 400 });
   }
 
+  const emailLimit = rateLimit(`login-email:${email}`, EMAIL_RULE);
+  if (!emailLimit.ok) {
+    return tooManyRequests(emailLimit, "Bu hisob vaqtincha bloklandi. Birozdan keyin urinib ko'ring");
+  }
+
   const [user] = await db
     .select()
     .from(schema.users)
@@ -33,6 +53,10 @@ export async function POST(req: NextRequest) {
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
     return NextResponse.json({ error: "Email yoki parol noto'g'ri" }, { status: 401 });
   }
+
+  // Muvaffaqiyatli kirish — hisoblagichlar tozalanadi (yuqoridagi izohga qarang).
+  clearRateLimit(`login-ip:${clientKey(req)}`);
+  clearRateLimit(`login-email:${email}`);
 
   const token = await createSessionToken({
     id: user.id,

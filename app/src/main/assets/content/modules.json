@@ -184,7 +184,7 @@
           ],
           "targetText": "My dog is very friendly and he likes to play in the garden every morning.",
           "promptsAudio": [],
-          "targetAudioUrl": "",
+          "targetAudioUrl": "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/982f2d6bf7f486d3528c060e914400c07cae9d812687534d3776466313216a34.wav",
           "structureTips": []
         },
         {
@@ -238,9 +238,9 @@
           ],
           "targetText": "",
           "promptsAudio": [
-            "",
-            "",
-            ""
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/ce8f9a92949fbe53cf9703785ee17366bacf19a90cdbd05b68f7ef592773719f.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/e1269803d84c34bcbd30d71cf3a3f0590ec276f06d62679d46cdeb83ba439e66.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/03fe5fd90dccbfbaa0df0e90e321730bbf4be44b517bf82d4aaeea8ba0df33d4.wav"
           ],
           "targetAudioUrl": "",
           "structureTips": []
@@ -302,9 +302,9 @@
           ],
           "targetText": "",
           "promptsAudio": [
-            "",
-            "",
-            ""
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/9165f283e533c12402f004e2a4c1a9f5e40ca8f9d72e4549004cfb147127f3b7.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/465bada87140e45856e3fd00b883c17268c97f20830a5b5706b7c95d386e5e98.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/c4fea0c9097fc3110eb6cd3e54917490f77e2607538cec444ac5bf8d6363f97f.wav"
           ],
           "targetAudioUrl": "",
           "structureTips": []
@@ -428,9 +428,9 @@
           ],
           "targetText": "",
           "promptsAudio": [
-            "",
-            "",
-            ""
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/c3b47a384f6d80cf93c65238d1498a086bd35798ef1d6630e1a3c611bc123f5e.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/ffddbc7c38241be57b10e2f4a7ffcaaacaf702e7dc2b7e78aa5b4213c6387230.wav",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/f8b9c3e32521b15d6a194412377702524ea373d73d4034452258b32d9948395a.wav"
           ],
           "targetAudioUrl": "",
           "structureTips": []
@@ -1207,7 +1207,7 @@
           "targetText": "",
           "promptsAudio": [
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/7b937d7403e50cd9a2649c200a7f3838c045fe150b1a608eeeddd564824f02a4.wav",
-            ""
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/2a64239481a9223ce7aa9a7a264ba37be780bf539a1cce2f7ab4d7fc515da285.wav"
           ],
           "targetAudioUrl": "",
           "structureTips": [
@@ -1414,7 +1414,7 @@
           "promptsAudio": [
             "",
             "",
-            ""
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/2a64239481a9223ce7aa9a7a264ba37be780bf539a1cce2f7ab4d7fc515da285.wav"
           ],
           "targetAudioUrl": "",
           "structureTips": []
@@ -1941,6 +1941,178 @@
               ]
             }
           ]
+        },
+        {
+          "id": "roleplay_library",
+          "topic": "At the Library",
+          "title": "At the School Library",
+          "visuals": [
+            "📚",
+            "🪪",
+            "📖",
+            "📅"
+          ],
+          "mnemonic": {
+            "acronym": "STYLE",
+            "steps": [
+              {
+                "en": "Setting",
+                "uz": "Muhit",
+                "letter": "S"
+              },
+              {
+                "en": "Tone",
+                "uz": "Ohang",
+                "letter": "T"
+              },
+              {
+                "en": "Your character",
+                "uz": "Sening roling",
+                "letter": "Y"
+              },
+              {
+                "en": "Listen actively",
+                "uz": "Faol tingla",
+                "letter": "L"
+              },
+              {
+                "en": "Expressions",
+                "uz": "Iboralar",
+                "letter": "E"
+              }
+            ]
+          },
+          "characterName": "Miss Zilola (kutubxonachi)",
+          "characterEmoji": "📚",
+          "intro": "Hello! Welcome to our school library. I am Miss Zilola.",
+          "turns": [
+            {
+              "characterLine": "Hello! Do you have a library card with you today?",
+              "studentHint": "Ha, kutubxona kartam bor va kitob olmoqchiman, deng.",
+              "expectedKeywords": [
+                "have",
+                "card",
+                "library",
+                "book"
+              ]
+            },
+            {
+              "characterLine": "Wonderful! What kind of book do you want to read?",
+              "studentHint": "Men sarguzasht va ertak kitoblarni yaxshi ko'raman, deng.",
+              "expectedKeywords": [
+                "like",
+                "story",
+                "adventure",
+                "books"
+              ]
+            },
+            {
+              "characterLine": "Here is a great adventure book! You must return it next Monday. Is that okay?",
+              "studentHint": "Ha, tushundim. Men kitobni dushanba kuni qaytaraman, deng.",
+              "expectedKeywords": [
+                "understand",
+                "return",
+                "monday",
+                "okay"
+              ]
+            },
+            {
+              "characterLine": "Perfect! Enjoy your reading and have a wonderful day!",
+              "studentHint": "Kutubxonachiga katta rahmat ayting va xayrlashing.",
+              "expectedKeywords": [
+                "thank",
+                "goodbye",
+                "great",
+                "have"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "roleplay_clothes_shop",
+          "topic": "Shopping for Clothes",
+          "title": "Shopping for Clothes",
+          "visuals": [
+            "👋",
+            "👕",
+            "🪞",
+            "💵"
+          ],
+          "mnemonic": {
+            "acronym": "GREET",
+            "steps": [
+              {
+                "en": "Greet politely",
+                "uz": "Xushmuomala salomlash",
+                "letter": "G"
+              },
+              {
+                "en": "Respond naturally",
+                "uz": "Tabiiy javob ber",
+                "letter": "R"
+              },
+              {
+                "en": "Explain what you need",
+                "uz": "Nima kerakligini tushuntir",
+                "letter": "E"
+              },
+              {
+                "en": "Extra questions",
+                "uz": "Qo'shimcha savol ber",
+                "letter": "E"
+              },
+              {
+                "en": "Thank and finish",
+                "uz": "Rahmat aytib yakunla",
+                "letter": "T"
+              }
+            ]
+          },
+          "characterName": "Sardor (sotuvchi)",
+          "characterEmoji": "👕",
+          "intro": "Hello! Welcome to our clothes shop. How can I help you today?",
+          "turns": [
+            {
+              "characterLine": "Hello! Welcome to our shop. What are you looking for today?",
+              "studentHint": "Salom bering va ko'k rangli futbolka (t-shirt) qidiryotganingizni ayting.",
+              "expectedKeywords": [
+                "hello",
+                "looking",
+                "tshirt",
+                "please"
+              ]
+            },
+            {
+              "characterLine": "We have nice blue t-shirts! What size do you need?",
+              "studentHint": "O'lchamingiz o'rtacha (medium) ekanini ayting va kiyib ko'rsam bo'ladimi deb so'rang.",
+              "expectedKeywords": [
+                "medium",
+                "fitting",
+                "room",
+                "please"
+              ]
+            },
+            {
+              "characterLine": "Yes, the fitting room is over there. How does it fit?",
+              "studentHint": "Futbolka juda mos kelganini (perfect) ayting va uning narxini so'rang.",
+              "expectedKeywords": [
+                "perfect",
+                "price",
+                "much",
+                "cost"
+              ]
+            },
+            {
+              "characterLine": "It costs 15 dollars. Would you like to buy it?",
+              "studentHint": "Ha, sotib olaman deb ayting, rahmat bildiring va xayrlashing.",
+              "expectedKeywords": [
+                "buying",
+                "thank",
+                "dollars",
+                "goodbye"
+              ]
+            }
+          ]
         }
       ],
       "conversations": []
@@ -2114,6 +2286,349 @@
                 "important",
                 "help",
                 "why"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "interview_chef",
+          "topic": "A Famous Chef",
+          "title": "Interview with a Chef",
+          "visuals": [
+            "🥘",
+            "⏰",
+            "💡",
+            "👋"
+          ],
+          "mnemonic": {
+            "acronym": "LEARN",
+            "steps": [
+              {
+                "en": "Listen carefully",
+                "uz": "Diqqat bilan tingla",
+                "letter": "L"
+              },
+              {
+                "en": "Easy, short questions",
+                "uz": "Qisqa savol ber",
+                "letter": "E"
+              },
+              {
+                "en": "Ask follow-up questions",
+                "uz": "Qo'shimcha savol ber",
+                "letter": "A"
+              },
+              {
+                "en": "Repeat to check",
+                "uz": "Tushunganingni tekshir",
+                "letter": "R"
+              },
+              {
+                "en": "Nice thank you",
+                "uz": "Chiroyli rahmat",
+                "letter": "N"
+              }
+            ]
+          },
+          "characterName": "Chef Jasur (mashhur oshpaz)",
+          "characterEmoji": "👨‍🍳",
+          "intro": "Hello! I am Chef Jasur. I love cooking delicious food.",
+          "turns": [
+            {
+              "characterLine": "My favorite dish is traditional palov. It is very delicious!",
+              "studentHint": "Uning sevimli taomi nima ekanligini so'rang. (Masalan: What is your favorite food?)",
+              "expectedKeywords": [
+                "what",
+                "your",
+                "favorite",
+                "food"
+              ]
+            },
+            {
+              "characterLine": "I start work early at 8 o'clock. I prepare fresh ingredients every morning.",
+              "studentHint": "Uning ish kuni soat nechada boshlanishini so'rang. (Masalan: What time do you start work?)",
+              "expectedKeywords": [
+                "what",
+                "time",
+                "start",
+                "work"
+              ]
+            },
+            {
+              "characterLine": "My advice is simple: practice cooking every day and always use fresh food!",
+              "studentHint": "Yosh oshpazlarga qanday maslahat berishini so'rang. (Masalan: What is your advice for young cooks?)",
+              "expectedKeywords": [
+                "what",
+                "your",
+                "advice",
+                "cooks"
+              ]
+            },
+            {
+              "characterLine": "You are welcome! Thank you for the great interview. Goodbye!",
+              "studentHint": "Vaqti va suhbat uchun rahmat ayting va xayrlashing. (Masalan: Thank you for the interview, goodbye!)",
+              "expectedKeywords": [
+                "thank",
+                "time",
+                "interview",
+                "goodbye"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "interview_teacher",
+          "topic": "My Teacher",
+          "title": "Interview with My Teacher",
+          "visuals": [
+            "👩‍🏫",
+            "📚",
+            "🌟",
+            "🤝"
+          ],
+          "mnemonic": {
+            "acronym": "QUEST",
+            "steps": [
+              {
+                "en": "Questions prepared",
+                "uz": "Savollar tayyor",
+                "letter": "Q"
+              },
+              {
+                "en": "Understanding check",
+                "uz": "Tushunganini tekshir",
+                "letter": "U"
+              },
+              {
+                "en": "Eye contact",
+                "uz": "Ko'z aloqasi",
+                "letter": "E"
+              },
+              {
+                "en": "Short and clear",
+                "uz": "Qisqa va aniq",
+                "letter": "S"
+              },
+              {
+                "en": "Thank the person",
+                "uz": "Rahmat ayt",
+                "letter": "T"
+              }
+            ]
+          },
+          "characterName": "Dilnoza (o'qituvchi)",
+          "characterEmoji": "👩‍🏫",
+          "intro": "Hello! I am happy to answer your questions today. Let's start the interview!",
+          "turns": [
+            {
+              "characterLine": "I love children and sharing knowledge. I wanted to become a teacher when I was a young schoolgirl.",
+              "studentHint": "Nima uchun o'qituvchi bo'lishni tanlagani haqida so'rang.",
+              "expectedKeywords": [
+                "choose",
+                "become",
+                "teacher"
+              ]
+            },
+            {
+              "characterLine": "My favorite subject is English because it helps children talk to people from all around the world.",
+              "studentHint": "Qaysi darsni o'tishni eng yaxshi ko'rishi haqida so'rang.",
+              "expectedKeywords": [
+                "what",
+                "favorite",
+                "subject",
+                "lesson"
+              ]
+            },
+            {
+              "characterLine": "My wish is for my students to read many books, work hard, and always stay curious.",
+              "studentHint": "O'quvchilarga qanday tilagi borligini so'rang.",
+              "expectedKeywords": [
+                "what",
+                "your",
+                "wish",
+                "students"
+              ]
+            },
+            {
+              "characterLine": "Thank you for these wonderful questions! Good luck with your studies!",
+              "studentHint": "Vaqt ajratgani uchun rahmat ayting va xayrlashing.",
+              "expectedKeywords": [
+                "thank",
+                "time",
+                "interview",
+                "goodbye"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "interview_inventor",
+          "topic": "A Young Inventor",
+          "title": "Meet a Young Inventor",
+          "visuals": [
+            "💡",
+            "🤖",
+            "☀️",
+            "👏"
+          ],
+          "mnemonic": {
+            "acronym": "QUEST",
+            "steps": [
+              {
+                "en": "Questions prepared",
+                "uz": "Savollar tayyor",
+                "letter": "Q"
+              },
+              {
+                "en": "Understanding check",
+                "uz": "Tushunganini tekshir",
+                "letter": "U"
+              },
+              {
+                "en": "Eye contact",
+                "uz": "Ko'z aloqasi",
+                "letter": "E"
+              },
+              {
+                "en": "Short and clear",
+                "uz": "Qisqa va aniq",
+                "letter": "S"
+              },
+              {
+                "en": "Thank the person",
+                "uz": "Rahmat ayt",
+                "letter": "T"
+              }
+            ]
+          },
+          "characterName": "Jasur (yosh ixtirochi)",
+          "characterEmoji": "💡",
+          "intro": "Hello! My name is Jasur. I love making new things and inventing gadgets!",
+          "turns": [
+            {
+              "characterLine": "Hi! I invented a small robot. It cleans the floor automatically!",
+              "studentHint": "Salom ber va undan nima ixtiro qilganini so'ra.",
+              "expectedKeywords": [
+                "hello",
+                "what",
+                "invent",
+                "make"
+              ]
+            },
+            {
+              "characterLine": "My room was always messy, so I wanted a helper! I built it last month.",
+              "studentHint": "Bu g'oya unga qanday kelganini so'ra.",
+              "expectedKeywords": [
+                "where",
+                "this",
+                "idea",
+                "come"
+              ]
+            },
+            {
+              "characterLine": "It uses solar energy from the sun! It is very cheap and safe.",
+              "studentHint": "Robot qanday ishlashini yoki quvvat olishini so'ra.",
+              "expectedKeywords": [
+                "does",
+                "robot",
+                "work",
+                "solar"
+              ]
+            },
+            {
+              "characterLine": "Thank you so much! It was great talking to you. Goodbye!",
+              "studentHint": "Unga vaqti uchun rahmat ayt va omad tila.",
+              "expectedKeywords": [
+                "thank",
+                "time",
+                "good",
+                "luck"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "interview_traveller",
+          "topic": "A Traveller",
+          "title": "Interview with a Traveller",
+          "visuals": [
+            "🗺️",
+            "📸",
+            "🏔️",
+            "🤝"
+          ],
+          "mnemonic": {
+            "acronym": "LEARN",
+            "steps": [
+              {
+                "en": "Listen carefully",
+                "uz": "Diqqat bilan tingla",
+                "letter": "L"
+              },
+              {
+                "en": "Easy, short questions",
+                "uz": "Qisqa savol ber",
+                "letter": "E"
+              },
+              {
+                "en": "Ask follow-up questions",
+                "uz": "Qo'shimcha savol ber",
+                "letter": "A"
+              },
+              {
+                "en": "Repeat to check",
+                "uz": "Tushunganingni tekshir",
+                "letter": "R"
+              },
+              {
+                "en": "Nice thank you",
+                "uz": "Chiroyli rahmat",
+                "letter": "N"
+              }
+            ]
+          },
+          "characterName": "Alex (sayohatchi)",
+          "characterEmoji": "✈️",
+          "intro": "Hello! My name is Alex and I love travelling to different places.",
+          "turns": [
+            {
+              "characterLine": "I visited fifteen countries. I love travelling around the world!",
+              "studentHint": "Undan nechta mamlakatda bo'lganini yoki qayerga borganini so'rang.",
+              "expectedKeywords": [
+                "where",
+                "countries",
+                "visited",
+                "travel"
+              ]
+            },
+            {
+              "characterLine": "I loved Japan the most! The mountains and cities were amazing.",
+              "studentHint": "Unga eng yoqqan va yodda qolgan mamlakat qaysi ekanligini so'rang.",
+              "expectedKeywords": [
+                "which",
+                "country",
+                "favorite",
+                "liked"
+              ]
+            },
+            {
+              "characterLine": "I saw Mount Fuji and ate famous delicious food there.",
+              "studentHint": "U Yaponiyada nima qilgani yoki nimani ko'rgani haqida so'rang.",
+              "expectedKeywords": [
+                "what",
+                "there",
+                "japan",
+                "doing"
+              ]
+            },
+            {
+              "characterLine": "I will go to Egypt next month. Thank you for this interview!",
+              "studentHint": "Keyingi safar qayerga bormoqchi ekanini so'rang va rahmat ayting.",
+              "expectedKeywords": [
+                "where",
+                "next",
+                "travel",
+                "thank"
               ]
             }
           ]
@@ -2845,6 +3360,1300 @@
               "nodeKey": "closing",
               "line": "It was really nice talking to you today! Thank you and see you next time. Goodbye!",
               "hintUz": "Xayrlash: \"Goodbye! See you next time.\"",
+              "branches": [],
+              "fallbackKey": "",
+              "isEnd": true
+            }
+          ]
+        },
+        {
+          "id": "free_talk_family_home",
+          "topic": "Family and Home",
+          "title": "Family and Home",
+          "characterName": "Tom (Liverpuldan 11 yoshli do'sting)",
+          "characterEmoji": "👦",
+          "goalUz": "Tom bilan oilang va uying haqida ingliz tilida suhbatlash.",
+          "visuals": [
+            "🏠",
+            "👨‍👩‍👧‍👦",
+            "🛌",
+            "🍳"
+          ],
+          "targetMinutes": 3,
+          "startKey": "start",
+          "closingKey": "closing",
+          "nodes": [
+            {
+              "nodeKey": "start",
+              "line": "Hello! My name is Tom. I am eleven years old and I live in Liverpool. What is your name?",
+              "hintUz": "Salomlash va o'z ismingni ayt: \"Hello! My name is ...\"",
+              "branches": [],
+              "fallbackKey": "topic_ask",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "topic_ask",
+              "line": "Nice to meet you! Let's talk about family. Do you have brothers and sisters, do you live with your parents, or with your grandparents?",
+              "hintUz": "Oilangda kimlar borligini ayt: \"I have a brother\" yoki \"I live with my parents\" deb javob ber.",
+              "branches": [
+                {
+                  "intent": "siblings",
+                  "nextKey": "a1",
+                  "keywords": [
+                    "brother",
+                    "sister",
+                    "brothers",
+                    "sisters"
+                  ]
+                },
+                {
+                  "intent": "parents",
+                  "nextKey": "b1",
+                  "keywords": [
+                    "mother",
+                    "father",
+                    "parents"
+                  ]
+                },
+                {
+                  "intent": "grandparents",
+                  "nextKey": "c1",
+                  "keywords": [
+                    "grandma",
+                    "grandpa",
+                    "family"
+                  ]
+                }
+              ],
+              "fallbackKey": "topic_repeat",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "topic_repeat",
+              "line": "I did not hear you well. Do you have brothers and sisters, parents, or grandparents at home?",
+              "hintUz": "Uchta variantdan birini tanlab ayt: \"I have brothers and sisters\" yoki \"I live with my parents\".",
+              "branches": [
+                {
+                  "intent": "siblings",
+                  "nextKey": "a1",
+                  "keywords": [
+                    "brother",
+                    "sister",
+                    "brothers",
+                    "sisters"
+                  ]
+                },
+                {
+                  "intent": "parents",
+                  "nextKey": "b1",
+                  "keywords": [
+                    "mother",
+                    "father",
+                    "parents"
+                  ]
+                },
+                {
+                  "intent": "grandparents",
+                  "nextKey": "c1",
+                  "keywords": [
+                    "grandma",
+                    "grandpa",
+                    "family"
+                  ]
+                }
+              ],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "a1",
+              "line": "That is great! I have one brother and one sister too. How many brothers or sisters do you have?",
+              "hintUz": "Nechta akang, ukang yoki opang borligini ayt: \"I have one brother\" yoki \"I have two sisters\".",
+              "branches": [],
+              "fallbackKey": "a2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "a2",
+              "line": "That is nice! Do you like playing games or walking together with them?",
+              "hintUz": "Ular bilan nima qilishni yoqtirishingni ayt: \"We play games together\" yoki \"We like walking\".",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "b1",
+              "line": "That is wonderful! Parents always help us. What do your parents like doing?",
+              "hintUz": "Ota-onang nima qilishni yoqtirishini ayt: \"My father likes sports\" yoki \"My mother likes reading\".",
+              "branches": [],
+              "fallbackKey": "b2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "b2",
+              "line": "That sounds good! Do you like helping your parents around the house?",
+              "hintUz": "Ota-onangga yordam berishingni ayt: \"Yes, I help my parents every day\".",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "c1",
+              "line": "That is super! Living with a big family is fun. Do you talk with your grandparents every day?",
+              "hintUz": "Buvang yoki buving bilan gaplashishingni ayt: \"Yes, I talk to my grandma every day\".",
+              "branches": [],
+              "fallbackKey": "c2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "c2",
+              "line": "That is so good! What is your favourite thing to do with your family?",
+              "hintUz": "Oilang bilan nima qilishni yoqtirishingni ayt: \"I like eating dinner with my family\".",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_two",
+              "line": "Now tell me about helping at home! Do you like cooking in the kitchen, cleaning your room, or helping with other things?",
+              "hintUz": "Uydagilarga qanday yordam berishingni ayt: \"I like cooking\" yoki \"I clean my room\".",
+              "branches": [
+                {
+                  "intent": "cooking",
+                  "nextKey": "d1",
+                  "keywords": [
+                    "cooking",
+                    "kitchen",
+                    "dinner"
+                  ]
+                },
+                {
+                  "intent": "cleaning",
+                  "nextKey": "e1",
+                  "keywords": [
+                    "cleaning",
+                    "sweeping",
+                    "washing"
+                  ]
+                },
+                {
+                  "intent": "general_help",
+                  "nextKey": "f1",
+                  "keywords": [
+                    "helping",
+                    "working",
+                    "always"
+                  ]
+                }
+              ],
+              "fallbackKey": "f1",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "d1",
+              "line": "Cooking is so cool! I like making breakfast with my mum. What food do you like to cook?",
+              "hintUz": "Qanday taom tayyorlashni yoqtirishingni ayt: \"I like cooking pizza\" yoki \"I like making tea\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "e1",
+              "line": "Cleaning is very good! A clean room makes you happy. When do you usually clean your room?",
+              "hintUz": "Xonangni qachon tozalashingni ayt: \"I clean my room on Sunday\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "f1",
+              "line": "You are a good helper! Helping at home is important. What simple work do you do at home?",
+              "hintUz": "Uyda qanday ish qilishingni tushuntir: \"I wash the dishes\" yoki \"I water flowers\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_three",
+              "line": "Let's talk about rooms! Which room in your house do you like most? Is it your bedroom or the living room?",
+              "hintUz": "Sevimli xonangni ayt: \"I like my bedroom\" yoki \"My favourite room is the living room\".",
+              "branches": [
+                {
+                  "intent": "bedroom",
+                  "nextKey": "g1",
+                  "keywords": [
+                    "bedroom",
+                    "sleep",
+                    "bedtime"
+                  ]
+                },
+                {
+                  "intent": "livingroom",
+                  "nextKey": "h1",
+                  "keywords": [
+                    "livingroom",
+                    "television",
+                    "sofa"
+                  ]
+                }
+              ],
+              "fallbackKey": "h1",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "g1",
+              "line": "Bedrooms are great for resting! Do you read books or play games in your bedroom?",
+              "hintUz": "Yotoqxonangda nima qilishingni ayt: \"I read books in my bedroom\".",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "h1",
+              "line": "The living room is very cozy! Do you watch movies with your family in the living room?",
+              "hintUz": "Televizor ko'rishing yoki oilang bilan o'tirishingni ayt: \"Yes, we watch movies together\".",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "ask_question",
+              "line": "Now it is your turn! Please ask me a question about my family or my house. For example, ask me: 'Where do you live?'",
+              "hintUz": "Tomga o'zi yoki uyi haqida savol ber: \"Where do you live?\" yoki \"Do you have a big house?\"",
+              "branches": [
+                {
+                  "intent": "branch_1",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you",
+                    "did you"
+                  ]
+                }
+              ],
+              "fallbackKey": "answer_hint",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_hint",
+              "line": "Do not be shy! You can ask me any simple question, like: 'Do you have a big house?'",
+              "hintUz": "Tomga oddiy savol berishga harakat qil: \"Do you have a big house?\"",
+              "branches": [
+                {
+                  "intent": "branch_1",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you",
+                    "did you"
+                  ]
+                }
+              ],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_question",
+              "line": "I live in a cozy house in Liverpool with my family. We have a small garden and I love my bedroom!",
+              "hintUz": "Eshitganing uchun rahmat ayt: \"Thank you! That is nice.\"",
+              "branches": [],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "closing",
+              "line": "It was really great talking to you about family and home. Thank you and goodbye!",
+              "hintUz": "Xayrlash: \"Goodbye! See you next time.\"",
+              "branches": [],
+              "fallbackKey": "",
+              "isEnd": true
+            }
+          ]
+        },
+        {
+          "id": "free_talk_food_cooking",
+          "topic": "Food and Cooking",
+          "title": "Talking About Food",
+          "characterName": "Sofia (Dublindan 12 yoshli do'sting)",
+          "characterEmoji": "👩‍🍳",
+          "goalUz": "Sofia bilan sevimli taomlaring va ovqat tayyorlash haqida ingliz tilida suhbatlash.",
+          "visuals": [
+            "🍕",
+            "🍲",
+            "🍳",
+            "🍰"
+          ],
+          "targetMinutes": 3,
+          "startKey": "start",
+          "closingKey": "closing",
+          "nodes": [
+            {
+              "nodeKey": "start",
+              "line": "Hello! My name is Sofia. I am twelve years old and I live in Dublin. What is your name?",
+              "hintUz": "Salomlash va o'z ismingni ayt: \"Hello! My name is ...\"",
+              "branches": [],
+              "fallbackKey": "topic_ask",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "topic_ask",
+              "line": "Nice to meet you! I love cooking with my grandma. What is your favorite food?",
+              "hintUz": "Sevimli taoming haqida ayt: \"I like pizza\", \"I like plov\" yoki \"I like cake\" deb boshla.",
+              "branches": [
+                {
+                  "intent": "fastfood",
+                  "nextKey": "a1",
+                  "keywords": [
+                    "pizza",
+                    "burger",
+                    "fries",
+                    "chicken"
+                  ]
+                },
+                {
+                  "intent": "national",
+                  "nextKey": "b1",
+                  "keywords": [
+                    "plov",
+                    "soup",
+                    "bread",
+                    "pasta"
+                  ]
+                },
+                {
+                  "intent": "sweets",
+                  "nextKey": "c1",
+                  "keywords": [
+                    "cake",
+                    "sweets",
+                    "chocolate",
+                    "cookies"
+                  ]
+                }
+              ],
+              "fallbackKey": "topic_repeat",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "topic_repeat",
+              "line": "I did not catch that. Do you like fast food like pizza, traditional food like plov, or sweets?",
+              "hintUz": "Uchta variantdan birini tanlab ayt: \"I like pizza\", \"I like plov\" yoki \"I like cake\".",
+              "branches": [
+                {
+                  "intent": "fastfood",
+                  "nextKey": "a1",
+                  "keywords": [
+                    "pizza",
+                    "burger",
+                    "fries",
+                    "chicken"
+                  ]
+                },
+                {
+                  "intent": "national",
+                  "nextKey": "b1",
+                  "keywords": [
+                    "plov",
+                    "soup",
+                    "bread",
+                    "pasta"
+                  ]
+                },
+                {
+                  "intent": "sweets",
+                  "nextKey": "c1",
+                  "keywords": [
+                    "cake",
+                    "sweets",
+                    "chocolate",
+                    "cookies"
+                  ]
+                }
+              ],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "a1",
+              "line": "Fast food is so tasty! Do you often eat pizza or burgers with your friends?",
+              "hintUz": "Tez-tez yeyishingni ayt: \"Yes, I do\" yoki \"No, sometimes\".",
+              "branches": [],
+              "fallbackKey": "a2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "a2",
+              "line": "That sounds fun! Can you make pizza at home by yourself?",
+              "hintUz": "Uyingda o'zing pitssa tayyorlay olasanmi: \"Yes, I can\" yoki \"No, my mother makes it\" deb javob ber.",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "b1",
+              "line": "Traditional food is wonderful! What is the name of your favorite Uzbek dish?",
+              "hintUz": "Sevimli milliy taoming nomini ayt: \"My favorite Uzbek dish is plov\".",
+              "branches": [],
+              "fallbackKey": "b2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "b2",
+              "line": "Plov looks very delicious! Do you know what ingredients are in it?",
+              "hintUz": "Masalliqlarni ayt: \"It has rice and meat\" deb javob ber.",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "c1",
+              "line": "I love sweet food too! What is your favorite sweet treat?",
+              "hintUz": "Sevimli shirinligingni ayt: \"I love chocolate cake\" yoki \"I like cookies\".",
+              "branches": [],
+              "fallbackKey": "c2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "c2",
+              "line": "Yummy! Do you usually eat sweets after dinner or on holidays?",
+              "hintUz": "Qachon shirinlik yeyishingni ayt: \"I eat sweets on holidays\" yoki \"After dinner\".",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_two",
+              "line": "Food is great! Tell me, who usually cooks food in your house?",
+              "hintUz": "Uyingizda kim ovqat pishirishini ayt: \"My mother cooks\" yoki \"I cook\".",
+              "branches": [
+                {
+                  "intent": "selfcook",
+                  "nextKey": "d1",
+                  "keywords": [
+                    "cook",
+                    "cooking",
+                    "making",
+                    "kitchen"
+                  ]
+                },
+                {
+                  "intent": "family",
+                  "nextKey": "e1",
+                  "keywords": [
+                    "mother",
+                    "grandma",
+                    "sister",
+                    "family"
+                  ]
+                },
+                {
+                  "intent": "general",
+                  "nextKey": "f1",
+                  "keywords": [
+                    "eating",
+                    "yummy",
+                    "tasty",
+                    "hungry"
+                  ]
+                }
+              ],
+              "fallbackKey": "f1",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "d1",
+              "line": "Wow, you cook yourself? That is amazing! What simple dish can you make?",
+              "hintUz": "Qaysi oddiy taomni tayyorlay olishingni ayt: \"I can make salad\" yoki \"I make eggs\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "e1",
+              "line": "That is nice! Do you help your family in the kitchen when they cook?",
+              "hintUz": "Oilangga oshxonada yordam berishingni ayt: \"Yes, I help my mother\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "f1",
+              "line": "Eating good food is always wonderful! Do you like eating together with your family?",
+              "hintUz": "Oilang bilan birga ovqatlanishni yoqtirishingni ayt: \"Yes, we eat together every day\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_three",
+              "line": "Now let us talk about drinks! What do you like to drink with your food?",
+              "hintUz": "Ovqat bilan nima ichishni yoqtirishingni ayt: \"I drink juice\" yoki \"I drink water\".",
+              "branches": [
+                {
+                  "intent": "colddrink",
+                  "nextKey": "g1",
+                  "keywords": [
+                    "juice",
+                    "water",
+                    "milk",
+                    "apple"
+                  ]
+                },
+                {
+                  "intent": "hotdrink",
+                  "nextKey": "h1",
+                  "keywords": [
+                    "drink",
+                    "drinking",
+                    "warm",
+                    "bottle"
+                  ]
+                }
+              ],
+              "fallbackKey": "h1",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "g1",
+              "line": "Cold juice and water are so refreshing! Do you drink juice every day?",
+              "hintUz": "Har kuni sharbat ichishingni ayt: \"Yes, I drink juice\" yoki \"No, I prefer water\".",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "h1",
+              "line": "Nice choice! Warm drinks are great too. Do you drink them in the morning?",
+              "hintUz": "Ertalab ichishingni ayt: \"Yes, in the morning\" yoki \"No, in the evening\".",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "ask_question",
+              "line": "Now it is your turn! Ask me a question about food or cooking in Ireland.",
+              "hintUz": "Sofia'ga inglizcha savol ber: \"What do you cook with your grandma?\"",
+              "branches": [
+                {
+                  "intent": "branch_1",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you",
+                    "did you"
+                  ]
+                }
+              ],
+              "fallbackKey": "answer_hint",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_hint",
+              "line": "Do not worry! You can ask me: \"What is your favorite food?\" Try asking now!",
+              "hintUz": "Savol berishga harakat qil: \"What is your favorite food?\" deb so'ra.",
+              "branches": [
+                {
+                  "intent": "branch_1",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you",
+                    "did you"
+                  ]
+                }
+              ],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_question",
+              "line": "My grandma and I love baking Irish apple cake together! It is super sweet and delicious.",
+              "hintUz": "Sofia'ning javobini eshitding, endi \"That sounds great!\" deb ayt.",
+              "branches": [],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "closing",
+              "line": "It was really fun talking to you about food today! Thank you and goodbye!",
+              "hintUz": "Xayrlash: \"Goodbye! Thank you!\"",
+              "branches": [],
+              "fallbackKey": "",
+              "isEnd": true
+            }
+          ]
+        },
+        {
+          "id": "free_talk_my_town",
+          "topic": "My Town",
+          "title": "My Town and City",
+          "characterName": "Olivia (Yorklik tengdoshing)",
+          "characterEmoji": "🏰",
+          "goalUz": "O'z shahring, undagi joylar va ob-havo haqida ingliz tilida gapirib ber.",
+          "visuals": [
+            "🏙️",
+            "🏰",
+            "🌳",
+            "☀️"
+          ],
+          "targetMinutes": 5,
+          "startKey": "start",
+          "closingKey": "closing",
+          "nodes": [
+            {
+              "nodeKey": "start",
+              "line": "Hello! My name is Olivia. I am eleven years old and I live in York. What is your name?",
+              "hintUz": "Salomlash va o'z ismingni ayt: \"Hello! My name is …\"",
+              "branches": [],
+              "fallbackKey": "topic_ask",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "topic_ask",
+              "line": "Nice to meet you! Tell me, where do you live, and what is your town like?",
+              "hintUz": "Qayerda yashashing va shahring haqida ayt. Joylar, ob-havo yoki shahring haqida: \"I live in … It is …\"",
+              "branches": [
+                {
+                  "intent": "places",
+                  "nextKey": "a1",
+                  "keywords": [
+                    "park",
+                    "museum",
+                    "school",
+                    "center",
+                    "market",
+                    "garden"
+                  ]
+                },
+                {
+                  "intent": "weather",
+                  "nextKey": "b1",
+                  "keywords": [
+                    "sunny",
+                    "rainy",
+                    "warm",
+                    "cold",
+                    "weather"
+                  ]
+                },
+                {
+                  "intent": "city_type",
+                  "nextKey": "c1",
+                  "keywords": [
+                    "small",
+                    "beautiful",
+                    "quiet",
+                    "green",
+                    "large"
+                  ]
+                }
+              ],
+              "fallbackKey": "topic_repeat",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "topic_repeat",
+              "line": "Sorry, I did not catch that. Do you want to talk about places in your town, the weather, or if it is big or small?",
+              "hintUz": "Uchta variantdan birini tanlab ayt: \"I want to talk about places / weather / my town.\"",
+              "branches": [
+                {
+                  "intent": "places",
+                  "nextKey": "a1",
+                  "keywords": [
+                    "places",
+                    "park",
+                    "museum",
+                    "school",
+                    "center"
+                  ]
+                },
+                {
+                  "intent": "weather",
+                  "nextKey": "b1",
+                  "keywords": [
+                    "weather",
+                    "sunny",
+                    "rainy",
+                    "warm",
+                    "cold"
+                  ]
+                },
+                {
+                  "intent": "city_type",
+                  "nextKey": "c1",
+                  "keywords": [
+                    "small",
+                    "beautiful",
+                    "quiet",
+                    "green"
+                  ]
+                }
+              ],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "a1",
+              "line": "Oh, places in town are so interesting! What is your favorite place in your town?",
+              "hintUz": "Shahringdagi eng yoqtirgan joyingni ayt: \"My favorite place is …\"",
+              "branches": [],
+              "fallbackKey": "a2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "a2",
+              "line": "That sounds great! Why do you like going there?",
+              "hintUz": "U yerga borishni nima uchun yoqtirishingni tushuntir: \"I like it because …\"",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "b1",
+              "line": "Weather is always a good topic! What is the weather like in your town today?",
+              "hintUz": "Bugungi ob-havo haqida ayt: \"Today it is sunny / cold / warm.\"",
+              "branches": [],
+              "fallbackKey": "b2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "b2",
+              "line": "I see! Which season do you like best in your town?",
+              "hintUz": "O'z shahringda eng yoqtirgan faslingni ayt: \"I like summer / spring best.\"",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "c1",
+              "line": "That is nice to know! Do many people live in your town?",
+              "hintUz": "Shahringda odamlar ko'p yoki kamligini ayt: \"Yes, many people live here.\" yoki \"No, it is small.\"",
+              "branches": [],
+              "fallbackKey": "c2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "c2",
+              "line": "I understand! What do you like most about your town?",
+              "hintUz": "Shahringdagi eng yoqimli narsani ayt: \"I like the parks / streets / people.\"",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_two",
+              "line": "York has many old castles! What do you usually do in your town on weekends?",
+              "hintUz": "Dam olish kunlari nima qilishingni ayt: sport, xarid yoki sayr haqida: \"On weekends I …\"",
+              "branches": [
+                {
+                  "intent": "sports",
+                  "nextKey": "d1",
+                  "keywords": [
+                    "football",
+                    "sports",
+                    "swimming",
+                    "running",
+                    "bicycle"
+                  ]
+                },
+                {
+                  "intent": "shopping",
+                  "nextKey": "e1",
+                  "keywords": [
+                    "shopping",
+                    "baking",
+                    "store",
+                    "buying",
+                    "market"
+                  ]
+                },
+                {
+                  "intent": "general_activity",
+                  "nextKey": "f1",
+                  "keywords": [
+                    "walking",
+                    "playing",
+                    "resting",
+                    "watching",
+                    "reading"
+                  ]
+                }
+              ],
+              "fallbackKey": "f1",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "d1",
+              "line": "Sports are so fun! Do you play with your friends or family?",
+              "hintUz": "Kim bilan sport o'ynashingni ayt: \"I play with my friends / brother.\"",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "e1",
+              "line": "Shopping is fun too! Who do you usually go shopping with?",
+              "hintUz": "Kim bilan xarid qilishga borishingni ayt: \"I go with my mother / family.\"",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "f1",
+              "line": "That sounds like a relaxing day! Do you prefer going outside or staying inside?",
+              "hintUz": "Tashqariga chiqishni yoqtirasanmi yoki uyda qolishnimi: \"I prefer going outside / staying inside.\"",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_three",
+              "line": "I love living in York because of its history. Do you like living in your town?",
+              "hintUz": "O'z shahringda yashash yoqish-yoqmasligini ayt: \"Yes, I love my town!\" yoki \"It is okay.\"",
+              "branches": [
+                {
+                  "intent": "love_town",
+                  "nextKey": "g1",
+                  "keywords": [
+                    "love",
+                    "really",
+                    "great",
+                    "wonderful",
+                    "happy"
+                  ]
+                },
+                {
+                  "intent": "okay_town",
+                  "nextKey": "h1",
+                  "keywords": [
+                    "okay",
+                    "fine",
+                    "normal",
+                    "average",
+                    "soso"
+                  ]
+                }
+              ],
+              "fallbackKey": "h1",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "g1",
+              "line": "I am so happy to hear that! Would you like to live there forever?",
+              "hintUz": "Hamma vaqt shu yerda yashashni xohlashing haqida ayt: \"Yes, I want to stay here.\" yoki \"No, I want to travel.\"",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "h1",
+              "line": "I understand! Is there another city you want to visit in the future?",
+              "hintUz": "Kelajakda qaysi shaharga borishni xohlashingni ayt: \"I want to visit London / Tashkent.\"",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "ask_question",
+              "line": "Now it is your turn! Can you ask me a question about York or my life?",
+              "hintUz": "Oliviyaga York yoki uning hayoti haqida savol ber: \"What is your favorite place in York?\" yoki \"How is the weather in York?\"",
+              "branches": [
+                {
+                  "intent": "branch_1",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you",
+                    "did you"
+                  ]
+                }
+              ],
+              "fallbackKey": "answer_hint",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_hint",
+              "line": "You can ask me a simple question, like: What do you like in York?",
+              "hintUz": "Sodda savol berishga harakat qil: \"What do you like in York?\"",
+              "branches": [
+                {
+                  "intent": "branch_1",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you",
+                    "did you"
+                  ]
+                }
+              ],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_question",
+              "line": "York is a very famous old town with big castles and beautiful streets! I love walking around the city center with my friends.",
+              "hintUz": "Ajoyib! Endi taassurotingni ayt va xulosa qil: \"York sounds very interesting!\"",
+              "branches": [],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "closing",
+              "line": "It was really nice talking to you about our towns today! Thank you and goodbye!",
+              "hintUz": "Xayrlash va rahmat ayt: \"Goodbye! Thank you very much!\"",
+              "branches": [],
+              "fallbackKey": "",
+              "isEnd": true
+            }
+          ]
+        },
+        {
+          "id": "free_talk_holidays_travel",
+          "topic": "Holidays and Travel",
+          "title": "Holidays and Travel",
+          "characterName": "Jack (Bristoldan tengdoshing)",
+          "characterEmoji": "✈️",
+          "goalUz": "Jack bilan ta'til va sayohat haqida ingliz tilida suhbatlash va uning savollariga javob ber.",
+          "visuals": [
+            "✈️",
+            "🏖️",
+            "🏔️",
+            "🧳"
+          ],
+          "targetMinutes": 5,
+          "startKey": "start",
+          "closingKey": "closing",
+          "nodes": [
+            {
+              "nodeKey": "start",
+              "line": "Hi! I am Jack. I am twelve years old and I live in Bristol. What is your name?",
+              "hintUz": "Salomlash va ismingni ayt: \"Hello! My name is ...\"",
+              "branches": [],
+              "fallbackKey": "topic_ask",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "topic_ask",
+              "line": "Nice to meet you! Summer is over. What did you do in the summer?",
+              "hintUz": "Yozda nima qilganingni ayt: suzdingmi (\"swimming\"), qishloqqa bordingmi (\"village\") yoki uyda qoldingmi (\"home\")?",
+              "branches": [
+                {
+                  "intent": "swimming",
+                  "nextKey": "a1",
+                  "keywords": [
+                    "swimming",
+                    "beach",
+                    "water"
+                  ]
+                },
+                {
+                  "intent": "village",
+                  "nextKey": "b1",
+                  "keywords": [
+                    "village",
+                    "grandma",
+                    "relatives",
+                    "family"
+                  ]
+                },
+                {
+                  "intent": "home",
+                  "nextKey": "c1",
+                  "keywords": [
+                    "playing",
+                    "reading",
+                    "games"
+                  ]
+                }
+              ],
+              "fallbackKey": "topic_repeat",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "topic_repeat",
+              "line": "Sorry, I did not catch that. Did you go swimming, visit your village, or stay at home?",
+              "hintUz": "Uchta variantdan birini tanlab ayt: \"I went swimming\", \"I visited my village\" yoki \"I stayed at home\".",
+              "branches": [
+                {
+                  "intent": "swimming",
+                  "nextKey": "a1",
+                  "keywords": [
+                    "swimming",
+                    "beach",
+                    "water"
+                  ]
+                },
+                {
+                  "intent": "village",
+                  "nextKey": "b1",
+                  "keywords": [
+                    "village",
+                    "grandma",
+                    "relatives",
+                    "family"
+                  ]
+                },
+                {
+                  "intent": "home",
+                  "nextKey": "c1",
+                  "keywords": [
+                    "playing",
+                    "reading",
+                    "games"
+                  ]
+                }
+              ],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "a1",
+              "line": "Oh, swimming is awesome! Did you go to the beach with your family?",
+              "hintUz": "Sohelda kim bilan bo'lganingni ayt: \"Yes, I went with my family.\"",
+              "branches": [],
+              "fallbackKey": "a2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "a2",
+              "line": "That sounds really fun! What was your favorite thing to do in the water?",
+              "hintUz": "Suvda nima qilishni yoqtirishingni ayt: \"I like swimming fast\" yoki \"I like playing with water\".",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "b1",
+              "line": "That is lovely! Did you visit your grandparents in the village?",
+              "hintUz": "Qishloqda buving yoki bobongni ko'rganingni ayt: \"Yes, I visited my grandparents.\"",
+              "branches": [],
+              "fallbackKey": "b2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "b2",
+              "line": "Nice! What animals or interesting things did you see in the village?",
+              "hintUz": "Qishloqda ko'rgan narsalaring haqida ayt: \"I saw horses and cows\" yoki \"I played outside\".",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "c1",
+              "line": "Staying at home can be nice too! What games or hobbies did you enjoy?",
+              "hintUz": "Uyda qanday o'yin o'ynaganingni yoki mashg'ulot qilganingni ayt: \"I played games\" yoki \"I read books\".",
+              "branches": [],
+              "fallbackKey": "c2",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "c2",
+              "line": "Cool! Did you spend time with your friends at home?",
+              "hintUz": "Do'stlaring bilan vaqt o'tkazganingni ayt: \"Yes, I played with my friends.\"",
+              "branches": [],
+              "fallbackKey": "hub_two",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_two",
+              "line": "I love travelling! What is your dream city to visit in the future?",
+              "hintUz": "Orzuingdagi joyni ayt: mashhur shahar (\"london\", \"paris\"), tog'lar (\"mountains\") yoki har qanday joy (\"everywhere\").",
+              "branches": [
+                {
+                  "intent": "big_city",
+                  "nextKey": "d1",
+                  "keywords": [
+                    "london",
+                    "paris",
+                    "cities",
+                    "museum"
+                  ]
+                },
+                {
+                  "intent": "mountains",
+                  "nextKey": "e1",
+                  "keywords": [
+                    "mountains",
+                    "nature",
+                    "forest",
+                    "camping"
+                  ]
+                },
+                {
+                  "intent": "anywhere",
+                  "nextKey": "f1",
+                  "keywords": [
+                    "everywhere",
+                    "traveling",
+                    "anywhere"
+                  ]
+                }
+              ],
+              "fallbackKey": "f1",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "d1",
+              "line": "Wow, big cities are amazing! Why do you want to go there?",
+              "hintUz": "U yerga borish sababini ayt: \"Because I want to see famous places\" yoki \"It is beautiful\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "e1",
+              "line": "Nature trips are great! Do you like hiking in the mountains?",
+              "hintUz": "Tog'da sayr qilishni yoqtirishingni ayt: \"Yes, I love hiking\" yoki \"Yes, nature is great\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "f1",
+              "line": "Travelling to new places is always exciting! Who do you want to travel with?",
+              "hintUz": "Kim bilan sayohat qilmoqchi ekaningni ayt: \"I want to travel with my family\" yoki \"with my friends\".",
+              "branches": [],
+              "fallbackKey": "hub_three",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "hub_three",
+              "line": "How do you like to travel when you go far away?",
+              "hintUz": "Qanday transportda sayohat qilishni yoqtirishingni ayt: samolyot/poyezd (\"plane\", \"train\") yoki oddiy sayohat/piyoda (\"walking\", \"traveling\").",
+              "branches": [
+                {
+                  "intent": "transport",
+                  "nextKey": "g1",
+                  "keywords": [
+                    "plane",
+                    "airplane",
+                    "train"
+                  ]
+                },
+                {
+                  "intent": "simple",
+                  "nextKey": "h1",
+                  "keywords": [
+                    "walking",
+                    "traveling"
+                  ]
+                }
+              ],
+              "fallbackKey": "h1",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "g1",
+              "line": "Taking a plane or a train is super fun! Do you like looking out the window?",
+              "hintUz": "Oynadan qarashni yoqtirishingni ayt: \"Yes, I love looking out the window.\"",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "h1",
+              "line": "Walking and seeing places slowly is really nice! Do you travel often?",
+              "hintUz": "Tez-tez sayohat qilishingni yoki qilmasligingni ayt: \"Yes, I travel every summer\" yoki \"No, not very often\".",
+              "branches": [],
+              "fallbackKey": "ask_question",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "ask_question",
+              "line": "Now it is your turn! Do you have a question for me about Bristol or travel?",
+              "hintUz": "Jangga savol ber: \"Where do you like to travel?\" yoki \"Do you like Bristol?\"",
+              "branches": [
+                {
+                  "intent": "branch_1",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you",
+                    "did you"
+                  ]
+                }
+              ],
+              "fallbackKey": "answer_hint",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_hint",
+              "line": "You can ask me something simple! For example: Where do you want to go?",
+              "hintUz": "Jangdan o'zing xohlagan savolni so'ra: \"Do you like travelling by plane?\"",
+              "branches": [
+                {
+                  "intent": "branch_1",
+                  "nextKey": "answer_question",
+                  "keywords": [
+                    "what",
+                    "where",
+                    "when",
+                    "which",
+                    "do you",
+                    "are you",
+                    "can you",
+                    "have you",
+                    "did you"
+                  ]
+                }
+              ],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "answer_question",
+              "line": "I love travelling to the beach with my family! Bristol is also a great city with a big famous bridge.",
+              "hintUz": "Tushunganingni bildirish uchun \"That is cool!\" deb ayt.",
+              "branches": [],
+              "fallbackKey": "closing",
+              "isEnd": false
+            },
+            {
+              "nodeKey": "closing",
+              "line": "It was great talking to you about holidays! Have a wonderful day. Goodbye!",
+              "hintUz": "Xayrlash: \"Goodbye! Thank you, Jack.\"",
               "branches": [],
               "fallbackKey": "",
               "isEnd": true

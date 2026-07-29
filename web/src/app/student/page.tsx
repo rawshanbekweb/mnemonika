@@ -102,6 +102,9 @@ export default function StudentHome() {
             <Link href="/" className="underline hover:text-navy">
               Bosh sahifa
             </Link>
+            <Link href="/maxfiylik" className="underline hover:text-navy">
+              Maxfiylik siyosati
+            </Link>
             <Link href="/login" className="underline hover:text-navy">
               O&apos;qituvchi / admin kirishi
             </Link>

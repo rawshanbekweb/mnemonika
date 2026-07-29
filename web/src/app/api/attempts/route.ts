@@ -1,13 +1,25 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db, schema } from "@/db";
+import { rateLimit, clientKey, tooManyRequests } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Token APK ichida — uni ajratib olish mumkin, shuning uchun token o'zi
+ * yetarli himoya emas. Chegara: ilova ochilganda navbatdagi natijalarni
+ * ketma-ket yuborishi mumkin (`AttemptUploader.flushPending()`), sinf esa bitta
+ * IP'dan chiqadi — shuning uchun web'nikidan kengroq.
+ */
+const RULE = { limit: 300, windowMs: 60 * 60 * 1000 };
 
 /**
  * Ilova o'quvchi natijasini shu yerga yuboradi (o'qituvchi paneli uchun).
  * Himoya: `x-ingest-token` sarlavhasi ATTEMPTS_INGEST_TOKEN bilan mos kelishi kerak.
  */
 export async function POST(req: NextRequest) {
+  const limit = rateLimit(`attempts:${clientKey(req)}`, RULE);
+  if (!limit.ok) return tooManyRequests(limit, "Juda ko'p urinish yuborildi");
+
   const expected = process.env.ATTEMPTS_INGEST_TOKEN;
   const got = req.headers.get("x-ingest-token");
   if (!expected || got !== expected) {

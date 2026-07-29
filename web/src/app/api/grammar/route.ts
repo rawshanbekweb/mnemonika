@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { rateLimit, clientKey, tooManyRequests } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,15 @@ const API_URL = "https://api.languagetool.org/v2/check";
 const MIN_WORDS = 10;
 const PENALTY_PER_ERROR_PCT = 3;
 
+/**
+ * Bu route boshqa birovning bepul API'siga (LanguageTool) so'rov yuboradi —
+ * ya'ni ochiq proxy. Cheklovsiz qoldirsak, kimdir uni o'z ilovasiga
+ * ishlatib bizning IP'mizni LanguageTool'da bloklatib qo'yishi mumkin, natijada
+ * grammatika baholash HAMMA o'quvchida o'chadi. Sinf uchun yetarli, suiiste'mol
+ * uchun kam: 60/soat.
+ */
+const RULE = { limit: 60, windowMs: 60 * 60 * 1000 };
+
 type LtMatch = {
   message?: string;
   shortMessage?: string;
@@ -22,6 +32,11 @@ type LtMatch = {
 };
 
 export async function POST(req: NextRequest) {
+  // Chegaradan oshsa `null` emas, 429 qaytadi: mijoz "grammatika yo'q" deb
+  // jimgina davom etmasin, sabab ko'rinsin.
+  const limit = rateLimit(`grammar:${clientKey(req)}`, RULE);
+  if (!limit.ok) return tooManyRequests(limit, "Grammatika tekshiruvi vaqtincha band");
+
   let body: { text?: string; wordCount?: number };
   try {
     body = await req.json();

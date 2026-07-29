@@ -218,6 +218,9 @@ export default async function Landing() {
             <Link href="/student/progress" className="hover:text-navy hover:underline">
               Natijalar
             </Link>
+            <Link href="/maxfiylik" className="hover:text-navy hover:underline">
+              Maxfiylik
+            </Link>
             <Link href={user ? panelHref : "/login"} className="hover:text-navy hover:underline">
               {user ? "Boshqaruv paneli" : "O'qituvchi / admin"}
             </Link>

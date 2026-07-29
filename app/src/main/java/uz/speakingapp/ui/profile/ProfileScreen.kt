@@ -1,5 +1,9 @@
 package uz.speakingapp.ui.profile
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
+import uz.speakingapp.BuildConfig
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -133,6 +137,8 @@ fun ProfileScreen(
                 )
             }
 
+            PrivacyNote()
+
             GradientButton(
                 text = if (firstTime) "Boshlash" else "Saqlash",
                 onClick = { onSave(name.trim(), classGroup.trim()) },
@@ -149,6 +155,47 @@ fun ProfileScreen(
                 )
             }
             Spacer(Modifier.size(8.dp))
+        }
+    }
+}
+
+/**
+ * Maxfiylik siyosatiga havola.
+ *
+ * Aynan shu ekranda: bola (yoki ota-onasi) ismini birinchi marta shu yerda
+ * kiritadi — ma'lumot nima uchun so'ralayotgani ham shu yerda aytilishi kerak.
+ * Manzil `API_BASE_URL` dan tuziladi, ya'ni sayt manzili o'zgarsa havola ham
+ * o'zgaradi; manzil sozlanmagan bo'lsa (offline-only build) havola umuman
+ * ko'rsatilmaydi, chunki u baribir ochilmasdi.
+ */
+@Composable
+private fun PrivacyNote() {
+    val base = BuildConfig.API_BASE_URL.trimEnd('/')
+    val context = LocalContext.current
+
+    SoftCard {
+        Text(
+            "Ismingiz va mashq natijalaringiz o'qituvchingizga ko'rinadi. " +
+                "Ovoz yozuvi saqlanmaydi — nutq telefonning o'zida matnga aylantiriladi.",
+            style = MaterialTheme.typography.bodySmall,
+            color = InkMuted,
+        )
+        if (base.isNotEmpty()) {
+            Spacer(Modifier.size(8.dp))
+            Text(
+                "Maxfiylik siyosati",
+                style = MaterialTheme.typography.bodySmall,
+                color = Navy,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable {
+                    // Brauzer topilmasa ilova yiqilmasin.
+                    runCatching {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse("$base/maxfiylik")),
+                        )
+                    }
+                },
+            )
         }
     }
 }

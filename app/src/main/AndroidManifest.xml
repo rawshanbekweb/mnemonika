@@ -6,8 +6,18 @@
     <!-- Model va kontent yangilanishini yuklab olish uchun -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--
+      Zaxira O'CHIRILGAN. Ilova ma'lumotlari orasida bolaning nutq transkripti
+      (Room bazasi) va ismi bor — `allowBackup="true"` bo'lsa bular Google
+      Drive'ga (Auto Backup) nusxalanardi, ya'ni bolalar nutqi bizning
+      nazoratimizdan tashqarida uchinchi tomon serverida saqlanardi. Yo'qotish
+      kichik: progress baribir serverga yuboriladi, 125MB model esa qayta
+      yuklanadi (u zaxiraga tushmasligi kerak ham edi).
+    -->
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
