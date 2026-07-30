@@ -63,6 +63,13 @@ export async function buildContentPack(): Promise<ContentPack> {
   const audioFor = (text: string): string =>
     needsAudio(text) ? (urlByHash.get(audioKey(text)) ?? "") : "";
 
+  // Tasvir fotosuratlari. Kalit — emoji tokeni, ya'ni bir rasm bir necha
+  // mashqda qayta ishlatiladi. Topilmasa bo'sh satr: mijoz o'sha indeksdagi
+  // emojini ko'rsatadi.
+  const images = await db.select().from(schema.visualImages);
+  const urlByToken = new Map(images.map((r) => [r.token, r.url]));
+  const imageFor = (token: string): string => urlByToken.get(token) ?? "";
+
   // Mashqqa xos murabbiy maslahatlari. Bank to'liq bo'lmasa Coach umumiy
   // matnlarni ishlatadi, shuning uchun bu yerda hech qanday to'ldirish yo'q.
   const tipRows = await db.select().from(schema.exerciseTips).orderBy(asc(schema.exerciseTips.move));
@@ -91,6 +98,7 @@ export async function buildContentPack(): Promise<ContentPack> {
         keywords: e.keywords,
         timeLimitSec: e.timeLimitSec,
         visuals: e.visuals,
+        visualImages: e.visuals.map(imageFor),
         targetText: e.targetText,
         promptsAudio: e.prompts.map(audioFor),
         targetAudioUrl: audioFor(e.targetText),

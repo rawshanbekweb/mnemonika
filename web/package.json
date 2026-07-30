@@ -23,6 +23,8 @@
     "upload:apk": "tsx scripts/upload-apk.ts",
     "gen:audio": "tsx scripts/generate-audio.ts",
     "db:audio": "tsx scripts/add-audio-table.ts",
+    "gen:images": "tsx scripts/generate-images.ts",
+    "db:images": "tsx scripts/add-visual-images-table.ts",
     "gen:content": "tsx scripts/generate-content.ts",
     "gen:conversation": "tsx scripts/generate-conversation.ts",
     "export:content": "tsx scripts/export-content.ts",

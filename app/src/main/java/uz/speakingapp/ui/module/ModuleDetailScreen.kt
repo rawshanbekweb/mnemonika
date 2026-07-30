@@ -133,7 +133,9 @@ private fun ExerciseCard(
 ) {
     SoftCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            exercise.visuals.firstOrNull()?.let { VisualThumb(it, size = 46.dp) }
+            exercise.visuals.firstOrNull()?.let {
+                VisualThumb(it, imageUrl = exercise.visualImageAt(0), size = 46.dp)
+            }
             if (exercise.visuals.isNotEmpty()) Spacer(Modifier.size(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(exercise.title, style = MaterialTheme.typography.titleMedium)

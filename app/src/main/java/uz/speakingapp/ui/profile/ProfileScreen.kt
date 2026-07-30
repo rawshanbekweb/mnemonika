@@ -181,23 +181,30 @@ private fun PrivacyNote() {
             color = InkMuted,
         )
         if (base.isNotEmpty()) {
-            Spacer(Modifier.size(8.dp))
-            Text(
-                "Maxfiylik siyosati",
-                style = MaterialTheme.typography.bodySmall,
-                color = Navy,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable {
-                    // Brauzer topilmasa ilova yiqilmasin.
-                    runCatching {
-                        context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse("$base/maxfiylik")),
-                        )
-                    }
-                },
-            )
+            Spacer(Modifier.size(10.dp))
+            LinkText("Maxfiylik siyosati", "$base/maxfiylik", context)
+            Spacer(Modifier.size(6.dp))
+            // Mashq rasmlari CC-BY litsenziyasi ostida — atribut foydalanuvchi
+            // ko'radigan joyda bo'lishi shart, faqat repozitoriyda emas.
+            LinkText("Rasmlar manbasi", "$base/rasmlar", context)
         }
     }
+}
+
+@Composable
+private fun LinkText(text: String, url: String, context: android.content.Context) {
+    Text(
+        text,
+        style = MaterialTheme.typography.bodySmall,
+        color = Navy,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.clickable {
+            // Brauzer topilmasa ilova yiqilmasin.
+            runCatching {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            }
+        },
+    )
 }
 
 @Composable

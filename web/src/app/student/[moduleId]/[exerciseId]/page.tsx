@@ -287,7 +287,7 @@ export default function ExercisePage() {
         {exercise.visuals.length > 0 && (
           <div className="mb-5 flex gap-2.5 overflow-x-auto pb-1">
             {exercise.visuals.map((v, i) => (
-              <Visual key={i} token={v} size={84} />
+              <Visual key={i} token={v} imageUrl={exercise.visualImages?.[i] ?? ""} size={84} />
             ))}
           </div>
         )}

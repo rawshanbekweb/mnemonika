@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,23 +22,33 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
 /**
- * Mashqning vizual ishorasi.
+ * Mashqning vizual ishorasi. Web'dagi `Visual.tsx` bilan bir xil mantiq —
+ * IKKALASI DOIM BIRGA O'ZGARTIRILADI.
  *
- * Kontentdagi `visuals` maydoni ikki xil bo'lishi mumkin:
- *  - rasm URL'i (`https://…`) — admin panelidagi media kutubxonasidan;
- *  - emoji tokeni — kontentning boshlang'ich ko'rinishi.
+ * [token] — emoji (yoki eski kontentda to'g'ridan-to'g'ri rasm URL'i).
+ * [imageUrl] — `visualImages` dan kelgan fotosurat; bo'sh bo'lishi mumkin.
  *
- * Emoji BEZAK emas, mashqning mazmuni: bola aynan shu tasvir haqida gapiradi.
- * Shuning uchun u olib tashlanmadi, balki bosiq ramkaga solindi. Rasm URL'i
- * qo'yilgan zahoti o'sha joyda haqiqiy rasm chiqadi.
+ * ZAXIRA SHART: tasvir BEZAK emas, mashqning mazmuni — bola aynan shu narsa
+ * haqida gapiradi. Ilova esa internetsiz ishlashi kerak, ya'ni rasm ko'pincha
+ * YUKLANMAYDI. Shunday holatda bola bo'sh kulrang kvadratni emas, emojini
+ * ko'radi ([onError] → [failed]).
+ *
+ * Coil rasmni diskka keshlaydi, shuning uchun bir marta ko'rilgan rasm keyin
+ * internetsiz ham chiqadi.
  */
 @Composable
 fun VisualTile(
     token: String,
+    imageUrl: String = "",
     modifier: Modifier = Modifier,
     size: Dp = 88.dp,
 ) {
-    val isUrl = token.startsWith("http://") || token.startsWith("https://")
+    // Eski kontentda URL to'g'ridan-to'g'ri `visuals` ichida bo'lishi mumkin.
+    val tokenIsUrl = token.startsWith("http://") || token.startsWith("https://")
+    val src = if (imageUrl.isNotEmpty()) imageUrl else if (tokenIsUrl) token else ""
+
+    // `src` o'zgarsa qaytadan urinib ko'rish kerak — shuning uchun kalit sifatida.
+    var failed by remember(src) { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -44,19 +58,24 @@ fun VisualTile(
             .border(1.dp, OutlineSoft, MaterialTheme.shapes.small),
         contentAlignment = Alignment.Center,
     ) {
-        if (isUrl) {
+        if (src.isNotEmpty() && !failed) {
             AsyncImage(
-                model = token,
+                model = src,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
+                onError = { failed = true },
                 modifier = Modifier.fillMaxSize().clip(MaterialTheme.shapes.small),
             )
         } else {
-            Text(token, fontSize = (size.value * 0.42f).sp)
+            Text(
+                if (tokenIsUrl) "🖼️" else token,
+                fontSize = (size.value * 0.42f).sp,
+            )
         }
     }
 }
 
 /** Kichik ro'yxat elementi uchun ixcham variant. */
 @Composable
-fun VisualThumb(token: String, size: Dp = 44.dp) = VisualTile(token = token, size = size)
+fun VisualThumb(token: String, imageUrl: String = "", size: Dp = 44.dp) =
+    VisualTile(token = token, imageUrl = imageUrl, size = size)

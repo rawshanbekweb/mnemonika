@@ -185,6 +185,38 @@ export const audioClips = pgTable("audio_clips", {
 });
 
 /**
+ * Mashq tasvirining fotosurati (Openverse → Vercel Blob).
+ *
+ * Kalit — EMOJI TOKENINING o'zi, mashq ID'si emas: bir xil tasvir (📚, 🍎…)
+ * bir necha mashqda uchraydi va bola hamma joyda bir xil rasmni ko'rishi
+ * kerak. Bir marta yuklanadi, hamma joyda ishlatiladi.
+ *
+ * `visuals` maydoniga TEGILMAYDI — emoji o'z joyida qoladi va rasm yuklanmasa
+ * (offline, o'chirilgan URL) o'sha emoji ko'rsatiladi. Ya'ni bu jadval
+ * bo'sh bo'lsa ham ilova avvalgidek ishlaydi.
+ *
+ * Litsenziya maydonlari majburiy: rasmlar CC litsenziyalari ostida olinadi va
+ * manba hujjatlashtirilishi shart (`web/public/hero/CREDITS.md` bilan bir xil
+ * qoida).
+ */
+export const visualImages = pgTable("visual_images", {
+  id: serial("id").primaryKey(),
+  /** Emoji tokeni — `exercises.visuals` ichidagi qiymat. */
+  token: text("token").notNull().unique(),
+  /** Vercel Blob'dagi nusxa (asl manbaga hotlink qilinmaydi). */
+  url: text("url").notNull(),
+  /** Qidiruvda ishlatilgan so'z — nima uchun aynan shu rasm ekani ko'rinsin. */
+  searchTerm: text("search_term").notNull().default(""),
+  /** Manba sahifasi (rasm fayli emas) — atribut uchun. */
+  sourceUrl: text("source_url").notNull().default(""),
+  creator: text("creator").notNull().default(""),
+  license: text("license").notNull().default(""),
+  licenseUrl: text("license_url").notNull().default(""),
+  title: text("title").notNull().default(""),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
  * Mashqqa xos murabbiy maslahatlari ("maslahat banki").
  *
  * Murabbiyning umumiy matnlari mavzuga bog'lanmagan: "For example… deb misol

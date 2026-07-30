@@ -114,8 +114,16 @@ data class Exercise(
     val prompts: List<String> = emptyList(),
     val keywords: List<String> = emptyList(),
     val timeLimitSec: Int = 60,
-    /** Vizual ishoralar — emoji tokenlari (keyin haqiqiy rasm bilan almashtirilishi mumkin). */
+    /** Vizual ishoralar — emoji tokenlari. */
     val visuals: List<String> = emptyList(),
+    /**
+     * [visuals] bilan INDEKS BO'YICHA moslashadigan fotosurat URL'lari.
+     *
+     * Standart bo'sh: rasmsiz eski kontent JSON'i ham parse bo'lishi kerak.
+     * Rasm bo'lmasa yoki yuklanmasa o'sha indeksdagi emoji ko'rsatiladi —
+     * ilova internetsiz ishlagani uchun bu ODATIY holat, xato emas.
+     */
+    val visualImages: List<String> = emptyList(),
     /**
      * Bo'sh bo'lmasa — mashq "Takrorlang" turiga o'tadi: bola aynan shu matnni
      * o'qiydi va aytilgan so'zlar so'zma-so'z solishtiriladi (qarang: ReadAloud).
@@ -142,6 +150,9 @@ data class Exercise(
 
     /** Berilgan savol uchun audio URL (yo'q bo'lsa bo'sh satr). */
     fun promptAudioAt(index: Int): String = promptsAudio.getOrNull(index).orEmpty()
+
+    /** Berilgan tasvir uchun fotosurat URL'i (yo'q bo'lsa bo'sh satr). */
+    fun visualImageAt(index: Int): String = visualImages.getOrNull(index).orEmpty()
 }
 
 /** Mnemonik struktura (PETS, GREEN, OCEAN, ...). */

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -167,7 +168,7 @@ fun ExerciseScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                if (exercise.visuals.isNotEmpty()) VisualStrip(exercise.visuals)
+                if (exercise.visuals.isNotEmpty()) VisualStrip(exercise)
                 PromptCard(
                     exercise = exercise,
                     speaking = state.speaking,
@@ -237,12 +238,14 @@ private fun ErrorNote(message: String) {
 }
 
 @Composable
-private fun VisualStrip(visuals: List<String>) {
+private fun VisualStrip(exercise: Exercise) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        items(visuals) { token -> VisualTile(token, size = 88.dp) }
+        itemsIndexed(exercise.visuals) { index, token ->
+            VisualTile(token, imageUrl = exercise.visualImageAt(index), size = 88.dp)
+        }
     }
 }
 

@@ -218,9 +218,12 @@ export default function PrivacyPolicy() {
           </p>
         </Section>
 
-        <div className="mt-12 border-t border-line pt-6 text-sm">
+        <div className="mt-12 flex flex-wrap gap-x-6 gap-y-2 border-t border-line pt-6 text-sm">
           <Link href="/" className="text-navy hover:underline">
             ← Bosh sahifaga qaytish
+          </Link>
+          <Link href="/rasmlar" className="text-navy hover:underline">
+            Rasmlar manbasi va litsenziyalari
           </Link>
         </div>
       </main>

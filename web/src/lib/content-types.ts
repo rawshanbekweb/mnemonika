@@ -20,6 +20,15 @@ export type Exercise = {
   timeLimitSec: number;
   visuals: string[];
   /**
+   * `visuals` bilan INDEKS BO'YICHA moslashadigan fotosurat URL'lari.
+   *
+   * Emoji o'z joyida qoladi va rasm bo'lmasa (jadvalda yo'q, internet yo'q,
+   * yuklanmadi) o'sha emoji ko'rsatiladi — ya'ni bu maydon butunlay bo'sh
+   * bo'lsa ham ilova avvalgidek ishlaydi. Rasm bezak emas, mashq mazmuni
+   * bo'lgani uchun zaxira SHART (qarang: Visual.kt / Visual.tsx).
+   */
+  visualImages: string[];
+  /**
    * Bo'sh bo'lmasa — mashq "Takrorlang" turiga o'tadi: bola aynan shu matnni
    * o'qiydi va aytilgan so'zlar so'zma-so'z solishtiriladi (qarang: read-aloud.ts).
    * Bo'sh bo'lsa — odatdagi erkin nutq mashqi.
