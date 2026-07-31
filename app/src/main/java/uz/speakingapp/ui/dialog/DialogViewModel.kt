@@ -16,9 +16,11 @@ import uz.speakingapp.analysis.KeywordMatcher
 import uz.speakingapp.analysis.SpeechResult
 import uz.speakingapp.data.ProgressRepository
 import uz.speakingapp.data.model.DialogScenario
+import uz.speakingapp.speech.ModelDownloader
 import uz.speakingapp.speech.ModelManager
 import uz.speakingapp.speech.Speaker
 import uz.speakingapp.speech.VoskRecognizer
+import uz.speakingapp.speech.progressLabel
 
 enum class DialogPhase { NeedModel, PreparingModel, CharacterSpeaking, StudentTurn, Recording, Done }
 
@@ -27,6 +29,8 @@ data class ChatMessage(val fromCharacter: Boolean, val text: String)
 data class DialogUiState(
     val phase: DialogPhase = DialogPhase.NeedModel,
     val downloadProgress: Float = 0f,
+    /** "42 MB / 130 MB" — yuklanish qimirlab turganini ko'rsatadi. */
+    val downloadLabel: String = "",
     val messages: List<ChatMessage> = emptyList(),
     val currentHint: String = "",
     val liveText: String = "",
@@ -53,6 +57,13 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
     private var isInterview = false
     private var moduleId = ""
     private var timerJob: Job? = null
+
+    /** Model holatini kuzatuvchi ish (yuklab olishning o'zi emas). */
+    private var modelJob: Job? = null
+
+    /** 125MB modelni tanigichga ikki marta yuklamaslik uchun. */
+    private var modelLoaded = false
+
     private val segments = StringBuilder()
 
     /** Tanigichning qo'shimcha variantlari — faqat kalit so'z qidirish uchun. */
@@ -100,21 +111,55 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
         if (modelManager.isModelReady()) prepareModel()
     }
 
+    /**
+     * Modelni tayyorlaydi. Yuklab olish [ModelDownloader] da — ilova darajasida —
+     * ketadi, ekran almashsa ham to'xtamaydi; bu yerda faqat kuzatiladi.
+     */
     fun prepareModel() {
         if (_state.value.phase == DialogPhase.PreparingModel) return
-        _state.update {
-            it.copy(phase = DialogPhase.PreparingModel, error = null, downloadProgress = 0f)
+        if (modelLoaded) {
+            startScenario()
+            return
         }
-        viewModelScope.launch {
-            try {
-                val path = modelManager.ensureModel { p ->
-                    _state.update { it.copy(downloadProgress = p) }
-                }
-                recognizer.loadModel(path)
-                startScenario()
-            } catch (e: Exception) {
-                _state.update {
-                    it.copy(phase = DialogPhase.NeedModel, error = e.message ?: "Model tayyorlanmadi")
+        _state.update {
+            it.copy(
+                phase = DialogPhase.PreparingModel,
+                error = null,
+                downloadProgress = 0f,
+                downloadLabel = "",
+            )
+        }
+        ModelDownloader.ensure(getApplication())
+        modelJob?.cancel()
+        modelJob = viewModelScope.launch {
+            ModelDownloader.state.collect { s ->
+                when (s) {
+                    is ModelDownloader.State.Downloading -> _state.update {
+                        it.copy(downloadProgress = s.fraction, downloadLabel = s.progressLabel())
+                    }
+                    ModelDownloader.State.Unzipping -> _state.update {
+                        it.copy(downloadProgress = 1f, downloadLabel = s.progressLabel())
+                    }
+                    ModelDownloader.State.Ready -> {
+                        try {
+                            recognizer.loadModel(modelManager.modelPath())
+                            modelLoaded = true
+                            _state.update { it.copy(downloadLabel = "", error = null) }
+                            startScenario()
+                        } catch (e: Exception) {
+                            _state.update {
+                                it.copy(
+                                    phase = DialogPhase.NeedModel,
+                                    error = e.message ?: "Model yuklanmadi",
+                                )
+                            }
+                        }
+                        modelJob?.cancel()
+                    }
+                    is ModelDownloader.State.Failed -> _state.update {
+                        it.copy(phase = DialogPhase.NeedModel, error = s.message, downloadLabel = "")
+                    }
+                    ModelDownloader.State.Idle -> Unit
                 }
             }
         }

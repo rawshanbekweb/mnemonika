@@ -189,7 +189,9 @@ fun ConversationScreen(
                         BrandProgressBar(progress = state.downloadProgress)
                         Spacer(Modifier.size(8.dp))
                         Text(
-                            "${(state.downloadProgress * 100).toInt()}%",
+                            listOf("${(state.downloadProgress * 100).toInt()}%", state.downloadLabel)
+                                .filter { it.isNotBlank() }
+                                .joinToString(" · "),
                             style = OverlineLabel,
                             color = InkMuted,
                         )

@@ -50,8 +50,8 @@ android {
         // 0.1.8 — kontent to'ldi (13 dialog, 6 erkin suhbat, 23 audio klip);
         //         zaxira o'chirildi (transkript Google Drive'ga tushmaydi) va
         //         profil ekranida maxfiylik siyosati havolasi paydo bo'ldi.
-        versionCode = 10
-        versionName = "0.1.9"
+        versionCode = 11
+        versionName = "0.2.0"
         vectorDrawables { useSupportLibrary = true }
 
         // ── Backend (Vercel) sozlamalari — local.properties'dan ────────

@@ -182,6 +182,7 @@ fun ExerciseScreen(
                     Phase.NeedModel -> ModelPrepareSection(onPrepare = { vm.prepareModel() })
                     Phase.PreparingModel -> DownloadSection(
                         progress = state.downloadProgress,
+                        label = state.downloadLabel,
                         friend = friend,
                     )
                     Phase.Ready -> RecordSection(
@@ -434,7 +435,7 @@ private fun ModelPrepareSection(onPrepare: () -> Unit) {
 }
 
 @Composable
-private fun DownloadSection(progress: Float, friend: MascotLook) {
+private fun DownloadSection(progress: Float, label: String, friend: MascotLook) {
     SoftCard {
         // Yuklanish uzoq davom etadi (125MB) — personaj kutayotganini
         // ko'rsatib turadi, bola ilova qotib qolgan deb o'ylamaydi.
@@ -446,7 +447,20 @@ private fun DownloadSection(progress: Float, friend: MascotLook) {
         Spacer(Modifier.size(12.dp))
         BrandProgressBar(progress = progress)
         Spacer(Modifier.size(8.dp))
-        Text("${(progress * 100).toInt()}%", style = OverlineLabel, color = InkMuted)
+        // Foizning yonida megabaytlar ham turadi: sekin internetda foiz
+        // daqiqalab o'zgarmaydi va ekran qotib qolganday ko'rinadi.
+        Text(
+            listOf("${(progress * 100).toInt()}%", label).filter { it.isNotBlank() }.joinToString(" · "),
+            style = OverlineLabel,
+            color = InkMuted,
+        )
+        Spacer(Modifier.size(8.dp))
+        Text(
+            "Ilovani yopmang. Boshqa ekranga o'tsangiz yuklanish davom etadi, " +
+                "uzilib qolsa esa o'sha joyidan boshlanadi.",
+            style = MaterialTheme.typography.bodySmall,
+            color = InkMuted,
+        )
     }
 }
 

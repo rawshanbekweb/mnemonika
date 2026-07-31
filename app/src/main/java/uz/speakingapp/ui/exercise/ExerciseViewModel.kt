@@ -21,8 +21,10 @@ import uz.speakingapp.analysis.TipBankEntry
 import uz.speakingapp.analysis.WordStatus
 import uz.speakingapp.data.ProgressRepository
 import uz.speakingapp.data.model.Exercise
+import uz.speakingapp.speech.ModelDownloader
 import uz.speakingapp.speech.ModelManager
 import uz.speakingapp.speech.Speaker
+import uz.speakingapp.speech.progressLabel
 import uz.speakingapp.speech.VoiceCue
 import uz.speakingapp.speech.VoskRecognizer
 
@@ -31,6 +33,8 @@ enum class Phase { NeedModel, PreparingModel, Ready, Recording, Done }
 data class ExerciseUiState(
     val phase: Phase = Phase.NeedModel,
     val downloadProgress: Float = 0f,
+    /** "42 MB / 130 MB" — yuklanish qimirlab turganini ko'rsatadi. */
+    val downloadLabel: String = "",
     val liveText: String = "",
     val transcript: String = "",
     val elapsedSec: Int = 0,
@@ -72,6 +76,13 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
     private var exercise: Exercise? = null
     private var moduleId: String = ""
     private var timerJob: Job? = null
+
+    /** Model holatini kuzatuvchi ish (yuklab olishning o'zi emas). */
+    private var modelJob: Job? = null
+
+    /** 125MB modelni tanigichga ikki marta yuklamaslik uchun. */
+    private var modelLoaded = false
+
     private val segments = StringBuilder()
 
     /**
@@ -165,21 +176,54 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { it.copy(speaking = false) }
     }
 
-    /** Modelni tayyorlaydi (kerak bo'lsa yuklab oladi). */
+    /**
+     * Modelni tayyorlaydi (kerak bo'lsa yuklab oladi).
+     *
+     * Yuklab olishning o'zi [ModelDownloader] da — ilova darajasida — ketadi,
+     * shuning uchun o'quvchi ekrandan chiqib ketsa ham to'xtamaydi. Bu yerda
+     * faqat uning holatini kuzatamiz.
+     */
     fun prepareModel() {
         if (_state.value.phase == Phase.PreparingModel) return
-        _state.update { it.copy(phase = Phase.PreparingModel, error = null, downloadProgress = 0f) }
-        viewModelScope.launch {
-            try {
-                val path = modelManager.ensureModel { p ->
-                    _state.update { it.copy(downloadProgress = p) }
+        if (modelLoaded) {
+            _state.update { it.copy(phase = Phase.Ready) }
+            return
+        }
+        _state.update {
+            it.copy(phase = Phase.PreparingModel, error = null, downloadProgress = 0f, downloadLabel = "")
+        }
+        ModelDownloader.ensure(getApplication())
+        modelJob?.cancel()
+        modelJob = viewModelScope.launch {
+            ModelDownloader.state.collect { s ->
+                when (s) {
+                    is ModelDownloader.State.Downloading -> _state.update {
+                        it.copy(downloadProgress = s.fraction, downloadLabel = s.progressLabel())
+                    }
+                    ModelDownloader.State.Unzipping -> _state.update {
+                        it.copy(downloadProgress = 1f, downloadLabel = s.progressLabel())
+                    }
+                    ModelDownloader.State.Ready -> {
+                        loadModelIntoRecognizer()
+                        modelJob?.cancel()
+                    }
+                    is ModelDownloader.State.Failed -> _state.update {
+                        it.copy(phase = Phase.NeedModel, error = s.message, downloadLabel = "")
+                    }
+                    ModelDownloader.State.Idle -> Unit
                 }
-                recognizer.loadModel(path)
-                _state.update { it.copy(phase = Phase.Ready) }
-            } catch (e: Exception) {
-                _state.update {
-                    it.copy(phase = Phase.NeedModel, error = e.message ?: "Model tayyorlanmadi")
-                }
+            }
+        }
+    }
+
+    private suspend fun loadModelIntoRecognizer() {
+        try {
+            recognizer.loadModel(modelManager.modelPath())
+            modelLoaded = true
+            _state.update { it.copy(phase = Phase.Ready, downloadLabel = "", error = null) }
+        } catch (e: Exception) {
+            _state.update {
+                it.copy(phase = Phase.NeedModel, error = e.message ?: "Model yuklanmadi")
             }
         }
     }
