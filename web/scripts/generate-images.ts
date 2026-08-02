@@ -35,7 +35,8 @@ import { resolve } from "node:path";
 import { put } from "@vercel/blob";
 import { inArray } from "drizzle-orm";
 import { db, schema } from "../src/db";
-import { VISUAL_TERMS } from "./visual-terms";
+import { ownerOfKey, tokenOfKey } from "../src/lib/visual-key";
+import { type VisualTerm, keyFor, termFor } from "./visual-terms";
 
 const API = "https://commons.wikimedia.org/w/api.php";
 
@@ -72,7 +73,23 @@ const THUMB_WIDTH = 600;
  * shart bo'lib qoladi.
  */
 const REJECT_TITLE =
-  /\b(poster|lccn|engraving|lithograph|woodcut|etching|drawing|sketch|painting|illustration|manuscript|folio|codex|patent|diagram|schematic|blueprint|coat of arms|logo|clipart|cartoon|caricature|election symbol|postage stamp|banknote|book of hours)\b/i;
+  /\b(poster|lccn|engraving|lithograph|woodcut|woodblock|ukiyo|fresco|mural|tapestry|etching|drawing|sketch|painting|illustration|manuscript|folio|codex|patent|diagram|schematic|blueprint|coat of arms|logo|clipart|cartoon|caricature|election symbol|postage stamp|banknote|book of hours)\b/i;
+
+/**
+ * Nomida shu so'zlar bo'lgan fayllar HAR DOIM chetlab o'tiladi.
+ *
+ * NEGA ALOHIDA VA NEGA UMUMAN BOR: "woman and child smiling" so'rovi
+ * Commons'da OCHIQ EROTIK suratni birinchi natija qilib berdi (2026-08-02,
+ * tekshiruvda ushlandi va o'chirildi). Ya'ni bu nazariy xavf emas — bir
+ * marta sodir bo'lgan. Commons'da bunday fayllar deyarli doim nomida
+ * shunday atalgani uchun oddiy nom filtri ularning katta qismini kesadi.
+ *
+ * Bu filtr ODAM TEKSHIRUVINI ALMASHTIRMAYDI — nomi betaraf bo'lgan fayl
+ * baribir o'tib ketishi mumkin. Shuning uchun `--sheet` bilan ko'rib chiqish
+ * majburiy bo'lib qoladi. Filtr shunchaki xavfni kamaytiradi.
+ */
+const REJECT_UNSAFE =
+  /\b(nude|nudes|nudity|naked|topless|breast|breasts|nipple|vulva|penis|genital|genitalia|erotic|erotica|porn|pornographic|sex|sexual|striptease|lingerie|underwear|bikini|corpse|autopsy|wound|injury|weapon|gun|rifle|pistol)\b/i;
 
 type CommonsItem = {
   /** "File:Cute hamster.jpg" */
@@ -155,7 +172,10 @@ async function search(term: string): Promise<CommonsItem[]> {
         licenseUrl: stripHtml(meta.LicenseUrl?.value ?? ""),
       };
     })
-    .filter((item) => !REJECT_TITLE.test(cleanTitle(item.title)))
+    .filter((item) => {
+      const title = cleanTitle(item.title);
+      return !REJECT_TITLE.test(title) && !REJECT_UNSAFE.test(title);
+    })
     .sort((a, b) => a.index - b.index);
 }
 
@@ -214,66 +234,119 @@ function extFor(contentType: string): string {
  * Emoji'ning o'zini yo'lga qo'yib bo'lmaydi (URL kodlash, turli platformalarda
  * turlicha) — shuning uchun Unicode kod nuqtalari ishlatiladi: 🍎 → "1f34e".
  * Bu barqaror: bir xil emoji doim bir xil nom beradi.
+ *
+ * Mashqqa xos kalitda ("discussion_books:📚") old qismi ID bo'lgani uchun
+ * o'zi xavfsiz: "discussion_books-1f4da".
  */
-function slugFor(token: string): string {
-  return Array.from(token)
+function slugFor(key: string): string {
+  const token = tokenOfKey(key);
+  const codes = Array.from(token)
     .map((ch) => ch.codePointAt(0)!.toString(16))
     .join("-");
+  const owner = ownerOfKey(key);
+  return owner ? `${owner}-${codes}` : codes;
 }
 
+/** Bitta mashqdagi bitta tasvir o'rni. */
+type Slot = { exerciseId: string; token: string };
+
 /**
- * Bazadagi mashq tasvirlari.
+ * Bazadagi mashq tasvirlari — MASHQ bilan birga.
  *
  * FAQAT `exercises` — dialog va suhbatlarda ham `visuals` maydoni bor, lekin
  * ekranlarda ular ko'rsatilmaydi (u yerda `characterEmoji` ishlatiladi).
  * Ularni ham qo'shsak, hech qachon ko'rinmaydigan rasmlar yuklangan bo'lardi.
+ *
+ * Mashq ID kerak, chunki bitta emoji mashqdan mashqqa BOSHQA rasm olishi
+ * mumkin (qarang: VISUAL_BY_EXERCISE).
  */
-async function collectTokens(): Promise<string[]> {
+async function collectSlots(): Promise<Slot[]> {
   const exercises = await db.select().from(schema.exercises);
-  const all = exercises.flatMap((e) => e.visuals);
-  // Rasm URL'i allaqachon qo'yilgan bo'lsa (media kutubxonasidan) tegmaymiz.
-  return [...new Set(all.filter((t) => t && !t.startsWith("http")))];
+  return exercises.flatMap((e) =>
+    e.visuals
+      // Rasm URL'i allaqachon qo'yilgan bo'lsa (media kutubxonasidan) tegmaymiz.
+      .filter((t) => t && !t.startsWith("http"))
+      .map((token) => ({ exerciseId: e.id, token })),
+  );
+}
+
+/** Ishlanadigan yozuv: bitta kalit = bitta yuklanadigan rasm. */
+type Job = { key: string; token: string; term: VisualTerm | undefined; exerciseIds: string[] };
+
+/**
+ * Slotlarni KALIT bo'yicha yig'adi: umumiy emoji bir marta yuklanadi,
+ * mashqqa xoslari alohida.
+ */
+function jobsFrom(slots: Slot[]): Job[] {
+  const byKey = new Map<string, Job>();
+  for (const { exerciseId, token } of slots) {
+    const key = keyFor(token, exerciseId);
+    const job = byKey.get(key);
+    if (job) {
+      if (!job.exerciseIds.includes(exerciseId)) job.exerciseIds.push(exerciseId);
+      continue;
+    }
+    byKey.set(key, { key, token, term: termFor(token, exerciseId), exerciseIds: [exerciseId] });
+  }
+  return [...byKey.values()];
 }
 
 async function writeSheet(outPath?: string): Promise<void> {
   const rows = await db.select().from(schema.visualImages);
-  const byToken = new Map(rows.map((r) => [r.token, r]));
-  const tokens = await collectTokens();
+  const byKey = new Map(rows.map((r) => [r.token, r]));
+  const slots = await collectSlots();
 
-  const cards = tokens
-    .map((token) => {
-      const term = VISUAL_TERMS[token];
-      const row = byToken.get(token);
-      if (term === null) {
-        return `<div class="card kept"><div class="emoji">${token}</div>
-          <p class="note">emoji qoladi (fotosurat qo'yilmaydi)</p></div>`;
-      }
-      if (!row) {
-        return `<div class="card missing"><div class="emoji">${token}</div>
-          <p class="note">rasm topilmadi — <code>${term ?? "jadvalda yo'q"}</code></p></div>`;
-      }
-      return `<div class="card">
-        <img src="${row.url}" alt="">
-        <div class="meta">
-          <span class="emoji-sm">${token}</span>
-          <code>${row.searchTerm}</code>
-          <a href="${row.sourceUrl}" target="_blank" rel="noreferrer">${row.license || "?"}</a>
-        </div>
-      </div>`;
+  // Varaq MASHQLAR bo'yicha guruhlanadi: rasm mashqning mavzusiga
+  // yaqinmi degan savolga faqat butun qatorni birga ko'rib javob berish
+  // mumkin (mijoz e'tirozi ham aynan shu — "mavzudan uzoq").
+  const byExercise = new Map<string, Slot[]>();
+  for (const slot of slots) {
+    const list = byExercise.get(slot.exerciseId) ?? [];
+    list.push(slot);
+    byExercise.set(slot.exerciseId, list);
+  }
+
+  const sections = [...byExercise.entries()]
+    .map(([exerciseId, list]) => {
+      const cards = list
+        .map(({ token }) => {
+          const key = keyFor(token, exerciseId);
+          const term = termFor(token, exerciseId);
+          const row = byKey.get(key);
+          const own = key !== token ? `<span class="own">shu mashqqa</span>` : "";
+          if (term === null) {
+            return `<div class="card kept"><div class="emoji">${token}</div>
+              <p class="note">emoji qoladi (fotosurat qo'yilmaydi)</p></div>`;
+          }
+          if (!row) {
+            return `<div class="card missing"><div class="emoji">${token}</div>
+              <p class="note">rasm topilmadi — <code>${term ?? "jadvalda yo'q"}</code></p></div>`;
+          }
+          return `<div class="card">
+            <img src="${row.url}" alt="">
+            <div class="meta">
+              <span class="emoji-sm">${token}</span>${own}
+              <code>${row.searchTerm}</code>
+              <a href="${row.sourceUrl}" target="_blank" rel="noreferrer">${row.license || "?"}</a>
+            </div>
+          </div>`;
+        })
+        .join("\n");
+      return `<h2>${exerciseId}</h2>\n<div class="grid">\n${cards}\n</div>`;
     })
     .join("\n");
 
   const html = `<h1>Mashq rasmlari — tasdiqlash</h1>
-<p>Har bir rasmni ko'rib chiqing. Yoqmaganini almashtirish:
-<code>npm run gen:images -- --redo "🍎,🐶"</code></p>
-<div class="grid">
-${cards}
-</div>
+<p>Har bir rasmni MASHQ MAVZUSI bilan solishtirib ko'rib chiqing. Almashtirish:
+<code>npm run gen:images -- --redo "🍎,discussion_books:📚"</code></p>
+${sections}
 <style>
   body { font-family: system-ui, sans-serif; margin: 24px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
   .card { border: 1px solid #dce3ea; border-radius: 6px; overflow: hidden; }
   .card img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  h2 { font-size: 15px; margin: 26px 0 8px; color: #23405c; font-family: ui-monospace, monospace; }
+  .own { font-size: 10px; color: #1f7a4d; }
   .meta { padding: 6px 8px; font-size: 12px; display: flex; flex-direction: column; gap: 2px; }
   .emoji { font-size: 44px; text-align: center; padding: 24px 0 8px; }
   .emoji-sm { font-size: 18px; }
@@ -314,56 +387,69 @@ async function main(): Promise<void> {
     return;
   }
 
-  const tokens = await collectTokens();
-  const unknown = tokens.filter((t) => !(t in VISUAL_TERMS));
+  const slots = await collectSlots();
+  const all = jobsFrom(slots);
+  const unknown = all.filter((j) => j.term === undefined);
   if (unknown.length > 0) {
     // Jim o'tkazib yuborilsa yangi kontent rasmsiz qolib ketardi.
     console.error(
-      `scripts/visual-terms.ts da yo'q tasvirlar: ${unknown.join(" ")}\n` +
+      `scripts/visual-terms.ts da yo'q tasvirlar: ${unknown.map((j) => j.token).join(" ")}\n` +
         "Har biri uchun qidiruv so'zi (yoki emoji qolishi uchun null) qo'shing.",
     );
     process.exit(1);
   }
 
-  const existing = new Set((await db.select().from(schema.visualImages)).map((r) => r.token));
-  const wanted = tokens.filter((t) => VISUAL_TERMS[t] !== null);
+  const rows = await db.select().from(schema.visualImages);
+  const existing = new Set(rows.map((r) => r.token));
+  const termUsed = new Map(rows.map((r) => [r.token, r.searchTerm]));
+  const wanted = all.filter((j) => j.term !== null);
+  const liveKeys = new Set(all.map((j) => j.key));
 
-  // `null` ga o'tkazilgan tasvirning ESKI qatori o'chirilishi shart. Aks holda
-  // "emoji qolsin" degan qaror hech narsani o'zgartirmasdi: generator uni
-  // o'tkazib yuboradi, `buildContentPack()` esa bazadagi qatorni topib rasmni
-  // baribir ko'rsataverardi.
-  const revoked = [...existing].filter((t) => VISUAL_TERMS[t] === null);
-  if (revoked.length > 0) {
+  // Bazada qolgan, lekin endi HECH QAYSI mashq ishlatmaydigan qatorlar
+  // o'chiriladi. Ikki sabab bor:
+  //   - tasvir `null` ga o'tkazilgan ("emoji qolsin") — qator qolsa
+  //     `buildContentPack()` uni topib rasmni baribir ko'rsataverardi;
+  //   - umumiy emoji mashqqa xos kalitga ko'chgan (📚 → discussion_books:📚) —
+  //     eski umumiy qator endi ishlatilmaydi, lekin `/rasmlar` sahifasida
+  //     ko'rinib, ilovada yo'q rasmni "ishlatilyapti" deb ko'rsatardi.
+  const stale = [...existing].filter((k) => !liveKeys.has(k) || !wanted.some((j) => j.key === k));
+  if (stale.length > 0) {
     if (dry) {
-      console.log(`Emojiga qaytariladi: ${revoked.join(" ")}`);
+      console.log(`O'chiriladi (ishlatilmaydi): ${stale.join(" ")}`);
     } else {
-      await db.delete(schema.visualImages).where(inArray(schema.visualImages.token, revoked));
-      console.log(`Emojiga qaytarildi: ${revoked.join(" ")}`);
-      for (const t of revoked) existing.delete(t);
+      await db.delete(schema.visualImages).where(inArray(schema.visualImages.token, stale));
+      console.log(`O'chirildi (ishlatilmaydi): ${stale.join(" ")}`);
+      for (const k of stale) existing.delete(k);
     }
   }
 
   // `--redo all` — hammasini qayta tanlash (qidiruv mantiqi yaxshilanganda).
+  // Alohida almashtirishda kalitning o'zi ham, emojisi ham yozilishi mumkin:
+  // `--redo "😊"` shu emoji uchraydigan HAMMA joyni qayta tanlaydi.
   const redoAll = redo.length === 1 && redo[0] === "all";
   const jobs = (
     redoAll
       ? wanted
       : redo.length > 0
-        ? wanted.filter((t) => redo.includes(t))
-        : wanted.filter((t) => !existing.has(t))
+        ? wanted.filter((j) => redo.includes(j.key) || redo.includes(j.token))
+        : // Qidiruv so'zi O'ZGARGAN bo'lsa ham qayta tanlanadi. Busiz
+          // `visual-terms.ts` ni tahrirlash hech narsa qilmasdi: kalit
+          // bazada bor, generator uni "tayyor" deb o'tkazib yuborardi va
+          // rasm eski so'zga mos holicha qolib ketaverardi.
+          wanted.filter((j) => !existing.has(j.key) || termUsed.get(j.key) !== j.term)
   ).slice(0, limit);
 
-  const keptAsEmoji = tokens.length - wanted.length;
+  const keptAsEmoji = all.length - wanted.length;
   console.log(
-    `Tasvirlar: ${tokens.length} (emoji qoladi: ${keptAsEmoji}), ` +
-      `rasm bor: ${existing.size}, ishlanadi: ${jobs.length}`,
+    `Tasvir o'rinlari: ${slots.length}, kalitlar: ${all.length} ` +
+      `(emoji qoladi: ${keptAsEmoji}), rasm bor: ${existing.size}, ishlanadi: ${jobs.length}`,
   );
   if (jobs.length === 0) {
     console.log("Yangi rasm kerak emas. (Almashtirish uchun --redo \"🍎,🐶\")");
     return;
   }
   if (dry) {
-    for (const t of jobs) console.log(`  ${t}  →  "${VISUAL_TERMS[t]}"`);
+    for (const j of jobs) console.log(`  ${j.key.padEnd(38)} →  "${j.term}"`);
     console.log("\n(--dry: hech narsa yuklanmadi)");
     return;
   }
@@ -371,9 +457,9 @@ async function main(): Promise<void> {
   let done = 0;
   let failed = 0;
 
-  for (const [i, token] of jobs.entries()) {
-    const term = VISUAL_TERMS[token]!;
-    process.stdout.write(`[${i + 1}/${jobs.length}] ${token} "${term}" … `);
+  for (const [i, job] of jobs.entries()) {
+    const { key, term } = job as { key: string; term: string };
+    process.stdout.write(`[${i + 1}/${jobs.length}] ${key} "${term}" … `);
 
     try {
       const results = await search(term);
@@ -384,8 +470,8 @@ async function main(): Promise<void> {
       // qidiruv yaxshilangani uchun qayta tanlanadi va to'g'ri rasm o'z
       // o'rnida qolishi mumkin.
       const previous =
-        !redoAll && existing.has(token)
-          ? (await db.select().from(schema.visualImages).where(inArray(schema.visualImages.token, [token])))[0]
+        !redoAll && existing.has(key)
+          ? (await db.select().from(schema.visualImages).where(inArray(schema.visualImages.token, [key])))[0]
           : undefined;
       const candidates = previous
         ? results.filter((r) => r.descriptionUrl !== previous.sourceUrl)
@@ -397,14 +483,14 @@ async function main(): Promise<void> {
       for (const item of candidates) {
         try {
           const file = await download(item);
-          const blob = await put(`visuals/${slugFor(token)}.${extFor(file.contentType)}`, file.bytes, {
+          const blob = await put(`visuals/${slugFor(key)}.${extFor(file.contentType)}`, file.bytes, {
             access: "public",
             addRandomSuffix: false,
             contentType: file.contentType,
           });
 
           const values = {
-            token,
+            token: key,
             url: blob.url,
             searchTerm: term,
             sourceUrl: item.descriptionUrl ?? "",

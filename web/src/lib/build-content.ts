@@ -2,6 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { audioKey, needsAudio } from "./audio-key";
 import type { ContentPack, SpeakingModule, StructureTip } from "./content-types";
+import { visualKey } from "./visual-key";
 
 /**
  * Bazadan butun ContentPack'ni yig'adi — Android ilova kutgan shaklda.
@@ -63,12 +64,17 @@ export async function buildContentPack(): Promise<ContentPack> {
   const audioFor = (text: string): string =>
     needsAudio(text) ? (urlByHash.get(audioKey(text)) ?? "") : "";
 
-  // Tasvir fotosuratlari. Kalit — emoji tokeni, ya'ni bir rasm bir necha
-  // mashqda qayta ishlatiladi. Topilmasa bo'sh satr: mijoz o'sha indeksdagi
-  // emojini ko'rsatadi.
+  // Tasvir fotosuratlari. Kalit ikki xil bo'lishi mumkin:
+  //   "discussion_books:📚" — FAQAT shu mashqning rasmi (mavzuga yaqinroq),
+  //   "📚"                  — hamma mashq baham ko'radigan umumiy rasm.
+  // Avval mashqniki qidiriladi, keyin umumiysi. Topilmasa bo'sh satr: mijoz
+  // o'sha indeksdagi emojini ko'rsatadi.
   const images = await db.select().from(schema.visualImages);
-  const urlByToken = new Map(images.map((r) => [r.token, r.url]));
-  const imageFor = (token: string): string => urlByToken.get(token) ?? "";
+  const urlByKey = new Map(images.map((r) => [r.token, r.url]));
+  const imageFor =
+    (ownerId: string) =>
+    (token: string): string =>
+      urlByKey.get(visualKey(ownerId, token)) ?? urlByKey.get(token) ?? "";
 
   // Mashqqa xos murabbiy maslahatlari. Bank to'liq bo'lmasa Coach umumiy
   // matnlarni ishlatadi, shuning uchun bu yerda hech qanday to'ldirish yo'q.
@@ -98,7 +104,7 @@ export async function buildContentPack(): Promise<ContentPack> {
         keywords: e.keywords,
         timeLimitSec: e.timeLimitSec,
         visuals: e.visuals,
-        visualImages: e.visuals.map(imageFor),
+        visualImages: e.visuals.map(imageFor(e.id)),
         targetText: e.targetText,
         promptsAudio: e.prompts.map(audioFor),
         targetAudioUrl: audioFor(e.targetText),

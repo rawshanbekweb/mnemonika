@@ -3,6 +3,7 @@ import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { asc } from "drizzle-orm";
 import { db, schema } from "@/db";
+import { tokenOfKey } from "@/lib/visual-key";
 
 /**
  * Rasmlar manbasi va litsenziyalari.
@@ -93,7 +94,11 @@ export default async function VisualCredits() {
                   {rows.map((r) => (
                     <tr key={r.token} className="border-b border-line/60 last:border-0">
                       <td className="px-3 py-2">
-                        <span className="text-lg">{r.token}</span>
+                        {/* Kalit "mashq:emoji" bo'lishi mumkin — jadvalda
+                            emojining o'zi ko'rinadi, mashq ID'si esa emas:
+                            bu sahifa foydalanuvchi uchun (litsenziya
+                            atributi), ichki kalitlar ro'yxati emas. */}
+                        <span className="text-lg">{tokenOfKey(r.token)}</span>
                       </td>
                       <td className="px-3 py-2">
                         {r.sourceUrl ? (

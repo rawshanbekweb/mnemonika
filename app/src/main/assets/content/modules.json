@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 10,
   "modules": [
     {
       "id": "discussion",
@@ -60,11 +60,11 @@
             "🐢"
           ],
           "visualImages": [
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f436.jpg",
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f431.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_family_pets_dream-1f436.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_family_pets_dream-1f431.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f430.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f99c.jpg",
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f439.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_family_pets_dream-1f439.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f422.jpg"
           ],
           "targetText": "",
@@ -154,7 +154,7 @@
           "visualImages": [
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f30d.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/267b-fe0f.jpg",
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f5d1-fe0f.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_nature_environment-1f5d1-fe0f.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f333.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f3ed.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4a7.jpg"
@@ -200,7 +200,7 @@
           ],
           "visualImages": [
             "",
-            ""
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_read_aloud_pets-1f5e3-fe0f.jpg"
           ],
           "targetText": "My dog is very friendly and he likes to play in the garden every morning.",
           "promptsAudio": [],
@@ -260,7 +260,7 @@
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f3eb.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4da.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4d0.jpg",
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f52c.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_school_life-1f52c.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/270f-fe0f.jpg"
           ],
           "targetText": "",
@@ -333,7 +333,7 @@
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f354.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f966.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f34c.jpg",
-            ""
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_healthy_food-1f4aa.jpg"
           ],
           "targetText": "",
           "promptsAudio": [
@@ -399,10 +399,10 @@
             "🎸"
           ],
           "visualImages": [
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4da.jpg",
-            "",
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/26bd.png",
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f6b4.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_hobbies-1f4da.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_hobbies-1f3a8.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_hobbies-26bd.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_hobbies-1f6b4.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f3b8.jpg"
           ],
           "targetText": "",
@@ -469,11 +469,11 @@
             "💡"
           ],
           "visualImages": [
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4da.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_books-1f4da.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4d6.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4f1.jpg",
-            "",
-            ""
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_books-1f9e0.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_books-1f4a1.jpg"
           ],
           "targetText": "",
           "promptsAudio": [
@@ -535,9 +535,9 @@
             "⚠️"
           ],
           "visualImages": [
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4bb.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_internet_safety-1f4bb.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4f1.jpg",
-            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_internet_safety-1f512.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/23f1-fe0f.jpg",
             "",
             ""
@@ -607,8 +607,8 @@
           ],
           "visualImages": [
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/26bd.png",
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f3c3.jpg",
-            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_sports_health-1f3c3.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/discussion_sports_health-1f4aa.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f3c6.jpg",
             ""
           ],
@@ -787,11 +787,11 @@
             "😌"
           ],
           "visualImages": [
-            "",
-            "",
-            "",
-            "",
-            ""
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/storytelling_feelings_day-1f600.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/storytelling_feelings_day-1f632.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/storytelling_feelings_day-1f61f.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/storytelling_feelings_day-1f929.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/storytelling_feelings_day-1f60c.jpg"
           ],
           "targetText": "",
           "promptsAudio": [
@@ -939,11 +939,11 @@
           ],
           "visualImages": [
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4f1.jpg",
-            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/storytelling_lost_and_found-1f511.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f50d.jpg",
             "",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f3e1.jpg",
-            ""
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/storytelling_lost_and_found-1f60a.jpg"
           ],
           "targetText": "",
           "promptsAudio": [
@@ -1014,7 +1014,7 @@
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/2614.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f3e0.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f3b2.jpg",
-            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/storytelling_rainy_day-1f60a.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f308.jpg"
           ],
           "targetText": "",
@@ -1153,7 +1153,7 @@
           "visualImages": [
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f680.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1fa90.jpg",
-            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/storytelling_space_trip-1f31f.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f468-200d-1f680.jpg",
             ""
           ],
@@ -1337,7 +1337,7 @@
             "🏖️"
           ],
           "visualImages": [
-            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/picture_family_album-1f468-200d-1f469-200d-1f467-200d-1f466.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f382.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f415.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f373.jpg",
@@ -1499,7 +1499,7 @@
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f34e.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f34c.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f349.jpg",
-            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/picture_narrating_market-1f468-200d-1f33e.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f6cd-fe0f.jpg"
           ],
           "targetText": "",
@@ -1639,7 +1639,7 @@
           "visualImages": [
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f3eb.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f469-200d-1f3eb.jpg",
-            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f9d1-200d-1f393.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/picture_narrating_classroom-1f9d1-200d-1f393.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4da.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/270f-fe0f.jpg",
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4dd.jpg"

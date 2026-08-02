@@ -187,9 +187,16 @@ export const audioClips = pgTable("audio_clips", {
 /**
  * Mashq tasvirining fotosurati (Openverse → Vercel Blob).
  *
- * Kalit — EMOJI TOKENINING o'zi, mashq ID'si emas: bir xil tasvir (📚, 🍎…)
- * bir necha mashqda uchraydi va bola hamma joyda bir xil rasmni ko'rishi
- * kerak. Bir marta yuklanadi, hamma joyda ishlatiladi.
+ * Kalit (`token`) IKKI shaklda bo'ladi:
+ *   "🍎"                  — UMUMIY rasm, hamma mashqda bir xil;
+ *   "discussion_books:📚" — FAQAT shu mashqning rasmi.
+ *
+ * Boshida faqat umumiy shakl bor edi, ya'ni 📚 "Maktab hayoti" da ham,
+ * "Kitob va o'qish" da ham, "Bo'sh vaqt" da ham bitta xil rasm edi va rasm
+ * mashqning mavzusidan uzoqlashib ketardi (mijoz e'tirozi, 2026-08-02).
+ * Mashqqa xos shakl shuni hal qiladi; qaysi tasvir qaysi shaklda ekani
+ * `scripts/visual-terms.ts` da hal qilinadi va o'qish tartibi —
+ * avval mashqniki, keyin umumiysi (`buildContentPack`).
  *
  * `visuals` maydoniga TEGILMAYDI — emoji o'z joyida qoladi va rasm yuklanmasa
  * (offline, o'chirilgan URL) o'sha emoji ko'rsatiladi. Ya'ni bu jadval
@@ -201,7 +208,7 @@ export const audioClips = pgTable("audio_clips", {
  */
 export const visualImages = pgTable("visual_images", {
   id: serial("id").primaryKey(),
-  /** Emoji tokeni — `exercises.visuals` ichidagi qiymat. */
+  /** Emoji ("🍎") yoki mashqqa xos kalit ("discussion_books:📚"). */
   token: text("token").notNull().unique(),
   /** Vercel Blob'dagi nusxa (asl manbaga hotlink qilinmaydi). */
   url: text("url").notNull(),
