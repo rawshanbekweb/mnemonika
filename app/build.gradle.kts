@@ -50,6 +50,10 @@ android {
         // 0.1.8 — kontent to'ldi (13 dialog, 6 erkin suhbat, 23 audio klip);
         //         zaxira o'chirildi (transkript Google Drive'ga tushmaydi) va
         //         profil ekranida maxfiylik siyosati havolasi paydo bo'ldi.
+        // 0.1.9 — mashq tasvirlariga haqiqiy fotosuratlar (Wikimedia Commons)
+        //         va model yuklab olish tuzatildi (progress 0% da qotardi).
+        // 0.2.0 — yozuvga PAUZA (uchala ekranda) va to'xtatish tugmasi endi
+        //         darhol javob beradi; talaffuz mashqlari 4 -> 19 ta.
         versionCode = 11
         versionName = "0.2.0"
         vectorDrawables { useSupportLibrary = true }
