@@ -33,6 +33,7 @@
     "db:tips": "tsx scripts/add-tips-table.ts",
     "db:conversations": "tsx scripts/add-conversation-tables.ts",
     "seed:conversations": "tsx scripts/seed-conversations.ts",
+    "seed:readaloud": "tsx scripts/seed-readaloud.ts",
     "seed": "tsx src/db/seed.ts",
     "create-admin": "tsx src/db/create-admin.ts"
   },

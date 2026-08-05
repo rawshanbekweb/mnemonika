@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -94,6 +96,7 @@ import uz.speakingapp.ui.theme.OnGoldContainer
 import uz.speakingapp.ui.theme.OnNavyContainer
 import uz.speakingapp.ui.theme.OutlineSoft
 import uz.speakingapp.ui.theme.OverlineLabel
+import uz.speakingapp.ui.theme.PauseToggle
 import uz.speakingapp.ui.theme.Pill
 import uz.speakingapp.ui.theme.ScoreRing
 import uz.speakingapp.ui.theme.SectionTitle
@@ -200,8 +203,16 @@ fun ExerciseScreen(
                         keywords = exercise.keywords,
                         mnemonic = exercise.mnemonic,
                         micLevel = state.micLevel,
+                        paused = state.paused,
                         friend = friend,
                         onStop = { vm.stopRecording() },
+                        onTogglePause = {
+                            if (state.paused) vm.resumeRecording() else vm.pauseRecording()
+                        },
+                    )
+                    Phase.Analyzing -> AnalyzingSection(
+                        transcript = state.transcript,
+                        friend = friend,
                     )
                     Phase.Done -> state.result?.let { result ->
                         ResultSection(
@@ -508,8 +519,10 @@ private fun RecordingSection(
     keywords: List<String>,
     mnemonic: Mnemonic,
     micLevel: Float,
+    paused: Boolean,
     friend: MascotLook,
     onStop: () -> Unit,
+    onTogglePause: () -> Unit,
 ) {
     val shown = listOf(transcript, live).filter { it.isNotBlank() }.joinToString(" ")
     val spoken = remember(shown, keywords) { spokenKeywords(shown, keywords) }
@@ -520,7 +533,7 @@ private fun RecordingSection(
         // ko'tarishga undaydigan eng kuchli signal shu.
         Mascot(
             look = friend,
-            mood = MascotMood.Listening,
+            mood = if (paused) MascotMood.Idle else MascotMood.Listening,
             size = 84.dp,
             level = micLevel,
         )
@@ -536,16 +549,37 @@ private fun RecordingSection(
         )
         Spacer(Modifier.size(14.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(8.dp).clip(MaterialTheme.shapes.extraSmall).background(Danger))
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(if (paused) InkMuted else Danger)
+            )
             Spacer(Modifier.size(8.dp))
             Text(
-                "YOZILMOQDA · ${(limit - elapsed).coerceAtLeast(0)}s QOLDI",
+                if (paused) {
+                    "PAUZADA · ${(limit - elapsed).coerceAtLeast(0)}s QOLDI"
+                } else {
+                    "YOZILMOQDA · ${(limit - elapsed).coerceAtLeast(0)}s QOLDI"
+                },
                 style = OverlineLabel,
-                color = Danger,
+                color = if (paused) InkMuted else Danger,
             )
         }
         Spacer(Modifier.size(14.dp))
-        MicLevelBar(micLevel)
+        // Pauza — o'ylab olish, savolni qayta o'qish yoki yo'talib olish uchun.
+        // Yozuv tugamaydi: aytilgan matn saqlanadi, taymer to'xtaydi.
+        PauseToggle(paused = paused, onClick = onTogglePause)
+        Spacer(Modifier.size(14.dp))
+        if (paused) {
+            Text(
+                "Yozuv to'xtatib turildi. Davom etganingda shu joyidan yoziladi.",
+                style = MaterialTheme.typography.bodySmall,
+                color = InkMuted,
+            )
+        } else {
+            MicLevelBar(micLevel)
+        }
         Spacer(Modifier.size(20.dp))
 
         if (mnemonic.steps.isNotEmpty()) {
@@ -579,6 +613,41 @@ private fun RecordingSection(
                 SectionTitle("Nutqingiz")
                 Spacer(Modifier.size(10.dp))
                 Text(shown, style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+    }
+}
+
+/**
+ * To'xtatish bosilgandan keyingi qisqa oraliq: mikrofon o'chdi, tanigich
+ * oxirgi bo'lakni dekodlamoqda. Bu ekran ATAYIN bor — sekin telefonda bu
+ * bir necha soniya davom etadi va oldin bola "yozilmoqda" ni ko'rib turib,
+ * tugma ishlamadi deb yana bosardi.
+ */
+@Composable
+private fun AnalyzingSection(transcript: String, friend: MascotLook) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        MascotSays(
+            look = friend,
+            text = "Eshitganlarimni tekshiryapman…",
+            mood = MascotMood.Thinking,
+            mascotSize = 76.dp,
+            bubbleColor = SurfaceMuted,
+        )
+        Spacer(Modifier.size(18.dp))
+        // Aniqlanmagan (indeterminate) chiziq: qancha qolganini bilmaymiz,
+        // faqat ish ketayotganini ko'rsatamiz.
+        LinearProgressIndicator(
+            modifier = Modifier.fillMaxWidth().height(10.dp).clip(MaterialTheme.shapes.extraSmall),
+            color = Navy,
+            trackColor = SurfaceMuted,
+        )
+        if (transcript.isNotBlank()) {
+            Spacer(Modifier.size(18.dp))
+            SoftCard {
+                SectionTitle("Nutqingiz")
+                Spacer(Modifier.size(10.dp))
+                Text(transcript, style = MaterialTheme.typography.bodyLarge)
             }
         }
     }

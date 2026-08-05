@@ -544,7 +544,7 @@
           ],
           "targetText": "",
           "promptsAudio": [
-            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/52b47c6a216413b2f26300f111e52bfa83457aaf5c6ebe26929c3475a9436ab8.wav",
             "",
             ""
           ],
@@ -642,7 +642,137 @@
           ],
           "targetText": "Every morning the children go to their big school with their good friends.",
           "promptsAudio": [],
-          "targetAudioUrl": "",
+          "targetAudioUrl": "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/ec9cbc9219693ef447bdcfbdf9df2dc438a81e350d3a85d6819bebccf12ed961.wav",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_pron_th",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: 'th' tovushi",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🗣️",
+            "👅",
+            "🔤"
+          ],
+          "visualImages": [
+            "",
+            "",
+            ""
+          ],
+          "targetText": "I think that this thing is better than the other three things over there",
+          "promptsAudio": [],
+          "targetAudioUrl": "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/8bb00fbff669700feec3dfefd8795095d33dfb9227421995b8b7e77bfcb5a78e.wav",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_pron_w_v",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: 'w' va 'v' tovushlari",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "📺",
+            "👀",
+            "❄️"
+          ],
+          "visualImages": [
+            "",
+            "",
+            ""
+          ],
+          "targetText": "We watched a very interesting video with seven very quiet visitors last winter",
+          "promptsAudio": [],
+          "targetAudioUrl": "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/75d12cea03e34b7159663de7c71ebb675d69d3fa5b58a3d59a7c53b95e418c06.wav",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_pron_r_l",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: 'r' va 'l' tovushlari",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🐰",
+            "🏃",
+            "🌊"
+          ],
+          "visualImages": [
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f430.jpg",
+            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f30a.jpg"
+          ],
+          "targetText": "The little red rabbit really likes to run along the long yellow river",
+          "promptsAudio": [],
+          "targetAudioUrl": "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/37e65b6244e9138ee7fc75b76b30970c9ad021b5a3ee3fb897be67ef36c34bc0.wav",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_pron_sh_ch",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: 'sh' va 'ch' tovushlari",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "👕",
+            "🪑",
+            "🛍️"
+          ],
+          "visualImages": [
+            "",
+            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f6cd-fe0f.jpg"
+          ],
+          "targetText": "She chose a short shirt and a cheap chair in the shop near the church",
+          "promptsAudio": [],
+          "targetAudioUrl": "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/98d630f527986f8425923ce890da058356cfb91e200567d8add49b4a145022b7.wav",
+          "structureTips": []
+        },
+        {
+          "id": "discussion_pron_s_endings",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: so'z oxiridagi 's'",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "📚",
+            "✏️",
+            "🎒"
+          ],
+          "visualImages": [
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f4da.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/270f-fe0f.jpg",
+            ""
+          ],
+          "targetText": "My friends bring books, pens and boxes to their classes on cold mornings",
+          "promptsAudio": [],
+          "targetAudioUrl": "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/fecf997b8503b415f221f8e2b0d9f4a05649e013f32ea7c56c12ccb2e3a66861.wav",
           "structureTips": []
         }
       ],
@@ -1187,6 +1317,136 @@
           ],
           "targetText": "Yesterday we went to a big green forest and saw a fast red fox.",
           "promptsAudio": [],
+          "targetAudioUrl": "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/0de3cd60d9484915f12481d385ba48e3056eea5f0bb0d5d83b3203aaf94f2459.wav",
+          "structureTips": []
+        },
+        {
+          "id": "storytelling_pron_ed",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: '-ed' qo'shimchasi",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🚶",
+            "⚽",
+            "👬"
+          ],
+          "visualImages": [
+            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/26bd.png",
+            ""
+          ],
+          "targetText": "Yesterday we walked to the park, played football and visited our old friends",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "storytelling_pron_irregular",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: noto'g'ri fe'llar",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🚌",
+            "👵",
+            "🍞"
+          ],
+          "visualImages": [
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f68c.jpg",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f475.jpg",
+            ""
+          ],
+          "targetText": "Last summer I went to the village, saw my grandmother and ate warm bread",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "storytelling_pron_ing",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: '-ing' tovushi",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🐦",
+            "☀️",
+            "🌳"
+          ],
+          "visualImages": [
+            "",
+            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f333.jpg"
+          ],
+          "targetText": "The singing birds were flying and jumping in the bright morning sunshine",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "storytelling_pron_long_vowels",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: cho'ziq unlilar",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "📗",
+            "💭",
+            "🌊"
+          ],
+          "visualImages": [
+            "",
+            "",
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f30a.jpg"
+          ],
+          "targetText": "He read a green book about a sweet dream beside the deep blue sea",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "storytelling_pron_clusters",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: qo'sh undoshlar",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🧗",
+            "🛣️",
+            "🌉"
+          ],
+          "visualImages": [
+            "",
+            "",
+            ""
+          ],
+          "targetText": "The strong students climbed the steep street and stopped near the small bridge",
+          "promptsAudio": [],
           "targetAudioUrl": "",
           "structureTips": []
         }
@@ -1673,6 +1933,136 @@
             "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/26bd.png"
           ],
           "targetText": "In the big green park, there are three happy children playing with a red ball.",
+          "promptsAudio": [],
+          "targetAudioUrl": "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/audio/23ad53142c35a5d37dadc7f7b9375c7ea2b0ed085def1a5b071c52ca13c00388.wav",
+          "structureTips": []
+        },
+        {
+          "id": "picture_narrating_pron_there",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: 'there is' va 'there are'",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🌳",
+            "👦",
+            "👧"
+          ],
+          "visualImages": [
+            "https://1v9tju4ulsvsrk0o.public.blob.vercel-storage.com/visuals/1f333.jpg",
+            "",
+            ""
+          ],
+          "targetText": "There is a big tree in the picture and there are two children under it",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "picture_narrating_pron_short_a_e",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: qisqa 'a' va 'e'",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🎩",
+            "🪑",
+            "🖊️"
+          ],
+          "visualImages": [
+            "",
+            "",
+            ""
+          ],
+          "targetText": "A happy man in a black hat is sitting at a red desk near ten pens",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "picture_narrating_pron_p_b",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: 'p' va 'b' tovushlari",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "📦",
+            "🎒",
+            "📄"
+          ],
+          "visualImages": [
+            "",
+            "",
+            ""
+          ],
+          "targetText": "The boy puts a purple box beside the big brown bag on the paper",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "picture_narrating_pron_k_g",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: 'k' va 'g' tovushlari",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🐈",
+            "🌿",
+            "🚪"
+          ],
+          "visualImages": [
+            "",
+            "",
+            ""
+          ],
+          "targetText": "A grey cat is walking quickly across the green garden to the old gate",
+          "promptsAudio": [],
+          "targetAudioUrl": "",
+          "structureTips": []
+        },
+        {
+          "id": "picture_narrating_pron_igh",
+          "topic": "Talaffuz mashqi",
+          "title": "Takrorlang: 'igh' tovushi",
+          "mnemonic": {
+            "acronym": "",
+            "steps": []
+          },
+          "prompts": [],
+          "keywords": [],
+          "timeLimitSec": 40,
+          "visuals": [
+            "🌙",
+            "⭐",
+            "🌌"
+          ],
+          "visualImages": [
+            "",
+            "",
+            ""
+          ],
+          "targetText": "The night sky was bright and the light of the moon was right above us",
           "promptsAudio": [],
           "targetAudioUrl": "",
           "structureTips": []

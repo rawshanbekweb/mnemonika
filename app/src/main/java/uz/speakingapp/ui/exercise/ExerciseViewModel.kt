@@ -28,7 +28,15 @@ import uz.speakingapp.speech.progressLabel
 import uz.speakingapp.speech.VoiceCue
 import uz.speakingapp.speech.VoskRecognizer
 
-enum class Phase { NeedModel, PreparingModel, Ready, Recording, Done }
+/**
+ * [Analyzing] — mikrofon o'chdi, tanigich oxirgi bo'lakni dekodlamoqda.
+ *
+ * Nega alohida bosqich kerak: avval to'xtatish bosilgach ekran natija
+ * tayyor bo'lgunicha `Recording` da qolardi — mikrofon halqasi qizarib,
+ * "YOZILMOQDA" yozuvi turaverardi. Sekin telefonda bu bir necha soniya
+ * davom etib, tugma ishlamayotgandek tuyulardi.
+ */
+enum class Phase { NeedModel, PreparingModel, Ready, Recording, Analyzing, Done }
 
 data class ExerciseUiState(
     val phase: Phase = Phase.NeedModel,
@@ -39,6 +47,8 @@ data class ExerciseUiState(
     val transcript: String = "",
     val elapsedSec: Int = 0,
     val timeLimitSec: Int = 60,
+    /** Yozuv vaqtincha to'xtatilgan: taymer sanamaydi, ovoz yozilmaydi. */
+    val paused: Boolean = false,
     /** Mikrofon signal darajasi 0f..1f — "seni eshityapman" indikatori uchun. */
     val micLevel: Float = 0f,
     val result: SpeechResult? = null,
@@ -241,6 +251,7 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
                 transcript = "",
                 liveText = "",
                 elapsedSec = 0,
+                paused = false,
                 result = null,
                 readResult = null,
                 error = null,
@@ -257,6 +268,9 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
                 delay(1000)
                 val s = _state.value
                 if (s.phase != Phase.Recording) break
+                // Pauzada vaqt sanalmaydi — o'quvchi o'ylab olsa ham
+                // ajratilgan soniyalari yonib ketmasin.
+                if (s.paused) continue
                 val next = s.elapsedSec + 1
                 _state.update { it.copy(elapsedSec = next) }
                 if (next >= s.timeLimitSec) {
@@ -267,10 +281,33 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * Yozuvni vaqtincha to'xtatadi. Aytilgan matn saqlanadi, taymer to'xtaydi;
+     * [resumeRecording] bilan o'sha joyidan davom etiladi.
+     */
+    fun pauseRecording() {
+        val s = _state.value
+        if (s.phase != Phase.Recording || s.paused || stopping) return
+        recognizer.pause()
+        _state.update { it.copy(paused = true, liveText = "", micLevel = 0f) }
+    }
+
+    /** Pauzadan keyin davom etadi. */
+    fun resumeRecording() {
+        val s = _state.value
+        if (s.phase != Phase.Recording || !s.paused || stopping) return
+        recognizer.resume()
+        _state.update { it.copy(paused = false) }
+    }
+
     fun stopRecording() {
         if (_state.value.phase != Phase.Recording || stopping) return
         stopping = true
         timerJob?.cancel()
+        // Ekran DARHOL o'zgaradi — tanigichni kutmasdan. Aks holda bosgandan
+        // keyin bir necha soniya "YOZILMOQDA" turib, tugma o'tib ketgandek
+        // ko'rinardi.
+        _state.update { it.copy(phase = Phase.Analyzing, paused = false, liveText = "", micLevel = 0f) }
 
         val signal = CompletableDeferred<Unit>()
         finishSignal = signal

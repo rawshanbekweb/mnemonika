@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -519,6 +521,40 @@ fun MicRing(
             stopIcon = stopIcon,
             size = ringSize - 44.dp,
             level = level,
+        )
+    }
+}
+
+// ── Pauza ───────────────────────────────────────────────────────
+/**
+ * Yozuvni vaqtincha to'xtatish / davom ettirish.
+ *
+ * Mikrofon tugmasidan ATAYIN farq qiladi (kichik, to'rtburchak, ohangdor
+ * emas): to'xtatish — yakuniy amal, pauza esa qaytariladigan. Ikkalasi bir
+ * xil ko'rinsa bola tasodifan mashqni tugatib qo'yardi.
+ */
+@Composable
+fun PauseToggle(paused: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .clip(MaterialTheme.shapes.small)
+            .background(if (paused) SuccessContainer else SurfaceMuted)
+            .border(1.dp, if (paused) Success else OutlineSoft, MaterialTheme.shapes.small)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            if (paused) Icons.Default.PlayArrow else Icons.Default.Pause,
+            contentDescription = null,
+            tint = if (paused) Success else Navy,
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(Modifier.size(8.dp))
+        Text(
+            if (paused) "Davom etish" else "Pauza",
+            color = if (paused) Success else Navy,
+            style = MaterialTheme.typography.titleSmall,
         )
     }
 }

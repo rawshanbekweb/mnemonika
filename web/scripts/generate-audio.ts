@@ -149,18 +149,31 @@ function toPlayableFile(audio: {
   return { bytes: raw, contentType: mime, ext };
 }
 
-/** Bazadagi barcha mashqlardan audio kerak bo'lgan noyob matnlarni yig'adi. */
+/**
+ * Bazadagi barcha mashqlardan audio kerak bo'lgan noyob matnlarni yig'adi.
+ *
+ * TARTIB MUHIM: avval "Takrorlang" matnlari, keyin savollar. Sabab kvota —
+ * TTS bepul tarifda kuniga ~10 so'rov beradi, ya'ni ro'yxat bir kunda
+ * tugamaydi va faqat BOSHI yaratiladi. "Takrorlang" mashqida namunani
+ * eshitish mashqning O'ZI (bola avval to'g'ri talaffuzni eshitadi, keyin
+ * aynan shuni takrorlaydi va so'zma-so'z tekshiriladi), savolni esa qurilma
+ * TTS'i o'qib bersa ham mashq buzilmaydi.
+ */
 async function collectTexts(): Promise<string[]> {
   const exercises = await db.select().from(schema.exercises);
-  const seen = new Map<string, string>(); // xesh → matn (takrorlarni yo'qotadi)
+  const targets = new Map<string, string>(); // xesh → matn (takrorlarni yo'qotadi)
+  const prompts = new Map<string, string>();
 
   for (const ex of exercises) {
-    for (const p of ex.prompts) {
-      if (needsAudio(p)) seen.set(audioKey(p), p);
-    }
-    if (needsAudio(ex.targetText)) seen.set(audioKey(ex.targetText), ex.targetText);
+    if (needsAudio(ex.targetText)) targets.set(audioKey(ex.targetText), ex.targetText);
   }
-  return [...seen.values()];
+  for (const ex of exercises) {
+    for (const p of ex.prompts) {
+      // Allaqachon "Takrorlang" matni sifatida olingan bo'lsa qayta qo'shilmaydi.
+      if (needsAudio(p) && !targets.has(audioKey(p))) prompts.set(audioKey(p), p);
+    }
+  }
+  return [...targets.values(), ...prompts.values()];
 }
 
 function sleep(ms: number): Promise<void> {

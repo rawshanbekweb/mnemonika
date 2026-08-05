@@ -59,6 +59,7 @@ import uz.speakingapp.ui.theme.InkStrong
 import uz.speakingapp.ui.theme.Mascot
 import uz.speakingapp.ui.theme.MascotMood
 import uz.speakingapp.ui.theme.OverlineLabel
+import uz.speakingapp.ui.theme.PauseToggle
 import uz.speakingapp.ui.theme.PrimaryGradient
 import uz.speakingapp.ui.theme.ScoreRing
 import uz.speakingapp.ui.theme.SoftButton
@@ -238,21 +239,56 @@ fun ConversationScreen(
                     ) {
                         Mascot(
                             look = friend,
-                            mood = MascotMood.Listening,
+                            mood = when {
+                                state.analyzing -> MascotMood.Thinking
+                                state.paused -> MascotMood.Idle
+                                else -> MascotMood.Listening
+                            },
                             size = 64.dp,
                             level = state.micLevel,
                         )
                         Spacer(Modifier.size(10.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(Modifier.size(8.dp).clip(CircleShape).background(Danger))
-                            Spacer(Modifier.size(8.dp))
-                            Text("YOZILMOQDA · ${state.elapsedSec}s", style = OverlineLabel, color = Danger)
+                        if (state.analyzing) {
+                            // To'xtatish bosildi — javob tayyorlanmoqda. Mikrofon
+                            // tugmasi bu yerda YO'Q: yana bosilsa hech narsa
+                            // bo'lmasdi va tugma qotib qolgandek ko'rinardi.
+                            Text(
+                                "Javobing tekshirilmoqda…",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = InkMuted,
+                            )
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(if (state.paused) InkMuted else Danger)
+                                )
+                                Spacer(Modifier.size(8.dp))
+                                Text(
+                                    if (state.paused) {
+                                        "PAUZADA · ${state.elapsedSec}s"
+                                    } else {
+                                        "YOZILMOQDA · ${state.elapsedSec}s"
+                                    },
+                                    style = OverlineLabel,
+                                    color = if (state.paused) InkMuted else Danger,
+                                )
+                            }
+                            Spacer(Modifier.size(14.dp))
+                            BrandMicButton(
+                                true, { vm.stopRecording() }, Icons.Default.Mic, Icons.Default.Stop,
+                                size = 68.dp, level = state.micLevel,
+                            )
+                            Spacer(Modifier.size(12.dp))
+                            PauseToggle(
+                                paused = state.paused,
+                                onClick = {
+                                    if (state.paused) vm.resumeRecording() else vm.pauseRecording()
+                                },
+                            )
                         }
-                        Spacer(Modifier.size(14.dp))
-                        BrandMicButton(
-                            true, { vm.stopRecording() }, Icons.Default.Mic, Icons.Default.Stop,
-                            size = 68.dp, level = state.micLevel,
-                        )
                     }
 
                     ConversationPhase.Done -> ResultPanel(

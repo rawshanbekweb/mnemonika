@@ -52,8 +52,24 @@ class VoskRecognizer {
         private const val TAG = "VoskRecognizer"
         private const val SAMPLE_RATE = 16000
 
-        /** Vosk'ga ~0.2 soniyalik bo'laklar berish tavsiya etiladi. */
-        private const val CHUNK_SHORTS = 3200
+        /**
+         * Bir marta o'qiladigan bo'lak — 0.1 soniya.
+         *
+         * Nega 0.2 emas: `ar.read()` bufer to'lguncha BLOKLAYDI, ya'ni
+         * to'xtatish so'ralganda tsikl eng yomon holatda shuncha kutadi.
+         * Bo'lakni ikki barobar kichraytirish to'xtatishning sezilarli
+         * kechikishini yarmiga tushiradi va jonli matn ham tezroq yangilanadi.
+         * Vosk kichikroq bo'lakni ham xuddi shunday qabul qiladi (u ichida
+         * o'zi 25ms freymlarga bo'ladi) — aniqlik o'zgarmaydi.
+         */
+        private const val CHUNK_SHORTS = 1600
+
+        /**
+         * `AudioRecord` ichki buferi (~0.8 soniya). Bo'lakdan ANCHA katta:
+         * sekin telefonda tanigich bir bo'lakni uzoq dekodlasa ham o'sha
+         * paytdagi ovoz buferda saqlanib turadi va yo'qolmaydi.
+         */
+        private const val BUFFER_SHORTS = 12800
 
         /**
          * Vosk har bo'lak uchun nechta variant qaytarsin.
@@ -79,6 +95,21 @@ class VoskRecognizer {
 
     @Volatile
     private var running = false
+
+    /**
+     * Vaqtincha to'xtatilganmi (o'quvchi "Pauza" ni bosdi).
+     *
+     * Pauzada mikrofon YOPILMAYDI — bo'laklar o'qilishda davom etadi, lekin
+     * tanigichga berilmaydi. Nega shunday:
+     *   - `AudioRecord` ni to'xtatib qayta ishga tushirish qurilmaga qarab
+     *     yuzlab millisekund oladi va ba'zi telefonlarda birinchi bo'lak
+     *     shovqin bo'lib chiqadi;
+     *   - bufer o'qilmasa to'lib qoladi va davom etilganda tanigich PAUZA
+     *     PAYTIDAGI eski ovozni eshitadi — bola aytmagan so'zlar paydo bo'lardi.
+     * O'qib tashlanadigan bo'laklar hech qayerga yozilmaydi.
+     */
+    @Volatile
+    private var paused = false
 
     /**
      * Audio oqimi butunlay tugadimi (resurslar bo'shatildi, model bilan ishlash
@@ -151,7 +182,7 @@ class VoskRecognizer {
             error("Mikrofon bu qurilmada qo'llab-quvvatlanmaydi")
         }
         // Kattaroq bufer — sekin telefonlarda ovoz bo'lagi yo'qolib ketmasin.
-        val bufferBytes = maxOf(minBuffer, CHUNK_SHORTS * 2 * 4)
+        val bufferBytes = maxOf(minBuffer, BUFFER_SHORTS * 2)
 
         val ar = AudioRecord(
             // VOICE_RECOGNITION — tizim ortiqcha ishlov bermaydi, ASR uchun mo'ljallangan manba.
@@ -170,6 +201,7 @@ class VoskRecognizer {
         attachEffects(ar.audioSessionId)
 
         running = true
+        paused = false
         finished = false
 
         ar.startRecording()
@@ -190,6 +222,21 @@ class VoskRecognizer {
     fun stop() {
         if (!running) return
         running = false
+        paused = false
+    }
+
+    /**
+     * Tinglashni vaqtincha to'xtatadi: shu paytdan boshlab aytilgan gaplar
+     * matnga qo'shilmaydi. Yozuv tugamaydi — [resume] bilan o'sha joyidan
+     * davom etadi va shu vaqtgacha to'plangan matn saqlanib qoladi.
+     */
+    fun pause() {
+        if (running) paused = true
+    }
+
+    /** Pauzadan keyin tinglashni davom ettiradi. */
+    fun resume() {
+        paused = false
     }
 
     /**
@@ -252,10 +299,23 @@ class VoskRecognizer {
 
     private fun readLoop(rec: Recognizer, ar: AudioRecord) {
         val buffer = ShortArray(CHUNK_SHORTS)
+        // Pauzada daraja bir marta nolga tushiriladi, har bo'lakda emas:
+        // main oqimiga soniyasiga 10 ta bo'sh xabar yuborishning hojati yo'q.
+        var levelZeroed = false
         try {
             while (running) {
                 val read = ar.read(buffer, 0, buffer.size)
                 if (read <= 0) continue
+
+                if (paused) {
+                    // Bo'lak o'qildi va tashlab yuborildi — tanigich uni ko'rmaydi.
+                    if (!levelZeroed) {
+                        levelZeroed = true
+                        main.post { onLevel(0f) }
+                    }
+                    continue
+                }
+                levelZeroed = false
 
                 emitLevel(buffer, read)
 

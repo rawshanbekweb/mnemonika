@@ -61,6 +61,7 @@ function describeError(code: string): string | null {
 export function useSpeechRecognition() {
   const [supported, setSupported] = useState(false);
   const [listening, setListening] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [finalText, setFinalText] = useState("");
   const [interimText, setInterimText] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +84,7 @@ export function useSpeechRecognition() {
   const stop = useCallback(() => {
     wantListeningRef.current = false;
     setListening(false);
+    setPaused(false);
     setInterimText("");
     try {
       recognitionRef.current?.stop();
@@ -91,82 +93,139 @@ export function useSpeechRecognition() {
     }
   }, []);
 
-  const start = useCallback(() => {
+  /**
+   * Yangi dvigatel ochadi. To'plangan matnga TEGMAYDI — shuning uchun uni
+   * ham [start] (noldan), ham [resume] (pauzadan keyin) chaqira oladi.
+   *
+   * Nomlangan funksiya (`run`) atayin: `onend` ichida o'zini qayta chaqiradi.
+   */
+  const startEngine = useCallback(function run(): boolean {
     const Ctor = getConstructor();
     if (!Ctor) {
       setError("Bu brauzer nutqni tanishni qo'llab-quvvatlamaydi.");
-      return;
+      return false;
     }
 
+    const recognition = new Ctor();
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    // Kalit so'z qidirishda tanigichning boshqa taxminlari ham tekshiriladi.
+    recognition.maxAlternatives = 3;
+
+    /**
+     * Bu dvigatel hali ham joriymi.
+     *
+     * Pauzada eski dvigatel to'xtatiladi, lekin uning `onend`/`onerror`
+     * hodisalari KEYINROQ keladi — davom etilgandan keyin ham. Tekshiruvsiz
+     * eskisi ikkinchi dvigatelni ishga tushirib yuborardi va mikrofonni ikki
+     * nusxa tinglab, har so'z ikki marta yozilardi.
+     */
+    const isCurrent = () => recognitionRef.current === recognition;
+
+    recognition.onresult = (e) => {
+      if (!isCurrent()) return;
+      let interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const result = e.results[i];
+        const text = result[0]?.transcript ?? "";
+        if (result.isFinal) {
+          finalRef.current = (finalRef.current + " " + text).trim();
+          for (let a = 1; a < result.length; a++) {
+            const alt = result[a]?.transcript;
+            if (alt) alternativesRef.current.push(alt);
+          }
+        } else {
+          interim += text;
+        }
+      }
+      setFinalText(finalRef.current);
+      setInterimText(interim);
+    };
+
+    recognition.onerror = (e) => {
+      if (!isCurrent()) return;
+      const message = describeError(e.error);
+      if (message) {
+        // Jiddiy xato — qayta urinmaymiz, aks holda cheksiz sikl bo'ladi.
+        wantListeningRef.current = false;
+        setError(message);
+        setListening(false);
+      }
+    };
+
+    recognition.onend = () => {
+      // Chrome jimlikdan keyin o'zi to'xtaydi. Mashq hali tugamagan bo'lsa
+      // qayta ishga tushiramiz, shunda bola o'ylanib turgani uchun yozuv uzilmaydi.
+      if (!isCurrent() || !wantListeningRef.current) return;
+      try {
+        run();
+      } catch {
+        wantListeningRef.current = false;
+        setListening(false);
+      }
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    return true;
+  }, []);
+
+  const start = useCallback(() => {
     finalRef.current = "";
     alternativesRef.current = [];
     setFinalText("");
     setInterimText("");
     setError(null);
+    setPaused(false);
     wantListeningRef.current = true;
 
-    const startEngine = () => {
-      const recognition = new Ctor();
-      recognition.lang = "en-US";
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      // Kalit so'z qidirishda tanigichning boshqa taxminlari ham tekshiriladi.
-      recognition.maxAlternatives = 3;
-
-      recognition.onresult = (e) => {
-        let interim = "";
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          const result = e.results[i];
-          const text = result[0]?.transcript ?? "";
-          if (result.isFinal) {
-            finalRef.current = (finalRef.current + " " + text).trim();
-            for (let a = 1; a < result.length; a++) {
-              const alt = result[a]?.transcript;
-              if (alt) alternativesRef.current.push(alt);
-            }
-          } else {
-            interim += text;
-          }
-        }
-        setFinalText(finalRef.current);
-        setInterimText(interim);
-      };
-
-      recognition.onerror = (e) => {
-        const message = describeError(e.error);
-        if (message) {
-          // Jiddiy xato — qayta urinmaymiz, aks holda cheksiz sikl bo'ladi.
-          wantListeningRef.current = false;
-          setError(message);
-          setListening(false);
-        }
-      };
-
-      recognition.onend = () => {
-        // Chrome jimlikdan keyin o'zi to'xtaydi. Mashq hali tugamagan bo'lsa
-        // qayta ishga tushiramiz, shunda bola o'ylanib turgani uchun yozuv uzilmaydi.
-        if (wantListeningRef.current) {
-          try {
-            startEngine();
-          } catch {
-            wantListeningRef.current = false;
-            setListening(false);
-          }
-        }
-      };
-
-      recognitionRef.current = recognition;
-      recognition.start();
-    };
-
     try {
-      startEngine();
+      if (!startEngine()) {
+        wantListeningRef.current = false;
+        return;
+      }
       setListening(true);
     } catch {
       wantListeningRef.current = false;
       setError("Mikrofonni ishga tushirib bo'lmadi. Sahifani yangilab ko'ring.");
     }
+  }, [startEngine]);
+
+  /**
+   * Tinglashni vaqtincha to'xtatadi: shu paytdan keyin aytilgan gaplar matnga
+   * qo'shilmaydi. To'plangan matn saqlanadi va [resume] o'sha joyidan davom
+   * ettiradi (yangi dvigatel ochiladi, lekin `finalRef` tozalanmaydi).
+   */
+  const pause = useCallback(() => {
+    if (!wantListeningRef.current) return;
+    // Avval bayroq: `onend` bu dvigatelni qayta tiklab yubormasin.
+    wantListeningRef.current = false;
+    setPaused(true);
+    setInterimText("");
+    try {
+      recognitionRef.current?.stop();
+    } catch {
+      // allaqachon to'xtagan bo'lishi mumkin
+    }
   }, []);
+
+  /** Pauzadan keyin tinglashni davom ettiradi. */
+  const resume = useCallback(() => {
+    if (wantListeningRef.current) return;
+    wantListeningRef.current = true;
+    setPaused(false);
+    try {
+      if (!startEngine()) {
+        wantListeningRef.current = false;
+        setPaused(true);
+      }
+    } catch {
+      wantListeningRef.current = false;
+      setPaused(true);
+      setError("Mikrofonni qayta ishga tushirib bo'lmadi. Sahifani yangilab ko'ring.");
+    }
+  }, [startEngine]);
 
   // Sahifadan chiqilganda mikrofon ochiq qolmasin.
   useEffect(() => {
@@ -183,7 +242,19 @@ export function useSpeechRecognition() {
   /** Yozish tugagach chaqiriladi — to'plangan variantlar ro'yxati. */
   const takeAlternatives = useCallback(() => [...alternativesRef.current], []);
 
-  return { supported, listening, finalText, interimText, error, start, stop, takeAlternatives };
+  return {
+    supported,
+    listening,
+    paused,
+    finalText,
+    interimText,
+    error,
+    start,
+    stop,
+    pause,
+    resume,
+    takeAlternatives,
+  };
 }
 
 /** Matnni ingliz tilida ovoz chiqarib o'qiydi (brauzer TTS — bepul). */

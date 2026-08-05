@@ -186,9 +186,12 @@ export default function ExercisePage() {
 
   useEffect(() => {
     if (phase !== "recording") return;
+    // Pauzada vaqt sanalmaydi — o'quvchi o'ylab olsa ham ajratilgan
+    // soniyalari yonib ketmasin.
+    if (speech.paused) return;
     const id = window.setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => window.clearInterval(id);
-  }, [phase]);
+  }, [phase, speech.paused]);
 
   useEffect(() => {
     if (phase === "recording" && elapsed >= limit) finish();
@@ -367,16 +370,49 @@ export default function ExercisePage() {
             {/* Do'st tinglayapti. Android'dan farqli o'laroq ovoz balandligiga
                 javob bermaydi — Web Speech API mikrofon darajasini bermaydi. */}
             <div className="flex justify-center">
-              <Mascot look={friend} mood="listening" size={84} />
+              <Mascot look={friend} mood={speech.paused ? "idle" : "listening"} size={84} />
             </div>
             <MicRing recording elapsed={elapsed} limit={limit} onClick={finish} />
 
             <div className="mt-4 flex items-center justify-center gap-2">
-              <span className="h-2 w-2 animate-pulse rounded-sm bg-state-danger" />
-              <span className="text-overline font-semibold uppercase text-state-danger">
-                Yozilmoqda · {Math.max(0, limit - elapsed)}s qoldi
-              </span>
+              {speech.paused ? (
+                <>
+                  <span className="h-2 w-2 rounded-sm bg-ink-muted" />
+                  <span className="text-overline font-semibold uppercase text-ink-muted">
+                    Pauzada · {Math.max(0, limit - elapsed)}s qoldi
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="h-2 w-2 animate-pulse rounded-sm bg-state-danger" />
+                  <span className="text-overline font-semibold uppercase text-state-danger">
+                    Yozilmoqda · {Math.max(0, limit - elapsed)}s qoldi
+                  </span>
+                </>
+              )}
             </div>
+
+            {/* Pauza mikrofon halqasidan ATAYIN kichikroq va boshqa shaklda:
+                to'xtatish — yakuniy amal, pauza esa qaytariladigan. */}
+            <div className="mt-4 flex justify-center">
+              <button
+                type="button"
+                onClick={() => (speech.paused ? speech.resume() : speech.pause())}
+                className={`inline-flex items-center gap-2 rounded border px-4 py-2 text-sm font-semibold transition ${
+                  speech.paused
+                    ? "border-state-success bg-state-success/10 text-state-success"
+                    : "border-line bg-surface-muted text-navy hover:bg-surface-muted/70"
+                }`}
+              >
+                {speech.paused ? "▶ Davom etish" : "❚❚ Pauza"}
+              </button>
+            </div>
+
+            {speech.paused && (
+              <p className="mt-3 text-center text-sm text-ink-muted">
+                Yozuv to&apos;xtatib turildi. Davom etganingda shu joyidan yoziladi.
+              </p>
+            )}
 
             {isReadAloud ? (
               <div className="card mt-6">

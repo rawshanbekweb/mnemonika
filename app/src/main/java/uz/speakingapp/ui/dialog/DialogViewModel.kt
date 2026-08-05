@@ -37,6 +37,16 @@ data class DialogUiState(
     /** Mikrofon signal darajasi 0f..1f — suhbatdosh personaji shunga jonlanadi. */
     val micLevel: Float = 0f,
     val elapsedSec: Int = 0,
+    /** Yozuv vaqtincha to'xtatilgan: taymer sanamaydi, ovoz yozilmaydi. */
+    val paused: Boolean = false,
+    /**
+     * To'xtatish bosildi, tanigich oxirgi bo'lakni dekodlamoqda.
+     *
+     * Ekran shu bayroq bilan DARHOL o'zgaradi — aks holda javob tayyor
+     * bo'lgunicha (sekin telefonda bir necha soniya) "yozilmoqda" turib,
+     * tugma ishlamagandek ko'rinardi.
+     */
+    val analyzing: Boolean = false,
     val turnIndex: Int = 0,
     val totalTurns: Int = 0,
     val result: SpeechResult? = null,
@@ -213,7 +223,15 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
         if (_state.value.phase != DialogPhase.StudentTurn || stopping) return
         segments.clear()
         altSegments.clear()
-        _state.update { it.copy(phase = DialogPhase.Recording, liveText = "", elapsedSec = 0) }
+        _state.update {
+            it.copy(
+                phase = DialogPhase.Recording,
+                liveText = "",
+                elapsedSec = 0,
+                paused = false,
+                analyzing = false,
+            )
+        }
         try {
             recognizer.startListening()
         } catch (e: Exception) {
@@ -225,6 +243,8 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
                 delay(1000)
                 val s = _state.value
                 if (s.phase != DialogPhase.Recording) break
+                // Pauzada vaqt sanalmaydi.
+                if (s.paused) continue
                 val next = s.elapsedSec + 1
                 _state.update { it.copy(elapsedSec = next) }
                 if (next >= TURN_LIMIT_SEC) {
@@ -233,6 +253,22 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
         }
+    }
+
+    /** Javob berishni vaqtincha to'xtatadi (aytilgani saqlanadi). */
+    fun pauseRecording() {
+        val s = _state.value
+        if (s.phase != DialogPhase.Recording || s.paused || stopping) return
+        recognizer.pause()
+        _state.update { it.copy(paused = true, liveText = "", micLevel = 0f) }
+    }
+
+    /** Pauzadan keyin davom etadi. */
+    fun resumeRecording() {
+        val s = _state.value
+        if (s.phase != DialogPhase.Recording || !s.paused || stopping) return
+        recognizer.resume()
+        _state.update { it.copy(paused = false) }
     }
 
     fun stopRecording() {
@@ -246,12 +282,15 @@ class DialogViewModel(app: Application) : AndroidViewModel(app) {
         val signal = CompletableDeferred<Unit>()
         finishSignal = signal
         recognizer.stop()
+        // Tugma bosilishi bilan ekran o'zgaradi — tanigichni kutmasdan.
+        _state.update { it.copy(analyzing = true, paused = false, liveText = "", micLevel = 0f) }
 
         viewModelScope.launch {
             // Tanigich yakuniy natijani berguncha kutamiz (muddat — himoya to'siq).
             withTimeoutOrNull(FINISH_TIMEOUT_MS) { signal.await() }
             finishSignal = null
             stopping = false
+            _state.update { it.copy(analyzing = false) }
             val sc = scenario ?: return@launch
             val index = _state.value.turnIndex
             val turn = sc.turns.getOrNull(index) ?: return@launch

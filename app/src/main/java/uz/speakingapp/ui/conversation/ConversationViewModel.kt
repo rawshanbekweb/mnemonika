@@ -41,6 +41,13 @@ data class ConversationUiState(
     val micLevel: Float = 0f,
     /** Joriy navbatda yozuv necha soniya davom etdi. */
     val elapsedSec: Int = 0,
+    /** Yozuv vaqtincha to'xtatilgan: taymer sanamaydi, ovoz yozilmaydi. */
+    val paused: Boolean = false,
+    /**
+     * To'xtatish bosildi, tanigich oxirgi bo'lakni dekodlamoqda. Ekran shu
+     * bayroq bilan darhol o'zgaradi (qarang: DialogUiState.analyzing).
+     */
+    val analyzing: Boolean = false,
     /** Suhbat boshlanganidan beri o'tgan vaqt. */
     val totalElapsedSec: Int = 0,
     val targetMinutes: Int = 3,
@@ -240,7 +247,15 @@ class ConversationViewModel(app: Application) : AndroidViewModel(app) {
         if (_state.value.phase != ConversationPhase.StudentTurn || stopping) return
         segments.clear()
         altSegments.clear()
-        _state.update { it.copy(phase = ConversationPhase.Recording, liveText = "", elapsedSec = 0) }
+        _state.update {
+            it.copy(
+                phase = ConversationPhase.Recording,
+                liveText = "",
+                elapsedSec = 0,
+                paused = false,
+                analyzing = false,
+            )
+        }
         try {
             recognizer.startListening()
         } catch (e: Exception) {
@@ -252,6 +267,8 @@ class ConversationViewModel(app: Application) : AndroidViewModel(app) {
                 delay(1000)
                 val s = _state.value
                 if (s.phase != ConversationPhase.Recording) break
+                // Pauzada vaqt sanalmaydi.
+                if (s.paused) continue
                 val next = s.elapsedSec + 1
                 _state.update { it.copy(elapsedSec = next) }
                 if (next >= TURN_LIMIT_SEC) {
@@ -262,6 +279,22 @@ class ConversationViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Javob berishni vaqtincha to'xtatadi (aytilgani saqlanadi). */
+    fun pauseRecording() {
+        val s = _state.value
+        if (s.phase != ConversationPhase.Recording || s.paused || stopping) return
+        recognizer.pause()
+        _state.update { it.copy(paused = true, liveText = "", micLevel = 0f) }
+    }
+
+    /** Pauzadan keyin davom etadi. */
+    fun resumeRecording() {
+        val s = _state.value
+        if (s.phase != ConversationPhase.Recording || !s.paused || stopping) return
+        recognizer.resume()
+        _state.update { it.copy(paused = false) }
+    }
+
     fun stopRecording() {
         if (_state.value.phase != ConversationPhase.Recording || stopping) return
         stopping = true
@@ -270,11 +303,14 @@ class ConversationViewModel(app: Application) : AndroidViewModel(app) {
         val signal = CompletableDeferred<Unit>()
         finishSignal = signal
         recognizer.stop()
+        // Tugma bosilishi bilan ekran o'zgaradi — tanigichni kutmasdan.
+        _state.update { it.copy(analyzing = true, paused = false, liveText = "", micLevel = 0f) }
 
         viewModelScope.launch {
             withTimeoutOrNull(FINISH_TIMEOUT_MS) { signal.await() }
             finishSignal = null
             stopping = false
+            _state.update { it.copy(analyzing = false) }
             advance(segments.toString().trim(), _state.value.elapsedSec)
         }
     }
