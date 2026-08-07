@@ -19,9 +19,23 @@ import "../src/db/load-env";
 import { GoogleGenAI } from "@google/genai";
 import { put } from "@vercel/blob";
 import { db, schema } from "../src/db";
-import { AUDIO_VOICE, audioKey, needsAudio, normalizeAudioText } from "../src/lib/audio-key";
+import {
+  AUDIO_VOICE,
+  audioKey,
+  needsAudio,
+  normalizeAudioText,
+  type AudioStyle,
+} from "../src/lib/audio-key";
 
 const MODEL = "gemini-3.1-flash-tts-preview";
+
+/** Yaratilishi kerak bo'lgan bitta klip: matn + qanday o'qilishi. */
+type Job = { text: string; style: AudioStyle };
+
+/** Klipning bazadagi kaliti. `build-content.ts` bilan bir xil bo'lishi SHART. */
+function keyOf(text: string, style: AudioStyle): string {
+  return audioKey(text, AUDIO_VOICE, style);
+}
 
 /**
  * Gemini TTS xom PCM qaytaradi (odatda 24kHz, 16-bit, mono), lekin javobning
@@ -74,15 +88,42 @@ function isRateLimit(message: string): boolean {
 }
 
 /**
- * Uslub ko'rsatmasi. Gemini TTS "…: matn" shaklida faqat ikki nuqtadan keyingi
- * qismni o'qiydi — ko'rsatma ovozga chiqmaydi. 5–6 sinf o'quvchisi uchun sekin
- * va tushunarli talaffuz kerak, shuning uchun buni aniq so'raymiz.
+ * Uslub ko'rsatmalari. Gemini TTS "…: matn" shaklida faqat ikki nuqtadan
+ * keyingi qismni o'qiydi — ko'rsatma ovozga chiqmaydi.
+ *
+ * NEGA IKKI XIL:
+ * Avval ikkala tur uchun bitta ko'rsatma bor edi ("slowly and very clearly").
+ * Natijada model ba'zan tovushlarni cho'zib, ba'zan oddiy tezlikda o'qib berdi —
+ * ya'ni "Takrorlang" kliplari bir-biriga o'xshamas edi (mijoz e'tirozi).
+ * Sabab: ko'rsatma tezlik haqida edi, TALAFFUZ USULI haqida emas.
+ *
+ * "pron" — bola AYNAN shu gapni qaytaradi va har so'zi solishtiriladi
+ * (`read-aloud.ts`), demak namunaning vazifasi — har bir tovushni eshittirish.
+ * Shuning uchun bu yerda cho'zish va so'zlar orasidagi pauza aniq so'raladi.
+ * Sekinroq nutq Vosk uchun ham qulay: bola sekin takrorlasa, tanish aniqroq.
+ *
+ * "prompt" — savol matni; bola uni tinglaydi va ERKIN javob beradi, takrorlamaydi.
+ * Bu yerdagi ko'rsatma ATAYLAB o'zgartirilmagan: mavjud ~24 klip shu ko'rsatma
+ * bilan yaratilgan va ular qayta yaratilishi kerak emas (kvota ~10/kun).
+ *
+ * Ko'rsatmani jiddiy o'zgartirsangiz `audio-key.ts` dagi STYLE_TAG raqamini
+ * oshiring, aks holda eski kliplar o'z joyida qolib ketadi.
  */
-function styled(text: string): string {
-  return (
+const STYLE_PROMPT: Record<AudioStyle, string> = {
+  prompt:
     "Read this slowly and very clearly for a young child learning English, " +
-    `in a warm, friendly teacher voice: ${normalizeAudioText(text)}`
-  );
+    "in a warm, friendly teacher voice",
+  pron:
+    "You are an English teacher giving a pronunciation model to a ten-year-old child. " +
+    "Speak a little slower than normal, with a steady even rhythm from the first word to " +
+    "the last — do not speed up towards the end. Draw out the vowel sounds so each one can " +
+    "be heard clearly, and pronounce the final consonant of every word. Do not pause " +
+    "between words: keep the sentence flowing as one natural phrase. " +
+    "Keep the voice warm and encouraging — clear and unhurried, but never robotic",
+};
+
+function styled(text: string, style: AudioStyle): string {
+  return `${STYLE_PROMPT[style]}: ${normalizeAudioText(text)}`;
 }
 
 /**
@@ -159,20 +200,24 @@ function toPlayableFile(audio: {
  * aynan shuni takrorlaydi va so'zma-so'z tekshiriladi), savolni esa qurilma
  * TTS'i o'qib bersa ham mashq buzilmaydi.
  */
-async function collectTexts(): Promise<string[]> {
+async function collectTexts(): Promise<Job[]> {
   const exercises = await db.select().from(schema.exercises);
-  const targets = new Map<string, string>(); // xesh → matn (takrorlarni yo'qotadi)
-  const prompts = new Map<string, string>();
+  const targets = new Map<string, Job>(); // xesh → ish (takrorlarni yo'qotadi)
+  const prompts = new Map<string, Job>();
 
   for (const ex of exercises) {
-    if (needsAudio(ex.targetText)) targets.set(audioKey(ex.targetText), ex.targetText);
+    if (needsAudio(ex.targetText)) {
+      targets.set(keyOf(ex.targetText, "pron"), { text: ex.targetText, style: "pron" });
+    }
   }
   for (const ex of exercises) {
     for (const p of ex.prompts) {
-      // Allaqachon "Takrorlang" matni sifatida olingan bo'lsa qayta qo'shilmaydi.
-      if (needsAudio(p) && !targets.has(audioKey(p))) prompts.set(audioKey(p), p);
+      if (needsAudio(p)) prompts.set(keyOf(p, "prompt"), { text: p, style: "prompt" });
     }
   }
+  // Ikki guruh orasida takror YO'QOTILMAYDI: bir xil gap "Takrorlang" namunasi
+  // va savol sifatida ikki xil o'qiladi, ya'ni ikki xil klip kerak. Amalda
+  // bunday to'qnashuv uchramaydi, lekin uchrasa har biri o'z uslubini oladi.
   return [...targets.values(), ...prompts.values()];
 }
 
@@ -197,18 +242,35 @@ async function main() {
     }
   }
 
-  const texts = await collectTexts();
+  const jobs = await collectTexts();
   const existing = await db.select().from(schema.audioClips);
   const have = new Set(existing.map((c) => c.textHash));
-  const todo = texts.filter((t) => !have.has(audioKey(t))).slice(0, limit);
+  const todo = jobs.filter((j) => !have.has(keyOf(j.text, j.style))).slice(0, limit);
 
-  console.log(`Jami matn: ${texts.length}, tayyor: ${have.size}, yaratiladi: ${todo.length}`);
+  const pronTodo = todo.filter((j) => j.style === "pron").length;
+  console.log(
+    `Jami matn: ${jobs.length}, tayyor: ${have.size}, yaratiladi: ${todo.length}` +
+      (pronTodo > 0 ? ` (shundan ${pronTodo} ta "Takrorlang" namunasi)` : ""),
+  );
+
+  // Uslub yoki matn o'zgarsa eski klip endi hech qayerda ishlatilmaydi. Uni
+  // O'CHIRMAYMIZ (noto'g'ri hisob-kitob jonli audioni yo'q qilishi mumkin) —
+  // faqat xabar beramiz. Blob'da bir necha yuz KB qolishi zarar qilmaydi.
+  const needed = new Set(jobs.map((j) => keyOf(j.text, j.style)));
+  const orphans = existing.filter((c) => !needed.has(c.textHash));
+  if (orphans.length > 0) {
+    console.log(
+      `Eslatma: ${orphans.length} ta klip endi ishlatilmaydi (matn yoki uslub o'zgargan). ` +
+        "Ular o'chirilmaydi, shunchaki e'tiborsiz qoladi.",
+    );
+  }
+
   if (todo.length === 0) {
     console.log("Yangi audio kerak emas.");
     return;
   }
   if (dry) {
-    todo.forEach((t, i) => console.log(`  ${i + 1}. ${t}`));
+    todo.forEach((j, i) => console.log(`  ${i + 1}. [${j.style}] ${j.text}`));
     console.log("\n(--dry: hech narsa yaratilmadi)");
     return;
   }
@@ -218,17 +280,18 @@ async function main() {
 
   let stopped = false;
 
-  for (const [i, text] of todo.entries()) {
+  for (const [i, job] of todo.entries()) {
     if (stopped) break;
-    const hash = audioKey(text);
+    const { text, style } = job;
+    const hash = keyOf(text, style);
     const short = text.length > 60 ? `${text.slice(0, 57)}…` : text;
-    process.stdout.write(`[${i + 1}/${todo.length}] ${short} … `);
+    process.stdout.write(`[${i + 1}/${todo.length}] [${style}] ${short} … `);
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const interaction = await ai.interactions.create({
         model: MODEL,
-        input: styled(text),
+        input: styled(text, style),
         // Audio uchun aynan shu maydon kerak. (`response_format` — JSON
         // sxemasini majburlash uchun, audio bilan aloqasi yo'q.)
         response_modalities: ["audio"],
@@ -267,7 +330,7 @@ async function main() {
         if (wait !== null && wait <= MAX_WAIT_MS && attempt < MAX_RETRIES) {
           console.log(`⏳ chegara, ${Math.round(wait / 1000)}s kutamiz…`);
           await sleep(wait);
-          process.stdout.write(`[${i + 1}/${todo.length}] ${short} … `);
+          process.stdout.write(`[${i + 1}/${todo.length}] [${style}] ${short} … `);
           continue;
         }
         // Kunlik kvota tugadi — toza to'xtaymiz.

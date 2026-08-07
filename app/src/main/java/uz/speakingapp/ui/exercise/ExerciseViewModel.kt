@@ -160,8 +160,11 @@ class ExerciseViewModel(app: Application) : AndroidViewModel(app) {
         //
         // Savollar alohida klip: orasida tabiiy pauza qoladi va bola har
         // savolni ajratib eshitadi (avval hammasi bir gap bo'lib o'qilardi).
+        // Namuna `slow = true` bilan: bola takrorlashi kerak bo'lgan gap dona
+        // dona va shoshilmasdan aytiladi. Savollar oddiy tezlikda — ular
+        // takrorlanmaydi, faqat tushunilsa bo'ldi.
         val cues = when {
-            ex.isReadAloud -> listOf(VoiceCue.Cue(ex.targetAudioUrl, ex.targetText))
+            ex.isReadAloud -> listOf(VoiceCue.Cue(ex.targetAudioUrl, ex.targetText, slow = true))
             ex.prompts.isNotEmpty() ->
                 ex.prompts.mapIndexed { i, p -> VoiceCue.Cue(ex.promptAudioAt(i), p) }
             else -> listOf(VoiceCue.Cue("", ex.title))

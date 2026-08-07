@@ -32,13 +32,30 @@ import kotlin.coroutines.resume
  */
 class VoiceCue(context: Context, private val speaker: Speaker) {
 
-    /** Bitta eshittirish: audio URL (bo'sh bo'lishi mumkin) va zaxira matn. */
-    data class Cue(val url: String, val text: String)
+    /**
+     * Bitta eshittirish: audio URL (bo'sh bo'lishi mumkin) va zaxira matn.
+     *
+     * [slow] — talaffuz namunasi (bola aynan shuni takrorlaydi). Yaratilgan
+     * klip sekinroq ijro etiladi, qurilma TTS'i esa "dona dona" aytadi.
+     */
+    data class Cue(val url: String, val text: String, val slow: Boolean = false)
 
     private companion object {
         const val TAG = "VoiceCue"
         const val CONNECT_TIMEOUT_MS = 15_000
         const val READ_TIMEOUT_MS = 20_000
+
+        /**
+         * Talaffuz namunasi uchun ijro tezligi.
+         *
+         * NEGA IJRODA, GENERATSIYADA EMAS: TTS ko'rsatmasi bilan tezlikni
+         * boshqarish uch marta sinaldi va ishonchsiz chiqdi (`audio-key.ts`
+         * dagi uslub tarixiga qarang) — model ba'zan sekin, ba'zan oddiy
+         * tezlikda o'qiydi. `setPlaybackParams` esa aniq: har klip har doim
+         * bir xil koeffitsiyentga sekinlashadi va tovush balandligi (pitch)
+         * o'zgarmaydi — Android vaqtni cho'zadi, tezlikni emas.
+         */
+        const val SLOW_SPEED = 0.8f
     }
 
     private val cacheDir = File(context.applicationContext.cacheDir, "voice")
@@ -62,10 +79,10 @@ class VoiceCue(context: Context, private val speaker: Speaker) {
             if (run != generation) return
             val file = cue.url.takeIf { it.isNotBlank() }?.let { cached(it) }
             if (run != generation) return
-            if (file != null && playFile(file)) continue
+            if (file != null && playFile(file, cue.slow)) continue
             // Audio yo'q yoki ijro bo'lmadi — qurilma TTS'i.
             if (run != generation) return
-            speakSuspend(cue.text)
+            speakSuspend(cue.text, cue.slow)
         }
     }
 
@@ -122,7 +139,7 @@ class VoiceCue(context: Context, private val speaker: Speaker) {
     }
 
     /** Faylni ijro etadi. `true` — muvaffaqiyatli tugadi, `false` — TTS kerak. */
-    private suspend fun playFile(file: File): Boolean = suspendCancellableCoroutine { cont ->
+    private suspend fun playFile(file: File, slow: Boolean): Boolean = suspendCancellableCoroutine { cont ->
         releasePlayer()
         val mp = MediaPlayer()
         player = mp
@@ -147,7 +164,22 @@ class VoiceCue(context: Context, private val speaker: Speaker) {
 
         runCatching {
             mp.setDataSource(file.absolutePath)
-            mp.setOnPreparedListener { it.start() }
+            mp.setOnPreparedListener { player ->
+                // Tezlik faqat TAYYOR bo'lgandan keyin o'rnatiladi — undan oldin
+                // ba'zi qurilmalarda IllegalStateException beradi. Qo'llab-
+                // quvvatlamagan qurilmada xato yutiladi va klip oddiy tezlikda
+                // ijro etiladi: sekinlik yo'qoladi, lekin ovoz eshitiladi.
+                if (slow) {
+                    runCatching {
+                        player.playbackParams = player.playbackParams.setSpeed(SLOW_SPEED)
+                    }.onFailure { e ->
+                        Log.i(TAG, "Sekin ijro qo'llab-quvvatlanmadi: ${e.message}")
+                    }
+                }
+                // setPlaybackParams ba'zi qurilmalarda ijroni o'zi boshlab
+                // yuboradi; start() ni qayta chaqirish zararsiz.
+                runCatching { player.start() }
+            }
             mp.prepareAsync()
         }.onFailure {
             Log.i(TAG, "Audio ochilmadi: ${it.message}")
@@ -158,9 +190,11 @@ class VoiceCue(context: Context, private val speaker: Speaker) {
     }
 
     /** [Speaker.speak] ning coroutine ko'rinishi. */
-    private suspend fun speakSuspend(text: String) = suspendCancellableCoroutine<Unit> { cont ->
+    private suspend fun speakSuspend(text: String, slow: Boolean) = suspendCancellableCoroutine<Unit> { cont ->
         var settled = false
-        speaker.speak(text) {
+        val rate = if (slow) Speaker.RATE_SLOW else Speaker.RATE_NORMAL
+        val gap = if (slow) Speaker.WORD_GAP_MS else 0L
+        speaker.speak(text, rate, gap) {
             if (!settled) {
                 settled = true
                 if (cont.isActive) cont.resume(Unit)

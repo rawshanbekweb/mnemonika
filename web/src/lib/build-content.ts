@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
-import { audioKey, needsAudio } from "./audio-key";
+import { AUDIO_VOICE, audioKey, needsAudio, type AudioStyle } from "./audio-key";
 import type { ContentPack, SpeakingModule, StructureTip } from "./content-types";
 import { visualKey } from "./visual-key";
 
@@ -59,10 +59,14 @@ export async function buildContentPack(): Promise<ContentPack> {
 
   // Audio URL'lari har build'da matn xeshi bo'yicha qaytadan izlanadi — shuning
   // uchun tahrirlangan savolga eski audio ulanib qolishi mumkin emas.
+  //
+  // Uslub ham xeshga kiradi: "Takrorlang" namunasi savoldan boshqacha (sekinroq,
+  // tovushlar cho'zib) o'qiladi, shuning uchun bir xil matn bo'lsa ham ular
+  // ALOHIDA kliplar. Qarang: lib/audio-key.ts.
   const clips = await db.select().from(schema.audioClips);
   const urlByHash = new Map(clips.map((c) => [c.textHash, c.url]));
-  const audioFor = (text: string): string =>
-    needsAudio(text) ? (urlByHash.get(audioKey(text)) ?? "") : "";
+  const audioFor = (text: string, style: AudioStyle = "prompt"): string =>
+    needsAudio(text) ? (urlByHash.get(audioKey(text, AUDIO_VOICE, style)) ?? "") : "";
 
   // Tasvir fotosuratlari. Kalit ikki xil bo'lishi mumkin:
   //   "discussion_books:📚" — FAQAT shu mashqning rasmi (mavzuga yaqinroq),
@@ -106,8 +110,10 @@ export async function buildContentPack(): Promise<ContentPack> {
         visuals: e.visuals,
         visualImages: e.visuals.map(imageFor(e.id)),
         targetText: e.targetText,
-        promptsAudio: e.prompts.map(audioFor),
-        targetAudioUrl: audioFor(e.targetText),
+        // DIQQAT: `.map(audioFor)` YOZMANG — `map` ikkinchi argument sifatida
+        // indeksni uzatadi va u `style` parametriga tushib ketadi.
+        promptsAudio: e.prompts.map((p) => audioFor(p)),
+        targetAudioUrl: audioFor(e.targetText, "pron"),
         structureTips: tipsByExercise.get(e.id) ?? [],
       })),
     dialogs: allDialogs
