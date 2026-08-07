@@ -257,22 +257,91 @@ export function useSpeechRecognition() {
   };
 }
 
+/**
+ * Eshittirish turi — tezlikni shu belgilaydi.
+ *
+ * Android'dagi `VoiceCue.Style` bilan bir xil, ataylab: bola web'da ham,
+ * ilovada ham bir xil tezlikda eshitishi kerak.
+ */
+export type SpeechStyle = "prompt" | "pronunciation";
+
+/**
+ * Brauzer TTS tezligi.
+ *
+ * MAQSAD — yaratilgan Gemini klipiga tenglashish. Kliplar o'lchandi: 24 ta
+ * savol klipi o'rtacha 0.759 s/so'z. Brauzer TTS'i `rate = 1` da ~0.4 s/so'z
+ * bilan gapiradi, ya'ni ikki barobar tez — shuning uchun klip yaratilgan
+ * mashqlardan keyingilarga o'tganda ovoz keskin tezlashardi.
+ *
+ * Avval bu yerda bitta `0.95` turardi ("bolalar uchun biroz sekinroq"), lekin
+ * u klipdan deyarli ikki barobar tez edi.
+ *
+ * DIQQAT: 0.4 s/so'z — TIPIK qiymat, o'lchangani emas; har brauzer/ovoz
+ * dvigateli boshqacha. Sozlash kerak bo'lsa — faqat shu ikki raqam.
+ */
+const RATE: Record<SpeechStyle, number> = {
+  prompt: 0.55,
+  pronunciation: 0.5,
+};
+
+/** "Dona dona" aytish uchun so'zlar orasidagi jimlik (faqat talaffuz namunasida). */
+const WORD_GAP_MS = 180;
+
+/**
+ * Eshittirish avlodi: har yangi `speak`/`stopSpeaking` buni oshiradi va
+ * yarim yo'lda qolgan ketma-ketlik (so'zlar navbati, kutish taymerlari)
+ * jimgina to'xtaydi. Busiz to'xtatilgan namunaning qolgan so'zlari keyin
+ * chiqib qolardi.
+ */
+let speakRun = 0;
+
 /** Matnni ingliz tilida ovoz chiqarib o'qiydi (brauzer TTS — bepul). */
-export function speak(text: string, onDone?: () => void) {
+export function speak(text: string, style: SpeechStyle = "prompt", onDone?: () => void) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     onDone?.();
     return;
   }
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-US";
-  utterance.rate = 0.95; // bolalar uchun biroz sekinroq
-  utterance.onend = () => onDone?.();
-  utterance.onerror = () => onDone?.();
-  window.speechSynthesis.speak(utterance);
+  const run = ++speakRun;
+
+  // Talaffuz namunasi so'zlarga bo'linadi — bola qaysi so'z qayerda
+  // tugashini eshitadi. Savol bo'linmaydi: uni takrorlamaydi, bo'laklansa
+  // faqat g'alati eshitilardi.
+  const gap = style === "pronunciation" ? WORD_GAP_MS : 0;
+  const parts =
+    gap > 0 ? text.trim().split(/\s+/).filter(Boolean) : [text.trim()].filter(Boolean);
+  if (parts.length === 0) {
+    onDone?.();
+    return;
+  }
+
+  let index = 0;
+  const next = () => {
+    if (run !== speakRun) return; // boshqa eshittirish boshlandi yoki to'xtatildi
+    if (index >= parts.length) {
+      onDone?.();
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(parts[index++]);
+    utterance.lang = "en-US";
+    utterance.rate = RATE[style];
+    // Xato bo'lganda ham davom etamiz: bitta so'z aytilmagani uchun butun
+    // namuna to'xtab qolmasin.
+    const step = () => {
+      if (run !== speakRun) return;
+      if (gap > 0 && index < parts.length) window.setTimeout(next, gap);
+      else next();
+    };
+    utterance.onend = step;
+    utterance.onerror = step;
+    window.speechSynthesis.speak(utterance);
+  };
+  next();
 }
 
 export function stopSpeaking() {
+  // Avlodni oshiramiz: so'zlar navbatidagi kutish taymerlari ham to'xtasin.
+  speakRun++;
   if (typeof window !== "undefined" && "speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
@@ -290,7 +359,17 @@ export function stopSpeaking() {
  * Audio yo'q bo'lsa yoki ijro qilinmasa — eski TTS yo'li ishlaydi, ya'ni
  * hech qanday funksiya yo'qolmaydi.
  */
-export type AudioCue = { url: string; text: string };
+export type AudioCue = { url: string; text: string; style?: SpeechStyle };
+
+/**
+ * Talaffuz namunasi klipining ijro tezligi.
+ *
+ * Savol kliplariga tegilmaydi (1.0×): ular allaqachon kerakli tezlikda va
+ * qolgan hamma narsa uchun ETALON. Namuna esa sekinroq bo'lishi kerak —
+ * bola uni so'zma-so'z takrorlaydi. `preservesPitch` sukut bo'yicha yoqiq,
+ * ya'ni ovoz yo'g'onlashmaydi, faqat cho'ziladi.
+ */
+const PRONUNCIATION_SPEED = 0.8;
 
 let currentAudio: HTMLAudioElement | null = null;
 /** Ketma-ket ijroni bekor qilish uchun: har yangi chaqiruv avvalgisini eskirtiradi. */
@@ -307,18 +386,20 @@ function stopCue() {
 /** Bitta klipni ijro etadi; audio yo'q yoki xato bo'lsa TTS'ga qaytadi. */
 function playOne(cue: AudioCue): Promise<void> {
   return new Promise((resolve) => {
+    const style = cue.style ?? "prompt";
     if (!cue.url) {
-      speak(cue.text, resolve);
+      speak(cue.text, style, resolve);
       return;
     }
     const audio = new Audio(cue.url);
+    if (style === "pronunciation") audio.playbackRate = PRONUNCIATION_SPEED;
     currentAudio = audio;
     let settled = false;
     const finish = (fallback: boolean) => {
       if (settled) return;
       settled = true;
       if (currentAudio === audio) currentAudio = null;
-      if (fallback) speak(cue.text, resolve);
+      if (fallback) speak(cue.text, style, resolve);
       else resolve();
     };
     audio.onended = () => finish(false);

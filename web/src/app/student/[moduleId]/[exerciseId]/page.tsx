@@ -232,10 +232,20 @@ export default function ExercisePage() {
     // Yaratilgan audio bo'lsa u ijro etiladi (tabiiy talaffuz), bo'lmasa
     // brauzer TTS'i. Savollar alohida klip — orasida pauza qoladi.
     const cues: AudioCue[] = isReadAloud
-      ? [{ url: exercise.targetAudioUrl, text: exercise.targetText }]
+      ? [
+          {
+            url: exercise.targetAudioUrl,
+            text: exercise.targetText,
+            style: "pronunciation",
+          },
+        ]
       : exercise.prompts.length > 0
-        ? exercise.prompts.map((p, i) => ({ url: exercise.promptsAudio[i] ?? "", text: p }))
-        : [{ url: "", text: exercise.title }];
+        ? exercise.prompts.map((p, i) => ({
+            url: exercise.promptsAudio[i] ?? "",
+            text: p,
+            style: "prompt" as const,
+          }))
+        : [{ url: "", text: exercise.title, style: "prompt" as const }];
     playCues(cues, () => setSpeaking(false));
   };
 
