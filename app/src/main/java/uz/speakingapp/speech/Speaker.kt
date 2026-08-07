@@ -16,10 +16,27 @@ class Speaker(context: Context) {
         const val RATE_NORMAL = 1.0f
 
         /**
-         * Talaffuz namunasi uchun. Bola namunani ESHITIB takrorlaydi va har
-         * so'zi solishtiriladi, shuning uchun namuna shoshmasligi kerak.
+         * Mashq savollari uchun.
+         *
+         * MAQSAD — yaratilgan Gemini klipiga TENGLASHISH. Kliplar o'lchandi:
+         * 24 ta savol klipi o'rtacha **0.759 s/so'z** (mediana 0.760). Qurilma
+         * TTS'i sozlamasiz ~0.4 s/so'z bilan gapiradi, ya'ni ikki barobar tez.
+         * Shuning uchun mashqlarning yarmida (klip yaratilganlarida) ovoz sekin,
+         * qolganida keskin tezlashib ketardi — bola uchun bu boshqa odam
+         * gapirayotgandek eshitilardi.
+         *
+         * DIQQAT: 0.4 s/so'z — TIPIK qiymat, o'lchangani emas. Har TTS
+         * dvigatelining o'z boshlang'ich tezligi bor. Agar telefonda savollar
+         * hamon tez (yoki aksincha, juda cho'zilgan) tuyulsa, tuzatish shu
+         * yerda — bitta raqam.
          */
-        const val RATE_SLOW = 0.75f
+        const val RATE_PROMPT = 0.55f
+
+        /**
+         * Talaffuz namunasi uchun. Bola namunani ESHITIB takrorlaydi va har
+         * so'zi solishtiriladi, shuning uchun namuna savoldan ham sekinroq.
+         */
+        const val RATE_PRONUNCIATION = 0.5f
 
         /** "Dona dona" aytish uchun so'zlar orasidagi jimlik. */
         const val WORD_GAP_MS = 180L

@@ -33,12 +33,23 @@ import kotlin.coroutines.resume
 class VoiceCue(context: Context, private val speaker: Speaker) {
 
     /**
-     * Bitta eshittirish: audio URL (bo'sh bo'lishi mumkin) va zaxira matn.
+     * Eshittirish turi — tezlikni shu belgilaydi.
      *
-     * [slow] — talaffuz namunasi (bola aynan shuni takrorlaydi). Yaratilgan
-     * klip sekinroq ijro etiladi, qurilma TTS'i esa "dona dona" aytadi.
+     * Ikki yo'l uchun ikki xil sozlama kerak, chunki ular BOSHQA-BOSHQA
+     * boshlang'ich tezlikdan keladi: Gemini klipi allaqachon sekin o'qilgan
+     * ("slowly and very clearly" ko'rsatmasi bilan), qurilma TTS'i esa
+     * sozlamasiz ikki barobar tez gapiradi.
      */
-    data class Cue(val url: String, val text: String, val slow: Boolean = false)
+    enum class Style {
+        /** Mashq savoli — bola tinglaydi va erkin javob beradi. */
+        Prompt,
+
+        /** Talaffuz namunasi — bola AYNAN shuni qaytaradi, har so'zi tekshiriladi. */
+        Pronunciation,
+    }
+
+    /** Bitta eshittirish: audio URL (bo'sh bo'lishi mumkin), zaxira matn va turi. */
+    data class Cue(val url: String, val text: String, val style: Style = Style.Prompt)
 
     private companion object {
         const val TAG = "VoiceCue"
@@ -46,16 +57,22 @@ class VoiceCue(context: Context, private val speaker: Speaker) {
         const val READ_TIMEOUT_MS = 20_000
 
         /**
-         * Talaffuz namunasi uchun ijro tezligi.
+         * Talaffuz namunasi klipining ijro tezligi.
          *
          * NEGA IJRODA, GENERATSIYADA EMAS: TTS ko'rsatmasi bilan tezlikni
          * boshqarish uch marta sinaldi va ishonchsiz chiqdi (`audio-key.ts`
          * dagi uslub tarixiga qarang) — model ba'zan sekin, ba'zan oddiy
-         * tezlikda o'qiydi. `setPlaybackParams` esa aniq: har klip har doim
-         * bir xil koeffitsiyentga sekinlashadi va tovush balandligi (pitch)
+         * tezlikda o'qiydi. O'lchov buni tasdiqladi: "pron" klipi 0.781 s/so'z,
+         * savol klipi 0.759 s/so'z — ya'ni farq deyarli yo'q, garchi "pron"
+         * ko'rsatmasi ancha sekin o'qishni so'ragan bo'lsa ham.
+         * `setPlaybackParams` esa aniq: har klip har doim bir xil
+         * koeffitsiyentga sekinlashadi va tovush balandligi (pitch)
          * o'zgarmaydi — Android vaqtni cho'zadi, tezlikni emas.
+         *
+         * Savol kliplariga tegilmaydi (1.0×): ular allaqachon kerakli
+         * tezlikda va aynan ular qolgan hamma narsa uchun ETALON.
          */
-        const val SLOW_SPEED = 0.8f
+        const val PRONUNCIATION_SPEED = 0.8f
     }
 
     private val cacheDir = File(context.applicationContext.cacheDir, "voice")
@@ -79,10 +96,10 @@ class VoiceCue(context: Context, private val speaker: Speaker) {
             if (run != generation) return
             val file = cue.url.takeIf { it.isNotBlank() }?.let { cached(it) }
             if (run != generation) return
-            if (file != null && playFile(file, cue.slow)) continue
+            if (file != null && playFile(file, cue.style)) continue
             // Audio yo'q yoki ijro bo'lmadi — qurilma TTS'i.
             if (run != generation) return
-            speakSuspend(cue.text, cue.slow)
+            speakSuspend(cue.text, cue.style)
         }
     }
 
@@ -139,7 +156,7 @@ class VoiceCue(context: Context, private val speaker: Speaker) {
     }
 
     /** Faylni ijro etadi. `true` — muvaffaqiyatli tugadi, `false` — TTS kerak. */
-    private suspend fun playFile(file: File, slow: Boolean): Boolean = suspendCancellableCoroutine { cont ->
+    private suspend fun playFile(file: File, style: Style): Boolean = suspendCancellableCoroutine { cont ->
         releasePlayer()
         val mp = MediaPlayer()
         player = mp
@@ -169,9 +186,9 @@ class VoiceCue(context: Context, private val speaker: Speaker) {
                 // ba'zi qurilmalarda IllegalStateException beradi. Qo'llab-
                 // quvvatlamagan qurilmada xato yutiladi va klip oddiy tezlikda
                 // ijro etiladi: sekinlik yo'qoladi, lekin ovoz eshitiladi.
-                if (slow) {
+                if (style == Style.Pronunciation) {
                     runCatching {
-                        player.playbackParams = player.playbackParams.setSpeed(SLOW_SPEED)
+                        player.playbackParams = player.playbackParams.setSpeed(PRONUNCIATION_SPEED)
                     }.onFailure { e ->
                         Log.i(TAG, "Sekin ijro qo'llab-quvvatlanmadi: ${e.message}")
                     }
@@ -190,10 +207,14 @@ class VoiceCue(context: Context, private val speaker: Speaker) {
     }
 
     /** [Speaker.speak] ning coroutine ko'rinishi. */
-    private suspend fun speakSuspend(text: String, slow: Boolean) = suspendCancellableCoroutine<Unit> { cont ->
+    private suspend fun speakSuspend(text: String, style: Style) = suspendCancellableCoroutine<Unit> { cont ->
         var settled = false
-        val rate = if (slow) Speaker.RATE_SLOW else Speaker.RATE_NORMAL
-        val gap = if (slow) Speaker.WORD_GAP_MS else 0L
+        // Savol ham sekinlashtiriladi — u yaratilgan klip bilan bir xil
+        // eshitilishi kerak. "Dona dona" esa faqat namunada: savolni bola
+        // takrorlamaydi, uni bo'lak-bo'lak qilish faqat g'alati eshitilardi.
+        val rate =
+            if (style == Style.Pronunciation) Speaker.RATE_PRONUNCIATION else Speaker.RATE_PROMPT
+        val gap = if (style == Style.Pronunciation) Speaker.WORD_GAP_MS else 0L
         speaker.speak(text, rate, gap) {
             if (!settled) {
                 settled = true
